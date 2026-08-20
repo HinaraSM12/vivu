@@ -13,6 +13,6 @@ __pycache__/
 playwright-report/
 test-results/
 *.log
+*.tsbuildinfo
 .DS_Store
 Thumbs.db
-
