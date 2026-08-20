@@ -1,0 +1,210 @@
+name: vivu
+
+x-node-service: &node-service
+  restart: unless-stopped
+  depends_on:
+    postgres:
+      condition: service_healthy
+    rabbitmq:
+      condition: service_healthy
+  networks:
+    - vivu-internal
+
+x-service-environment: &service-environment
+  NODE_ENV: development
+  RABBITMQ_URL: amqp://${RABBITMQ_USER:-vivu}:${RABBITMQ_PASSWORD:-vivu_dev_only}@rabbitmq:5672
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_ADMIN_USER:-vivu_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:-vivu_admin_dev_only}
+      POSTGRES_DB: ${POSTGRES_DB:-vivu}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks:
+      - vivu-internal
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-vivu}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-vivu_dev_only}
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -rabbitmq_management load_definitions "/etc/rabbitmq/definitions.json"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./infra/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks:
+      - vivu-internal
+
+  api-gateway:
+    <<: *node-service
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+    environment:
+      <<: *service-environment
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  identity-service:
+    <<: *node-service
+    build:
+      context: .
+      dockerfile: services/identity-service/Dockerfile
+    environment:
+      <<: *service-environment
+      PORT: 3001
+      DATABASE_URL: postgresql://identity_service:identity_dev_only@postgres:5432/vivu?schema=identity
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  student-service:
+    <<: *node-service
+    build:
+      context: .
+      dockerfile: services/student-service/Dockerfile
+    environment:
+      <<: *service-environment
+      PORT: 3002
+      DATABASE_URL: postgresql://student_service:student_dev_only@postgres:5432/vivu?schema=student
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3002/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  gamification-service:
+    <<: *node-service
+    build:
+      context: .
+      dockerfile: services/gamification-service/Dockerfile
+    environment:
+      <<: *service-environment
+      PORT: 3003
+      DATABASE_URL: postgresql://gamification_service:gamification_dev_only@postgres:5432/vivu?schema=gamification
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3003/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  resource-service:
+    <<: *node-service
+    build:
+      context: .
+      dockerfile: services/resource-service/Dockerfile
+    environment:
+      <<: *service-environment
+      PORT: 3004
+      DATABASE_URL: postgresql://resource_service:resource_dev_only@postgres:5432/vivu?schema=resource
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3004/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  survey-service:
+    <<: *node-service
+    build:
+      context: .
+      dockerfile: services/survey-service/Dockerfile
+    environment:
+      <<: *service-environment
+      PORT: 3005
+      DATABASE_URL: postgresql://survey_service:survey_dev_only@postgres:5432/vivu?schema=survey
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3005/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  support-service:
+    <<: *node-service
+    build:
+      context: .
+      dockerfile: services/support-service/Dockerfile
+    environment:
+      <<: *service-environment
+      PORT: 3006
+      DATABASE_URL: postgresql://support_service:support_dev_only@postgres:5432/vivu?schema=support
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3006/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  analytics-service:
+    <<: *node-service
+    build:
+      context: .
+      dockerfile: services/analytics-service/Dockerfile
+    environment:
+      <<: *service-environment
+      PORT: 3007
+      DATABASE_URL: postgresql://analytics_service:analytics_dev_only@postgres:5432/vivu?schema=analytics
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3007/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  recommendation-service:
+    restart: unless-stopped
+    build:
+      context: services/recommendation-service
+    environment:
+      RECOMMENDATION_ENV: development
+      RECOMMENDATION_PORT: 8000
+      RECOMMENDATION_DATABASE_URL: postgresql://recommendation_service:recommendation_dev_only@postgres:5432/vivu?schema=recommendation
+      RECOMMENDATION_RABBITMQ_URL: amqp://${RABBITMQ_USER:-vivu}:${RABBITMQ_PASSWORD:-vivu_dev_only}@rabbitmq:5672
+      LLM_PROVIDER: disabled
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks:
+      - vivu-internal
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+
+networks:
+  vivu-internal:
+    driver: bridge
+

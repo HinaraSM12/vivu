@@ -1,0 +1,32 @@
+{
+  "name": "vivu",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Fundación técnica de Vivu",
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "lint": "npm run lint:node && npm run lint:python",
+    "lint:node": "npm run lint --workspaces --if-present",
+    "lint:python": "python -m ruff check services/recommendation-service",
+    "typecheck": "npm run typecheck:node && npm run typecheck:python",
+    "typecheck:node": "npm run typecheck --workspaces --if-present",
+    "typecheck:python": "python -m mypy services/recommendation-service/src services/recommendation-service/tests",
+    "test": "npm run test:node && npm run test:python",
+    "test:node": "npm run test --workspaces --if-present",
+    "test:python": "python -m pytest services/recommendation-service/tests -q",
+    "build": "npm run build --workspaces --if-present",
+    "format:check": "npm run format:check --workspaces --if-present && python -m ruff format --check services/recommendation-service"
+  },
+  "engines": {
+    "node": ">=22",
+    "npm": ">=10"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

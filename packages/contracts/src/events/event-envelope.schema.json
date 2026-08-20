@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vivu.local/contracts/events/event-envelope.schema.json",
+  "title": "Vivu Event Envelope",
+  "type": "object",
+  "required": [
+    "eventId",
+    "eventType",
+    "occurredAt",
+    "correlationId",
+    "schemaVersion",
+    "payload"
+  ],
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "eventType": { "type": "string", "pattern": "^[a-z]+\\.[a-z_]+\\.v[1-9][0-9]*$" },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "actorId": { "type": "string", "minLength": 1 },
+    "subjectId": { "type": "string", "minLength": 1 },
+    "correlationId": { "type": "string", "format": "uuid" },
+    "schemaVersion": { "type": "integer", "minimum": 1 },
+    "clientEventId": { "type": "string", "format": "uuid" },
+    "clientOccurredAt": { "type": "string", "format": "date-time" },
+    "connectivityMode": { "enum": ["online", "offline_sync"] },
+    "payload": { "type": "object" }
+  },
+  "additionalProperties": false
+}
