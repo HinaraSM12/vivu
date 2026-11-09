@@ -62,22 +62,25 @@ No usar identidad gráfica oficial de la Universidad hasta confirmar autorizaci�
 
 ## Student screens
 
-1. Login.
-2. Consentimiento.
-3. Onboarding paso a paso.
-4. Home semanal.
-5. Lista de misiones.
-6. Detalle de misión.
-7. Completar misión + feedback.
-8. Progreso.
-9. Modo recuperación.
-10. Recomendación explicada.
-11. Recursos: catálogo/detalle.
-12. Microcuestionario.
-13. Perfil, personalización y privacidad.
-14. Estado offline / pendientes de sincronización.
-15. Conflicto de perfil.
-16. Primera sincronización requerida / app no preparada para offline.
+> Ver detalle exhaustivo de pantallas, tokens y copy en `docs/ux/mockup-guide.md`.
+
+1. Login (`STU-01`).
+2. Registro exclusivo para STUDENT (`STU-02`).
+3. Consentimiento (`STU-03`).
+4. Onboarding paso a paso (`STU-04` a `STU-08`).
+5. Home semanal (`STU-09`).
+6. Lista de misiones (`STU-10`).
+7. Detalle de misión (`STU-11`).
+8. Misión en progreso y completada + feedback (`STU-12`, `STU-13`).
+9. Progreso (`STU-14`).
+10. Modo recuperación (`STU-15`).
+11. Recomendación explicada (`STU-16`).
+12. Recursos: catálogo/detalle (`STU-17`).
+13. Microcuestionario (`STU-18`).
+14. Perfil, personalización y privacidad (`STU-19`, `STU-20`).
+15. Estado offline / pendientes de sincronización (`STU-21`).
+16. Conflicto de perfil.
+17. Primera sincronización requerida / app no preparada para offline.
 
 ### Home semanal
 Debe responder en menos de unos segundos visuales a: “¿qué puedo hacer esta semana?”, “¿cómo voy?” y “¿qué apoyo tengo disponible?”. Evitar dashboards densos.

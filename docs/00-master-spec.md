@@ -712,18 +712,20 @@ Configuración
 
 ### Student
 1. Login.
-2. Consentimiento.
-3. Onboarding paso a paso.
-4. Home semanal.
-5. Lista de misiones.
-6. Detalle de misión.
-7. Finalización + feedback.
-8. Progreso.
-9. Modo recuperación.
-10. Recomendación explicada.
-11. Catálogo/detalle de recurso.
-12. Microcuestionario.
-13. Perfil y privacidad.
+2. Registro (exclusivo para STUDENT).
+3. Consentimiento.
+4. Onboarding paso a paso.
+5. Home semanal.
+6. Lista de misiones.
+7. Detalle de misión.
+8. Finalización + feedback.
+9. Progreso.
+10. Modo recuperación.
+11. Recomendación explicada.
+12. Catálogo/detalle de recurso.
+13. Microcuestionario.
+14. Perfil y privacidad.
+15. Estado de sincronización / offline.
 
 ### Facilitator
 1. Login.
@@ -832,79 +834,88 @@ Para Python, scripts root pueden delegar al servicio o Docker Compose para que e
 
 # 20. Roadmap de implementación
 
-Los sprints se plantean de 2-3 semanas, coherentes con el enfoque Scrum adaptado del proyecto.
+Los sprints se plantean de 2 semanas (con margen de hasta 3 semanas en Sprints 6 y 9), coherentes con el enfoque iterativo y el roadmap canónico en `docs/roadmap/vivu-sprint-roadmap.md`.
 
-## Sprint 0 - Foundation
+## Sprint 0 - Fundación técnica (Completado)
 
-- crear repositorio y workspaces;
-- Docker Compose;
-- PostgreSQL/RabbitMQ;
-- API Gateway;
-- CI básico;
-- conventions/ADRs;
-- shell de React y design system base;
+- crear repositorio y workspaces (`npm Workspaces`);
+- Docker Compose con PostgreSQL y RabbitMQ;
+- API Gateway y esqueletos de servicios NestJS + FastAPI;
+- CI básico (Node/TS, Python, contrato Docker Compose);
+- conventions/ADRs (`ADR-001` a `ADR-005`);
+- shell de React y paquetes compartidos (`contracts`, `ui`, `tsconfig`, `eslint-config`, `test-utils`);
 - estructura preparada para PWA local-first sin implementar todavía toda la sincronización.
 
-## Sprint 1 - Identity + Student Context
+## Sprint 1 - Identidad y acceso
 
-- auth/RBAC;
-- consentimiento;
-- onboarding;
-- perfil;
-- seed ADMIN;
-- pruebas de seguridad base.
+- registro (autoregistro exclusivo para `STUDENT`);
+- login, logout y sesiones con refresh token rotativo;
+- RBAC (`STUDENT`, `FACILITATOR`, `ADMIN`);
+- protección de rutas en `api-gateway` y `web`;
+- pantallas iniciales de acceso y shells por rol;
+- seed seguro para `ADMIN` y preparación de base para sesión offline futura.
 
-## Sprint 2 - Gamification Core
+## Sprint 2 - Consentimiento, onboarding y perfil
 
-- catálogo de misiones;
-- asignación;
-- aceptar/completar;
-- progreso;
-- continuidad;
-- modo recuperación;
-- eventos;
-- primer vertical offline de misión: cache local, outbox e idempotencia.
+- consentimiento informado versionado y flujo de retiro;
+- captura mínima de contexto en onboarding por pasos;
+- disponibilidad, carga percibida, intereses y prácticas de estudio;
+- perfil editable del estudiante;
+- emisión de eventos de consentimiento y perfil.
 
-## Sprint 3 - Resources + Recommendation V1
+## Sprint 3 - Misiones, ludificación y progreso
 
-- catálogo institucional;
-- recommendation-service Python;
-- scoring determinístico;
-- LLMProvider;
-- explicación y fallback;
-- trazabilidad;
-- motor TypeScript offline con fixtures compartidos de paridad;
-- bootstrap/pull de recursos y configuración para PWA.
+- catálogo y estados de misiones;
+- aceptación, inicio, posposición y finalización de misiones;
+- progreso personal, niveles y logros no competitivos;
+- continuidad semanal y retroalimentación positiva;
+- eventos de ludificación.
 
-## Sprint 4 - Facilitator
+## Sprint 4 - Recursos, microcuestionarios y recuperación
 
-- asignaciones;
-- dashboard;
-- seguimiento;
-- notas y compromisos;
-- permisos limitados;
+- catálogo de recursos institucionales autorizados;
+- microcuestionarios breves versionados y respuestas;
+- modo recuperación sin castigo;
+- metas mínimas viables y flujo de retomada.
+
+## Sprint 5 - Recomendador V1 online
+
+- construcción de `RecommendationContext` con datos mínimos autorizados;
+- filtrado de candidatos y hard rules de elegibilidad;
+- scoring determinístico configurable en `recommendation-service` (Python + FastAPI);
+- abstracción `LLMProvider`, explicación controlada y fallback sin LLM;
+- trazabilidad completa de recomendaciones.
+
+## Sprint 6 - PWA local-first y sincronización offline
+
+- Service Worker (`vite-plugin-pwa`) e `IndexedDB` (`idb`);
+- `Outbox` local, `Sync Engine` y endpoints `/sync/bootstrap`, `/sync/pull`, `/sync/actions`;
+- idempotencia end-to-end (`clientEventId` / `Idempotency-Key`) y resolución de conflictos por dominio;
+- recomendador determinístico offline en TypeScript (`OFFLINE_RULES`);
+- fixtures compartidos y gate de paridad Python/TypeScript en CI.
+
+## Sprint 7 - Facilitador
+
+- `support-service` (asignaciones facilitador-estudiante);
+- dashboard y listado de estudiantes asignados;
+- señales limitadas de continuidad y seguimiento (sin etiquetas de riesgo);
+- registro de notas de acompañamiento y compromisos;
 - lectura cacheada limitada sin escrituras offline.
 
-## Sprint 5 - Admin + Surveys + Analytics
+## Sprint 8 - Administración
 
-- administración completa;
-- microcuestionarios;
-- métricas longitudinales;
-- exportación anonimizada;
-- auditoría;
-- ADMIN requiere conexión para mutaciones.
+- gestión de usuarios, roles y asignaciones;
+- administración de catálogos de misiones, recursos y microcuestionarios;
+- configuración versionada de reglas de ludificación y parámetros del recomendador;
+- feature flags del piloto, auditoría y exportaciones anonimizadas/seudonimizadas;
+- bloqueo de mutaciones administrativas sin conexión.
 
-## Sprint 6 - Hardening + Pilot Readiness
+## Sprint 9 - Analítica y preparación del piloto
 
-- E2E;
-- accesibilidad;
-- manejo de errores;
-- privacidad;
-- pruebas de carga acotadas;
-- correcciones de usabilidad;
-- dataset de prueba;
-- checklist para piloto;
-- hardening PWA: conflictos, migraciones IndexedDB, actualización de app, red intermitente y limpieza local.
+- `analytics-service` y métricas longitudinales (semanas 1, 4 y 10);
+- suite E2E completa con Playwright (incluyendo escenarios offline/reconexión);
+- revisión de privacidad, accesibilidad WCAG AA y hardening técnico;
+- validación de seeds sintéticos, instrumentos de investigación y checklist de salida a piloto.
 
 # 21. Criterios de aceptación de V1
 

@@ -16,18 +16,18 @@ Construir un prototipo web funcional preparado para evolucionar a PWA local-firs
 |---|---|---:|---:|---|
 | EP-00 | Foundation y DX | P0 | 0 | Monorepo, CI y entorno local reproducible. |
 | EP-01 | Identidad y RBAC | P0 | 1 | Los tres roles se autentican y solo acceden a lo permitido. |
-| EP-02 | Contexto y consentimiento del estudiante | P0 | 1 | Onboarding, perfil mínimo y consentimiento versionado. |
-| EP-03 | Motor de ludificación | P0 | 2 | Catálogo, asignación, estados, progreso y logros personales. |
-| EP-04 | Modo recuperación | P0 | 2 | Retorno de baja presión después de baja continuidad. |
-| EP-05 | Recursos institucionales | P0 | 3 | Catálogo autorizado, vigente y consultable. |
-| EP-06 | Recomendador V1 | P0 | 3 | Rules + scoring + LLM controlado con fallback y trazabilidad. |
-| EP-07 | Facilitación | P0 | 4 | Asignaciones, seguimiento, notas y compromisos. |
-| EP-08 | Administración | P0 | 5 | Configuración de usuarios, misiones, recursos, reglas y piloto. |
-| EP-09 | Microcuestionarios | P0 | 5 | Instrumentos versionados y respuestas vinculables al piloto. |
-| EP-10 | Analítica longitudinal | P0 | 5 | Métricas de adherencia, continuidad, misiones, recuperación y uso. |
-| EP-11 | Privacidad, auditoría y exportación | P0 | 5-6 | Retiro, auditoría y exportación seudonimizada/anonimizada. |
-| EP-12 | Hardening y pilot readiness | P0 | 6 | E2E, accesibilidad, fallos, seguridad y checklist de piloto. |
-| EP-13 | PWA local-first y offline | P0 | 2-6 | STUDENT opera offline y sincroniza sin duplicados; FACILITATOR lectura cacheada; ADMIN online. |
+| EP-02 | Contexto y consentimiento del estudiante | P0 | 2 | Onboarding, perfil mínimo y consentimiento versionado. |
+| EP-03 | Motor de ludificación | P0 | 3 | Catálogo, asignación, estados, progreso y logros personales. |
+| EP-04 | Modo recuperación | P0 | 4 | Retorno de baja presión después de baja continuidad. |
+| EP-05 | Recursos institucionales | P0 | 4 | Catálogo autorizado, vigente y consultable. |
+| EP-06 | Microcuestionarios | P0 | 4 | Instrumentos versionados y respuestas vinculables al piloto. |
+| EP-07 | Recomendador V1 online | P0 | 5 | Rules + scoring + LLM controlado con fallback y trazabilidad. |
+| EP-08 | PWA local-first y offline | P0 | 6 | STUDENT opera offline y sincroniza sin duplicados; paridad Python/TS. |
+| EP-09 | Facilitación (`support-service`) | P0 | 7 | Asignaciones, seguimiento, notas y compromisos. |
+| EP-10 | Administración | P0 | 8 | Configuración de usuarios, misiones, recursos, reglas, exportes y piloto. |
+| EP-11 | Privacidad, auditoría y exportación | P0 | 8-9 | Retiro, auditoría y exportación seudonimizada/anonimizada. |
+| EP-12 | Analítica longitudinal | P0 | 9 | Métricas de adherencia, continuidad, misiones, recuperación y uso. |
+| EP-13 | Hardening y pilot readiness | P0 | 9 | E2E, accesibilidad, fallos, seguridad y checklist de piloto. |
 
 ## Backlog priorizado
 

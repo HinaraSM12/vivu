@@ -31,5 +31,12 @@ Este archivo facilita navegación dentro del paquete v2 PWA.
 - `docs/testing/analytics-events.md`
 - `docs/testing/test-strategy.md`
 - `docs/ux/figma-spec.md`
+- `docs/ux/mockup-guide.md`
 - `docs/ux/sitemap.md`
 - `docs/ux/user-flows.md`
+- `docs/roadmap/vivu-sprint-roadmap.md`
+- `docs/architecture/seed-data-spec.md`
+- `docs/research/instrumentos-piloto.md`
+- `docs/thesis/bitacora-sprints.md`
+- `VIVU_CONTEXT_HANDOFF.md`
+- `PROMPT_MAESTRO_SPRINTS_1_A_9.md`

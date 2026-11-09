@@ -1,0 +1,63 @@
+name: Historia o Entrega de Sprint
+description: Plantilla para registrar un Sprint o historia importante en el GitHub Project de Vivu
+title: "[Sprint N] "
+labels: ["sprint"]
+body:
+  - type: dropdown
+    id: sprint
+    attributes:
+      label: Sprint
+      options:
+        - Sprint 0 — Fundación técnica
+        - Sprint 1 — Identidad y acceso
+        - Sprint 2 — Consentimiento, onboarding y perfil
+        - Sprint 3 — Misiones, ludificación y progreso
+        - Sprint 4 — Recursos, microcuestionarios y recuperación
+        - Sprint 5 — Recomendador V1 online
+        - Sprint 6 — PWA local-first y sincronización offline
+        - Sprint 7 — Facilitador
+        - Sprint 8 — Administración
+        - Sprint 9 — Analítica y preparación del piloto
+    validations:
+      required: true
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: Rol principal impactado
+      options:
+        - Transversal / Plataforma
+        - STUDENT
+        - FACILITATOR
+        - ADMIN
+    validations:
+      required: true
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objetivo y valor funcional
+      description: ¿Qué problema resuelve o qué capacidad habilita dentro del prototipo Vivu?
+      placeholder: "Como [ROL], quiero [ACCIÓN] para [BENEFICIO]..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Criterios de aceptación
+      description: Condiciones verificables para dar por terminada la historia o sprint.
+      value: |
+        - [ ] Criterio funcional 1
+        - [ ] Pruebas unitarias / integración / E2E correspondientes
+        - [ ] Autorización RBAC verificada (allow/deny)
+        - [ ] Contratos y eventos documentados
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: Referencias (Spec, Backlog, Mockup, ADR)
+      placeholder: "PB-005, STU-01, ADR-005..."
+
