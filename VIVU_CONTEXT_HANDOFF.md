@@ -1207,11 +1207,25 @@ Vivu
 
 ## Último sprint conocido
 
-**Sprint 0 completado** (PR #1 mergeado en `main`, más alineación documental de roadmap Sprints 1–9, gobernanza `.github/`, seeds sintéticos `docs/architecture/seed-data-spec.md`, instrumentos de investigación `docs/research/instrumentos-piloto.md` y bitácora de tesis `docs/thesis/bitacora-sprints.md`).
+**Sprint 1 — Identidad y acceso implementado** (sobre rama `feat/sprint-1-identity-access`, Issue #2).
+
+### Resumen de lo entregado en Sprint 1:
+- **Contratos (`@vivu/contracts`):** `RoleCode` (`STUDENT`, `FACILITATOR`, `ADMIN`), `AccountStatus`, `JwtAccessClaims`, `SessionCapabilities`, `SessionUserDto`, `AuthSessionResponse`, `OfflineSessionSnapshot`, `UserRegisteredEventPayload`.
+- **Servicio de Identidad (`@vivu/identity-service`):**
+  - `PasswordHasher` con `crypto.scrypt` y `timingSafeEqual`.
+  - `TokenService` con emisión y verificación de JWT HS256 (`sub`, `roles`, `iss`, `aud`, `iat`, `exp`, `jti`) y hash SHA-256 de refresh tokens.
+  - `IdentityRepository` con seeds sintéticos iniciales (`admin.piloto@vivu.local`, `facilitador.ingenieria@vivu.local`, `facilitador.bienestar@vivu.local`, `est.activo@vivu.local`, `est.recuperacion@vivu.local`, `est.nuevo@vivu.local`, `est.deshabilitado@vivu.local`).
+  - `AuthService` y `AuthController`: autoregistro exclusivo `STUDENT` (rechaza `role`/`roles` explícitos con `400 ROLE_SELECTION_NOT_ALLOWED`), emisión de `user.registered.v1` sin PII, login, rotación de refresh tokens con revocación de familia ante reutilización (`REFRESH_TOKEN_REUSED`) y logout.
+- **API Gateway (`@vivu/api-gateway`):**
+  - Endpoints públicos y protegidos bajo `/api/v1`: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`, `POST /api/v1/auth/refresh`, `POST /api/v1/auth/logout`, `GET /api/v1/me`, `GET /api/v1/student/access-check`, `GET /api/v1/facilitator/access-check`, `GET /api/v1/admin/access-check`.
+  - Guards `JwtAuthGuard` y `RolesGuard` + filtro `StandardErrorFilter` (`{ code, message, correlationId, details }`).
+- **Frontend (`@vivu/web`):**
+  - Pantallas `STU-01` (Login) y `STU-02` (Registro exclusivo `STUDENT` sin selector de rol) con tokens visuales de `docs/ux/mockup-guide.md`.
+  - Shells diferenciados por rol (`STUDENT` mobile-first, `FACILITATOR` acompañamiento, `ADMIN` operación), vista `403 Acceso no autorizado`, logout y `SessionSnapshotStore` en memoria (sin Bearer tokens en `localStorage`, preparado para ventana offline de `STUDENT`).
 
 ## Próximo sprint planeado
 
-**Sprint 1 — Identidad y acceso.**
+**Sprint 2 — Consentimiento, onboarding y perfil.**
 
 ## Mockups
 
