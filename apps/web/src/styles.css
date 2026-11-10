@@ -1,40 +1,220 @@
 :root {
-  color: #172033;
-  background: #f5f7fb;
+  --vivu-primary-600: #5b5bd6;
+  --vivu-primary-700: #4747b8;
+  --vivu-primary-100: #ececff;
+  --vivu-secondary-600: #278a7a;
+  --vivu-accent-500: #e8a63a;
+  --vivu-surface: #ffffff;
+  --vivu-bg: #f7f8fc;
+  --vivu-text-primary: #1f2937;
+  --vivu-text-secondary: #667085;
+  --vivu-border: #e4e7ec;
+  --vivu-success: #2e7d5b;
+  --vivu-warning: #a66a12;
+  --vivu-error: #b93a3a;
+
+  color: var(--vivu-text-primary);
+  background: var(--vivu-bg);
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--vivu-bg);
+  color: var(--vivu-text-primary);
 }
 
 .platform-shell {
-  box-sizing: border-box;
-  max-width: 48rem;
+  max-width: 72rem;
   margin: 0 auto;
-  padding: 6rem 1.5rem;
+  padding: 2rem 1rem 5rem;
+}
+
+.auth-layout {
+  max-width: 28rem;
+  margin: 1.5rem auto;
+}
+
+.vivu-card {
+  background: var(--vivu-surface);
+  border: 1px solid var(--vivu-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(31, 41, 55, 0.04);
 }
 
 .eyebrow {
-  color: #315cbb;
+  color: var(--vivu-primary-600);
   font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 0.875rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  margin: 0 0 0.5rem;
 }
 
 h1 {
-  margin: 0 0 1rem;
-  font-size: clamp(2.5rem, 8vw, 5rem);
-  line-height: 1;
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+  line-height: 1.25;
 }
 
-.platform-shell > p:last-child {
-  max-width: 38rem;
-  color: #526078;
-  font-size: 1.125rem;
-  line-height: 1.7;
+h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  line-height: 1.35;
+}
+
+.subtitle {
+  margin: 0 0 1.25rem;
+  color: var(--vivu-text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.form-field {
+  margin-bottom: 1rem;
+}
+
+.form-field label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.375rem;
+}
+
+.input-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.vivu-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--vivu-border);
+  border-radius: 10px;
+  font-size: 1rem;
+  color: var(--vivu-text-primary);
+  background: var(--vivu-surface);
+}
+
+.vivu-input:focus {
+  outline: 2px solid var(--vivu-primary-600);
+  outline-offset: 1px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.625rem 1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.15s ease;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.btn-primary {
+  background: var(--vivu-primary-600);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: var(--vivu-primary-700);
+}
+
+.btn-secondary {
+  background: var(--vivu-primary-100);
+  color: var(--vivu-primary-600);
+}
+
+.btn-tertiary {
+  background: transparent;
+  border-color: var(--vivu-border);
+  color: var(--vivu-text-primary);
+}
+
+.alert-error {
+  background: #fdf2f2;
+  border: 1px solid #f5c2c2;
+  color: var(--vivu-error);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.alert-info {
+  background: var(--vivu-primary-100);
+  color: var(--vivu-text-primary);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.role-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.role-chip {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: var(--vivu-primary-100);
+  color: var(--vivu-primary-600);
+}
+
+.sync-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #e8f5f1;
+  color: var(--vivu-secondary-600);
+}
+
+.nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+
+.demo-box {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--vivu-border);
+}
+
+.demo-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }

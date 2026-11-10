@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Configura la gobernanza de GitHub para HinaraSM12/vivu:

@@ -4,8 +4,13 @@ import {
   type NestModule,
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { CorrelationIdMiddleware } from './common/correlation-id.middleware';
+import { APP_FILTER } from '@nestjs/core';
+import { AuthGatewayController } from './auth/auth-gateway.controller';
+import { GatewayAuthService } from './auth/gateway-auth.service';
+import { JwtAuthGuard, RolesGuard } from './auth/rbac.guards';
 import { validateEnvironment } from './common/config/environment.validation';
+import { CorrelationIdMiddleware } from './common/correlation-id.middleware';
+import { StandardErrorFilter } from './common/filters/standard-error.filter';
 import { HealthController } from './health/health.controller';
 
 @Module({
@@ -15,7 +20,16 @@ import { HealthController } from './health/health.controller';
       validate: validateEnvironment,
     }),
   ],
-  controllers: [HealthController],
+  controllers: [HealthController, AuthGatewayController],
+  providers: [
+    GatewayAuthService,
+    JwtAuthGuard,
+    RolesGuard,
+    {
+      provide: APP_FILTER,
+      useClass: StandardErrorFilter,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
