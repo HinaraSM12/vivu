@@ -12,6 +12,8 @@ import { validateEnvironment } from './common/config/environment.validation';
 import { CorrelationIdMiddleware } from './common/correlation-id.middleware';
 import { StandardErrorFilter } from './common/filters/standard-error.filter';
 import { HealthController } from './health/health.controller';
+import { GatewayStudentService } from './student/gateway-student.service';
+import { StudentGatewayController } from './student/student-gateway.controller';
 
 @Module({
   imports: [
@@ -20,9 +22,14 @@ import { HealthController } from './health/health.controller';
       validate: validateEnvironment,
     }),
   ],
-  controllers: [HealthController, AuthGatewayController],
+  controllers: [
+    HealthController,
+    AuthGatewayController,
+    StudentGatewayController,
+  ],
   providers: [
     GatewayAuthService,
+    GatewayStudentService,
     JwtAuthGuard,
     RolesGuard,
     {

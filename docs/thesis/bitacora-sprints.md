@@ -11,8 +11,8 @@
 | Sprint | Nombre | Estado | Rama | PR | Fecha cierre |
 |---:|---|---|---|---|---|
 | 0 | Fundación técnica | Completado | `chore/sprint-0-foundation` | [#1](https://github.com/HinaraSM12/vivu/pull/1) | 2026-08-19 / Merge inicial |
-| 1 | Identidad y acceso | Implementado (en revisión PR) | `feat/sprint-1-identity-access` | PR Sprint 1 | 2026-11-09 |
-| 2 | Consentimiento, onboarding y perfil | Pendiente | `feat/sprint-2-consent-onboarding-profile` | — | — |
+| 1 | Identidad y acceso | Completado | `feat/sprint-1-identity-access` | [#21](https://github.com/HinaraSM12/vivu/pull/21) | 2026-11-10 |
+| 2 | Consentimiento, onboarding y perfil | Implementado (en revisión PR) | `feat/sprint-2-consent-onboarding-profile` | PR Sprint 2 | 2026-11-10 |
 | 3 | Misiones, ludificación y progreso | Pendiente | `feat/sprint-3-missions-gamification` | — | — |
 | 4 | Recursos, microcuestionarios y recuperación | Pendiente | `feat/sprint-4-resources-surveys-recovery` | — | — |
 | 5 | Recomendador V1 online | Pendiente | `feat/sprint-5-recommender-v1-online` | — | — |
@@ -83,17 +83,27 @@
 
 ---
 
-## Sprint 2 — Consentimiento, onboarding y perfil *(Plantilla)*
+## Sprint 2 — Consentimiento, onboarding y perfil
 
-- **Fecha:** Pendiente
+- **Fecha:** 2026-11-10
 - **Rama:** `feat/sprint-2-consent-onboarding-profile`
-- **Pull Request:** Pendiente
-- **Objetivo del Sprint:** Implementar consentimiento informado versionado, flujo de retiro, wizard de onboarding paso a paso, perfil actualizable del estudiante en `student-service` y emisión de eventos correspondientes.
-- **Historias implementadas:** (`PB-007`, `PB-008`, `PB-031`, ...)
-- **Evidencias de pruebas y calidad:** Pendiente
-- **Problemas encontrados y solución:** Pendiente
-- **Decisiones arquitectónicas / ADR:** Pendiente
-- **Resultado:** Pendiente
+- **Issue relacionado:** [#3](https://github.com/HinaraSM12/vivu/issues/3)
+- **Objetivo del Sprint:** Implementar consentimiento informado versionado (`1.0`), flujo de retiro voluntario, wizard de onboarding paso a paso (`STU-03` a `STU-08`), perfil actualizable del estudiante en `student-service` (`STU-19`, `STU-20`) y emisión de eventos `consent.updated.v1` y `student.profile_updated.v1` con seudonimización.
+- **Historias implementadas:**
+  - `PB-007`: Consentimiento informado versionado (`consentVersion: "1.0"`); bloqueo `403 CONSENT_REQUIRED` si se intenta guardar perfil o preferencias sin consentimiento activo.
+  - `PB-008`: Onboarding en 5 pasos y perfil básico editable del estudiante con validación de minimización de datos (rechazo `400 UNSUPPORTED_SENSITIVE_FIELD` ante `gpa`, `grades`, `academicHistory`, `clinicalDiagnosis`).
+  - `PB-031`: Retiro voluntario del consentimiento (`POST /api/v1/me/consent/withdraw`), deteniendo personalización futura y limpiando `wellbeingInputs` opcionales.
+  - `PB-027` (eventos de estudiante): Emisión de `consent.updated.v1` y `student.profile_updated.v1` utilizando `analyticsSubjectId` seudónimo como `subjectId` y `changedFieldCodes` sin PII.
+- **Evidencias de pruebas y calidad:**
+  - `@vivu/contracts`: pruebas de estados de consentimiento y detector de campos sensibles prohibidos (`student-contracts.spec.ts`).
+  - `@vivu/student-service`: 4 pruebas unitarias en `student-context.service.spec.ts` (bloqueo sin consentimiento, aceptación + onboarding + eventos seudónimos, rechazo de calificaciones, retiro voluntario).
+  - `@vivu/api-gateway`: pruebas E2E en `test/student-context.e2e-spec.ts` cubriendo el ciclo completo de consentimiento, onboarding, rechazo de `gpa`, retiro de consentimiento y bloqueo RBAC `403` para roles no `STUDENT`.
+  - `@vivu/web`: pruebas de integración UI en `App.test.tsx` verificando el flujo `Registro -> Consentimiento (STU-03) -> Wizard de 5 pasos (STU-04..08) -> Inicio`, edición de perfil (`STU-19`) y retiro de consentimiento (`STU-20`).
+- **Problemas encontrados y solución:**
+  - Ningún incidente bloqueante; integración limpia con los guards RBAC del Sprint 1.
+- **Decisiones arquitectónicas / ADR:**
+  - Separación estricta entre `studentId` (identidad) y `analyticsSubjectId` (seudónimo de analítica) dentro de `student-service` conforme a `docs/security/privacy-and-consent.md` y `ADR-004`.
+- **Resultado:** Sprint 2 implementado con todas las puertas de calidad en verde.
 
 ---
 

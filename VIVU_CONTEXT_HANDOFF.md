@@ -1207,25 +1207,31 @@ Vivu
 
 ## Último sprint conocido
 
-**Sprint 1 — Identidad y acceso implementado** (sobre rama `feat/sprint-1-identity-access`, Issue #2).
+- **Sprint 0 completado** (PR #1 mergeado en `main`).
+- **Sprint 1 — Identidad y acceso completado y mergeado en `main`** (PR #21, commit `3ebeb59`, Issue #2).
+- **Sprint 2 — Consentimiento, onboarding y perfil implementado** (sobre rama `feat/sprint-2-consent-onboarding-profile`, Issue #3).
 
-### Resumen de lo entregado en Sprint 1:
+### Resumen de lo entregado en Sprint 1 (mergeado):
 - **Contratos (`@vivu/contracts`):** `RoleCode` (`STUDENT`, `FACILITATOR`, `ADMIN`), `AccountStatus`, `JwtAccessClaims`, `SessionCapabilities`, `SessionUserDto`, `AuthSessionResponse`, `OfflineSessionSnapshot`, `UserRegisteredEventPayload`.
-- **Servicio de Identidad (`@vivu/identity-service`):**
-  - `PasswordHasher` con `crypto.scrypt` y `timingSafeEqual`.
-  - `TokenService` con emisión y verificación de JWT HS256 (`sub`, `roles`, `iss`, `aud`, `iat`, `exp`, `jti`) y hash SHA-256 de refresh tokens.
-  - `IdentityRepository` con seeds sintéticos iniciales (`admin.piloto@vivu.local`, `facilitador.ingenieria@vivu.local`, `facilitador.bienestar@vivu.local`, `est.activo@vivu.local`, `est.recuperacion@vivu.local`, `est.nuevo@vivu.local`, `est.deshabilitado@vivu.local`).
-  - `AuthService` y `AuthController`: autoregistro exclusivo `STUDENT` (rechaza `role`/`roles` explícitos con `400 ROLE_SELECTION_NOT_ALLOWED`), emisión de `user.registered.v1` sin PII, login, rotación de refresh tokens con revocación de familia ante reutilización (`REFRESH_TOKEN_REUSED`) y logout.
+- **Servicio de Identidad (`@vivu/identity-service`):** `PasswordHasher`, `TokenService`, `IdentityRepository` con seeds sintéticos, `AuthService` y `AuthController` (registro exclusivo `STUDENT`, emisión de `user.registered.v1` sin PII, login, rotación de refresh tokens con revocación de familia y logout).
+- **API Gateway (`@vivu/api-gateway`):** `/api/v1/auth/*`, `/api/v1/me`, `/api/v1/*/access-check`, `JwtAuthGuard`, `RolesGuard` y `StandardErrorFilter`.
+- **Frontend (`@vivu/web`):** Pantallas `STU-01` (Login) y `STU-02` (Registro exclusivo `STUDENT`), shells por rol, vista `403` y `SessionSnapshotStore`.
+
+### Resumen de lo entregado en Sprint 2:
+- **Contratos (`@vivu/contracts`):** `ConsentStatus` (`pending`, `accepted`, `withdrawn`), `PerceivedLoad`, `PreferredTone`, `ConsentRecordDto`, `PersonalizationPreferencesDto`, `WellbeingInputsDto`, `StudentProfileDto`, `ConsentUpdatedEventPayload`, `StudentProfileUpdatedEventPayload` y validador `findForbiddenProfileFields` (rechaza `gpa`, `grades`, `academicHistory`, `institutionalIdNumber`, `clinicalDiagnosis`).
+- **Servicio de Estudiante (`@vivu/student-service`):**
+  - `StudentRepository` con mapeo interno `analyticsSubjectId` seudónimo y seeds coherentes para `est.activo@vivu.local`, `est.recuperacion@vivu.local` y `est.nuevo@vivu.local`.
+  - `StudentContextService` y `StudentController`: verificación obligatoria de consentimiento (`403 CONSENT_REQUIRED`) antes de guardar perfil/preferencias, bloqueo de campos sensibles no autorizados (`400 UNSUPPORTED_SENSITIVE_FIELD`), retiro voluntario de consentimiento (`POST /me/consent/withdraw`) que desactiva personalización y limpia `wellbeingInputs`, y emisión de `consent.updated.v1` y `student.profile_updated.v1` usando `analyticsSubjectId`.
 - **API Gateway (`@vivu/api-gateway`):**
-  - Endpoints públicos y protegidos bajo `/api/v1`: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`, `POST /api/v1/auth/refresh`, `POST /api/v1/auth/logout`, `GET /api/v1/me`, `GET /api/v1/student/access-check`, `GET /api/v1/facilitator/access-check`, `GET /api/v1/admin/access-check`.
-  - Guards `JwtAuthGuard` y `RolesGuard` + filtro `StandardErrorFilter` (`{ code, message, correlationId, details }`).
+  - Endpoints protegidos bajo `@RequireRoles('STUDENT')`: `GET/POST /api/v1/me/consent`, `POST /api/v1/me/consent/withdraw`, `GET/PUT /api/v1/me/profile`, `GET/PUT /api/v1/me/personalization-preferences`.
 - **Frontend (`@vivu/web`):**
-  - Pantallas `STU-01` (Login) y `STU-02` (Registro exclusivo `STUDENT` sin selector de rol) con tokens visuales de `docs/ux/mockup-guide.md`.
-  - Shells diferenciados por rol (`STUDENT` mobile-first, `FACILITATOR` acompañamiento, `ADMIN` operación), vista `403 Acceso no autorizado`, logout y `SessionSnapshotStore` en memoria (sin Bearer tokens en `localStorage`, preparado para ventana offline de `STUDENT`).
+  - Pantalla `STU-03` (Consentimiento informado v1.0 sin dark patterns, con opción de no aceptar y salir).
+  - Wizard de Onboarding de 5 pasos (`STU-04` a `STU-08`: contexto académico, carga y asignaturas retadoras, disponibilidad y responsabilidades, prácticas e intereses, y bienestar opcional con botón de omitir).
+  - Pantallas `STU-19` (Perfil editable) y `STU-20` (Privacidad y retiro voluntario del consentimiento).
 
 ## Próximo sprint planeado
 
-**Sprint 2 — Consentimiento, onboarding y perfil.**
+**Sprint 3 — Misiones, ludificación y progreso.**
 
 ## Mockups
 
