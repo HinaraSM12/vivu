@@ -1,9 +1,10 @@
-export type RoleCode = 'STUDENT' | 'FACILITATOR' | 'ADMIN';
+export type RoleCode = 'STUDENT' | 'PROFESSOR' | 'FACILITATOR' | 'ADMIN';
 
 export interface SessionCapabilities {
   canSelfManageProfile: boolean;
   canCompleteMissions: boolean;
   canOperateOffline: boolean;
+  canContributeResourcesOnline: boolean;
   canViewAssignedStudents: boolean;
   canWriteSupportNotesOnline: boolean;
   canManageCatalogsAndRulesOnline: boolean;
@@ -62,4 +63,3 @@ export class SessionSnapshotStore {
 }
 
 export const defaultSessionSnapshotStore = new SessionSnapshotStore();
-

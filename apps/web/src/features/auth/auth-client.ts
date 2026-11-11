@@ -25,6 +25,7 @@ export const SEED_DEMO_PASSWORD = 'VivuPilot#2026_dev_only';
 
 function buildCapabilities(roles: readonly RoleCode[]): SessionCapabilities {
   const isStudent = roles.includes('STUDENT');
+  const isProfessor = roles.includes('PROFESSOR');
   const isFacilitator = roles.includes('FACILITATOR');
   const isAdmin = roles.includes('ADMIN');
 
@@ -32,6 +33,7 @@ function buildCapabilities(roles: readonly RoleCode[]): SessionCapabilities {
     canSelfManageProfile: isStudent,
     canCompleteMissions: isStudent,
     canOperateOffline: isStudent,
+    canContributeResourcesOnline: isProfessor || isAdmin,
     canViewAssignedStudents: isFacilitator || isAdmin,
     canWriteSupportNotesOnline: isFacilitator || isAdmin,
     canManageCatalogsAndRulesOnline: isAdmin,
@@ -82,6 +84,13 @@ const INITIAL_LOCAL_ACCOUNTS: readonly LocalAccountRecord[] = [
     password: SEED_DEMO_PASSWORD,
     roles: ['STUDENT'],
     status: 'disabled',
+  },
+  {
+    userId: '00000000-0000-4000-8000-000000000008',
+    email: 'profesor.ingenieria@vivu.local',
+    password: SEED_DEMO_PASSWORD,
+    roles: ['PROFESSOR'],
+    status: 'active',
   },
 ];
 

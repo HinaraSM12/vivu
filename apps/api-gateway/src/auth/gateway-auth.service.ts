@@ -14,7 +14,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
-export const ROLE_CODES = ['STUDENT', 'FACILITATOR', 'ADMIN'] as const;
+export const ROLE_CODES = [
+  'STUDENT',
+  'PROFESSOR',
+  'FACILITATOR',
+  'ADMIN',
+] as const;
 export type RoleCode = (typeof ROLE_CODES)[number];
 export type AccountStatus = 'active' | 'disabled' | 'locked';
 
@@ -32,6 +37,7 @@ export interface SessionCapabilities {
   canSelfManageProfile: boolean;
   canCompleteMissions: boolean;
   canOperateOffline: boolean;
+  canContributeResourcesOnline: boolean;
   canViewAssignedStudents: boolean;
   canWriteSupportNotesOnline: boolean;
   canManageCatalogsAndRulesOnline: boolean;
@@ -91,6 +97,7 @@ export function buildCapabilities(
 ): SessionCapabilities {
   const set = new Set<RoleCode>(roles);
   const isStudent = set.has('STUDENT');
+  const isProfessor = set.has('PROFESSOR');
   const isFacilitator = set.has('FACILITATOR');
   const isAdmin = set.has('ADMIN');
 
@@ -98,6 +105,7 @@ export function buildCapabilities(
     canSelfManageProfile: isStudent,
     canCompleteMissions: isStudent,
     canOperateOffline: isStudent,
+    canContributeResourcesOnline: isProfessor || isAdmin,
     canViewAssignedStudents: isFacilitator || isAdmin,
     canWriteSupportNotesOnline: isFacilitator || isAdmin,
     canManageCatalogsAndRulesOnline: isAdmin,
@@ -378,6 +386,13 @@ export class GatewayAuthService {
         passwordHash: defaultHash,
         roles: ['STUDENT'],
         status: 'disabled',
+      },
+      {
+        id: '00000000-0000-4000-8000-000000000008',
+        email: 'profesor.ingenieria@vivu.local',
+        passwordHash: defaultHash,
+        roles: ['PROFESSOR'],
+        status: 'active',
       },
     ];
 

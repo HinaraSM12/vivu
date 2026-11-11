@@ -11,8 +11,8 @@
 | Sprint | Nombre | Estado | Rama | PR | Fecha cierre |
 |---:|---|---|---|---|---|
 | 0 | Fundación técnica | Completado | `chore/sprint-0-foundation` | [#1](https://github.com/HinaraSM12/vivu/pull/1) | 2026-08-19 / Merge inicial |
-| 1 | Identidad y acceso | Implementado (en revisión PR) | `feat/sprint-1-identity-access` | PR Sprint 1 | 2026-11-09 |
-| 2 | Consentimiento, onboarding y perfil | Pendiente | `feat/sprint-2-consent-onboarding-profile` | — | — |
+| 1 | Identidad y acceso | Completado | `feat/sprint-1-identity-access` | [#21](https://github.com/HinaraSM12/vivu/pull/21) | 2026-11-10 |
+| 2 | Consentimiento, onboarding y perfil | Implementado (en revisión PR) | `feat/sprint-2-consent-onboarding-profile` | PR Sprint 2 | 2026-11-10 |
 | 3 | Misiones, ludificación y progreso | Pendiente | `feat/sprint-3-missions-gamification` | — | — |
 | 4 | Recursos, microcuestionarios y recuperación | Pendiente | `feat/sprint-4-resources-surveys-recovery` | — | — |
 | 5 | Recomendador V1 online | Pendiente | `feat/sprint-5-recommender-v1-online` | — | — |
@@ -83,17 +83,47 @@
 
 ---
 
-## Sprint 2 — Consentimiento, onboarding y perfil *(Plantilla)*
+## Sprint 2 — Consentimiento, onboarding y perfil
 
-- **Fecha:** Pendiente
+- **Fecha:** 2026-11-10
 - **Rama:** `feat/sprint-2-consent-onboarding-profile`
-- **Pull Request:** Pendiente
-- **Objetivo del Sprint:** Implementar consentimiento informado versionado, flujo de retiro, wizard de onboarding paso a paso, perfil actualizable del estudiante en `student-service` y emisión de eventos correspondientes.
-- **Historias implementadas:** (`PB-007`, `PB-008`, `PB-031`, ...)
-- **Evidencias de pruebas y calidad:** Pendiente
-- **Problemas encontrados y solución:** Pendiente
-- **Decisiones arquitectónicas / ADR:** Pendiente
-- **Resultado:** Pendiente
+- **Issue relacionado:** [#3](https://github.com/HinaraSM12/vivu/issues/3)
+- **Objetivo del Sprint:** Implementar consentimiento informado versionado (`1.0`), flujo de retiro voluntario, wizard de onboarding paso a paso (`STU-03` a `STU-08`), perfil actualizable del estudiante en `student-service` (`STU-19`, `STU-20`) y emisión de eventos `consent.updated.v1` y `student.profile_updated.v1` con seudonimización.
+- **Historias implementadas:**
+  - `PB-007`: Consentimiento informado versionado (`consentVersion: "1.0"`); bloqueo `403 CONSENT_REQUIRED` si se intenta guardar perfil o preferencias sin consentimiento activo.
+  - `PB-008`: Onboarding en 5 pasos y perfil básico editable del estudiante con validación de minimización de datos (rechazo `400 UNSUPPORTED_SENSITIVE_FIELD` ante `gpa`, `grades`, `academicHistory`, `clinicalDiagnosis`).
+  - `PB-031`: Retiro voluntario del consentimiento (`POST /api/v1/me/consent/withdraw`), deteniendo personalización futura y limpiando `wellbeingInputs` opcionales.
+  - `PB-027` (eventos de estudiante): Emisión de `consent.updated.v1` y `student.profile_updated.v1` utilizando `analyticsSubjectId` seudónimo como `subjectId` y `changedFieldCodes` sin PII.
+- **Evidencias de pruebas y calidad:**
+  - `@vivu/contracts`: pruebas de estados de consentimiento y detector de campos sensibles prohibidos (`student-contracts.spec.ts`).
+  - `@vivu/student-service`: 4 pruebas unitarias en `student-context.service.spec.ts` (bloqueo sin consentimiento, aceptación + onboarding + eventos seudónimos, rechazo de calificaciones, retiro voluntario).
+  - `@vivu/api-gateway`: pruebas E2E en `test/student-context.e2e-spec.ts` cubriendo el ciclo completo de consentimiento, onboarding, rechazo de `gpa`, retiro de consentimiento y bloqueo RBAC `403` para roles no `STUDENT`.
+  - `@vivu/web`: pruebas de integración UI en `App.test.tsx` verificando el flujo `Registro -> Consentimiento (STU-03) -> Wizard de 5 pasos (STU-04..08) -> Inicio`, edición de perfil (`STU-19`) y retiro de consentimiento (`STU-20`).
+- **Problemas encontrados y solución:**
+  - Ningún incidente bloqueante; integración limpia con los guards RBAC del Sprint 1.
+- **Decisiones arquitectónicas / ADR:**
+  - Separación estricta entre `studentId` (identidad) y `analyticsSubjectId` (seudónimo de analítica) dentro de `student-service` conforme a `docs/security/privacy-and-consent.md` y `ADR-004`.
+- **Resultado:** Sprint 2 implementado con todas las puertas de calidad en verde.
+
+---
+
+## Actualización Integral — Alineación Tesis V7 (PRISMA V5) y Arquitectura Vivu (45 Requerimientos)
+
+- **Fecha:** 2026-11-10
+- **Rama:** `feat/sprint-2-consent-onboarding-profile`
+- **Objetivo:** Alinear integralmente el documento maestro de tesis (`PROYECTO_DE_TESIS_HINARA_SANCHEZ (6).docx`) con la versión definitiva de la revisión sistemática (`Articulo_Revision_Sistematica_PRISMA_v5_FINAL.docx`) y reflejar los 45 lineamientos conceptuales, metodológicos, arquitectónicos y de gobernanza tanto en el documento `.docx` como en las especificaciones y contratos del monorepo Vivu.
+- **Entregables implementados:**
+  1. **Actualización del documento Word de Tesis y figuras PRISMA V5:**
+     - Actualización in-place de `PROYECTO_DE_TESIS_HINARA_SANCHEZ (6).docx`, generación de `PROYECTO_DE_TESIS_HINARA_SANCHEZ_v7_ACTUALIZADO.docx` y espejo Markdown en `docs/thesis/proyecto-tesis-actualizado-v7.md`.
+     - Reemplazo de cifras antiguas por PRISMA V5 (Scopus, IEEE Xplore, ERIC; 2014–2026; 6.573 identificados; 1.240 duplicados; 5.333 únicos; 249 buscados; 72 recuperados; 63 evaluados humanamente; **57 estudios empíricos primarios**) y actualización de las 6 figuras PNG embebidas en el `.docx`.
+     - Precisión conceptual: *sistema de ludificación adaptativa asistido por un modelo de lenguaje de gran escala* (LLM como componente instrumental ≠ ML predictivo de deserción).
+  2. **Arquitectura de ingesta multifuente, moderación, recomendador híbrido y gobernanza (`docs/`):**
+     - `docs/adr/006-multi-source-resource-ingestion-and-moderation.md`: conectores `InstitutionalWebCollector` (whitelist), `InstitutionalMailConnector` (API/IMAP con sanitización PII obligatoria antes del LLM) y carga manual por `PROFESSOR` (`RESOURCE_CONTRIBUTOR`) y `ADMIN`; ciclo de vida `DRAFT` -> `PUBLISHED`; entidad `Resource` de 26 campos; `resource_versions`; deduplicación y jerarquía de prioridad de fuentes.
+     - `docs/security/data-governance-matrix.md`: matriz de gobernanza de datos de 11 columnas y listado de datos prohibidos por defecto.
+     - Actualización de `docs/ai/llm-policy.md`, `docs/ai/recommender-v1.md`, `docs/ai/evaluation.md` (KPIs de uso/continuidad, recomendación, QoE ISO 9241-11/210, QoS y calidad del componente LLM), `docs/testing/analytics-events.md` (16 eventos canónicos seudonimizados) y `docs/research/instrumentos-piloto.md` (dimensión de valor percibido de la universidad y constructos no clínicos).
+  3. **Contratos y código del prototipo (`packages/`, `services/`, `apps/`):**
+     - `@vivu/contracts`: `resource-contracts.ts` + `resource-contracts.spec.ts` (modelos de recursos, versiones, extracción LLM, trazabilidad de recomendaciones, telemetría, guardia `canRecommendInstitutionalResource` y sanitizador `sanitizeEmailContentBeforeLlm`); adición de rol `PROFESSOR` en `auth-contracts.ts`; adición de `organizationDifficulty` no clínico en `student-contracts.ts`.
+     - Actualización sincronizada en `@vivu/identity-service`, `@vivu/student-service`, `@vivu/api-gateway` y `@vivu/web`.
 
 ---
 
