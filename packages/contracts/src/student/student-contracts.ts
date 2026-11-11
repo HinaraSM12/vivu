@@ -15,6 +15,8 @@ export const FORBIDDEN_SENSITIVE_PROFILE_FIELDS = [
   'academicHistory',
   'institutionalIdNumber',
   'clinicalDiagnosis',
+  'clinicalStressDiagnosis',
+  'mentalHealthDiagnosis',
 ] as const;
 
 export interface ConsentRecordDto {
@@ -35,6 +37,7 @@ export interface PersonalizationPreferencesDto {
 
 export interface WellbeingInputsDto {
   motivationLevel?: 1 | 2 | 3 | 4 | 5;
+  organizationDifficulty?: PerceivedLoad;
   stressPerception?: PerceivedLoad;
   preferredSupportGoal?: string;
 }
@@ -84,4 +87,3 @@ export function findForbiddenProfileFields(
     (field) => field in input && input[field] !== undefined,
   );
 }
-

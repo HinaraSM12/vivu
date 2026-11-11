@@ -60,6 +60,12 @@ const INITIAL_SEED_USERS: readonly SeedUserInput[] = [
     roles: ['STUDENT'],
     status: 'disabled',
   },
+  {
+    id: '00000000-0000-4000-8000-000000000008',
+    email: 'profesor.ingenieria@vivu.local',
+    roles: ['PROFESSOR'],
+    status: 'active',
+  },
 ];
 
 @Injectable()
@@ -164,4 +170,3 @@ export class IdentityRepository {
     return [...this.domainEvents];
   }
 }
-

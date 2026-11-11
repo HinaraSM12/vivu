@@ -33,6 +33,14 @@ const FACILITATOR_DESTINATIONS = [
   'Perfil',
 ] as const;
 
+const PROFESSOR_DESTINATIONS = [
+  'Resumen',
+  'Mis recursos registrados',
+  'Registrar nuevo apoyo',
+  'Estado de moderación',
+  'Perfil',
+] as const;
+
 const ADMIN_DESTINATIONS = [
   'Resumen',
   'Usuarios y asignaciones',
@@ -477,6 +485,15 @@ export function App() {
                   type="button"
                   className="btn btn-tertiary"
                   onClick={() =>
+                    handleQuickDemoLogin('profesor.ingenieria@vivu.local')
+                  }
+                >
+                  Entrar como PROFESSOR
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-tertiary"
+                  onClick={() =>
                     handleQuickDemoLogin('facilitador.ingenieria@vivu.local')
                   }
                 >
@@ -501,14 +518,17 @@ export function App() {
   const primaryRole = userRoles[0] ?? 'STUDENT';
   const isAuthorizedForActiveView =
     userRoles.includes(activeViewRole) ||
-    (activeViewRole === 'FACILITATOR' && userRoles.includes('ADMIN'));
+    ((activeViewRole === 'FACILITATOR' || activeViewRole === 'PROFESSOR') &&
+      userRoles.includes('ADMIN'));
 
   const destinations =
     activeViewRole === 'STUDENT'
       ? STUDENT_DESTINATIONS
-      : activeViewRole === 'FACILITATOR'
-        ? FACILITATOR_DESTINATIONS
-        : ADMIN_DESTINATIONS;
+      : activeViewRole === 'PROFESSOR'
+        ? PROFESSOR_DESTINATIONS
+        : activeViewRole === 'FACILITATOR'
+          ? FACILITATOR_DESTINATIONS
+          : ADMIN_DESTINATIONS;
 
   const needsConsentGate =
     activeViewRole === 'STUDENT' && consent?.status !== 'accepted';
@@ -776,10 +796,10 @@ export function App() {
 
           {onboardingStep === 5 ? (
             <div>
-              <h3>5. Autopercepción y meta personal (Opcional)</h3>
+              <h3>5. Organización del tiempo y meta de autorregulación (Opcional)</h3>
               <div className="form-field">
                 <label htmlFor="onb-motivation">
-                  ¿Cómo sientes tu energía/motivación esta semana? (1 a 5)
+                  ¿Cómo percibes tu disposición para organizar el estudio esta semana? (1 a 5)
                 </label>
                 <input
                   id="onb-motivation"
@@ -797,7 +817,7 @@ export function App() {
               </div>
               <div className="form-field">
                 <label htmlFor="onb-goal">
-                  ¿Qué te gustaría lograr con el apoyo de Vivu?
+                  ¿Qué acción de autorregulación u organización te gustaría lograr con el apoyo de Vivu?
                 </label>
                 <input
                   id="onb-goal"
@@ -970,6 +990,20 @@ export function App() {
                   Retirar consentimiento del estudio
                 </button>
               </div>
+            </div>
+          ) : null}
+
+          {activeViewRole === 'PROFESSOR' ? (
+            <div>
+              <h2>
+                Portal Docente / Colaborador de Recursos (Resource Contributor) —{' '}
+                {activeSection}
+              </h2>
+              <p className="subtitle">
+                Registro y actualización directa de monitorías, tutorías,
+                asesorías, talleres, semilleros y actividades académicas con
+                flujo de moderación (DRAFT → PENDING_REVIEW → PUBLISHED).
+              </p>
             </div>
           ) : null}
 

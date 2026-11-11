@@ -19,6 +19,28 @@ export type {
   EventEnvelope,
 } from './events/event-envelope';
 export type {
+  ContributorTrustLevel,
+  InstitutionalResourceDto,
+  LlmExtractedResourcePayload,
+  RecommendationTraceRecordDto,
+  ResourceLifecycleStatus,
+  ResourceSourceType,
+  ResourceVersionRecordDto,
+  StudentRecommendationAction,
+  TelemetryEventRecordDto,
+  TelemetryEventType,
+} from './resource/resource-contracts';
+export {
+  canRecommendInstitutionalResource,
+  CONTRIBUTOR_TRUST_LEVELS,
+  DEFAULT_SOURCE_PRIORITY_HIERARCHY,
+  RESOURCE_LIFECYCLE_STATUSES,
+  RESOURCE_SOURCE_TYPES,
+  sanitizeEmailContentBeforeLlm,
+  STUDENT_RECOMMENDATION_ACTIONS,
+  TELEMETRY_EVENT_TYPES,
+} from './resource/resource-contracts';
+export type {
   ConsentRecordDto,
   ConsentStatus,
   ConsentUpdatedEventPayload,
@@ -33,8 +55,8 @@ export type {
 export {
   CONSENT_STATUSES,
   CURRENT_CONSENT_VERSION,
-  findForbiddenProfileFields,
   FORBIDDEN_SENSITIVE_PROFILE_FIELDS,
+  findForbiddenProfileFields,
   PERCEIVED_LOAD_LEVELS,
   PREFERRED_TONES,
 } from './student/student-contracts';

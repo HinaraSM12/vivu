@@ -23,27 +23,47 @@ El proyecto corresponde a una tesis de maestría y no busca convertirse, durante
 
 # 2. Propósito académico
 
-Título de referencia de la tesis:
+Título de referencia actualizado de la tesis (V7 / PRISMA V5):
 
-**Sistema de ludificación basado en un modelo de lenguaje de gran escala para el fomento del aprendizaje autorregulado en estudiantes de ingeniería.**
+**Sistema de ludificación adaptativa asistido por un modelo de lenguaje de gran escala para el fomento del aprendizaje autorregulado y el uso de recursos institucionales en estudiantes de ingeniería.**
+
+Objetivo general actualizado:
+
+**Desarrollar y evaluar de forma exploratoria un prototipo de sistema de ludificación adaptativa asistido por un modelo de lenguaje de gran escala para apoyar acciones de aprendizaje autorregulado y el uso de recursos institucionales en estudiantes de ingeniería de la Facultad de Minas.**
+
+Objetivo específico de evaluación (OE4):
+
+**Evaluar el prototipo mediante indicadores de calidad de software, calidad de experiencia (QoE, ISO 9241-11 / ISO 9241-210), calidad de servicio (QoS), calidad instrumental del componente LLM, continuidad de uso y pertinencia de las recomendaciones durante una prueba piloto longitudinal con estudiantes de ingeniería de la Facultad de Minas.**
+
+Base científica de la revisión sistemática (PRISMA V5 — `Articulo_Revision_Sistematica_PRISMA_v5_FINAL.docx`):
+
+- Bases definitivas: **Scopus, IEEE Xplore, ERIC** (8 familias temáticas = 24 ejecuciones formales);
+- Ventana temporal: **2014–2026**;
+- Registros identificados: **6.573** (`2.584` Scopus + `2.474` IEEE Xplore + `1.515` ERIC);
+- Duplicados eliminados: **1.240** -> Registros únicos cribados: **5.333**;
+- Informes buscados para texto completo: **249** (`146` `DIRECT_CORE` + `103` `RESCUE_TO_FULLTEXT`);
+- Informes recuperados legalmente: **72** (`177` no recuperables por paywall/sin copia pública);
+- Revisados humanamente: **63** -> **Corpus final incluido: 57 estudios empíricos primarios** (fase exploratoria histórica mantenida por separado).
 
 Población objetivo:
 
 - estudiantes de ingeniería;
 - contexto inicial: Facultad de Minas, Universidad Nacional de Colombia, sede Medellín;
-- muestra prevista para validación: aproximadamente 5–10 estudiantes;
+- muestra prevista para validación exploratoria longitudinal: aproximadamente 5–10 estudiantes;
 - prueba longitudinal: 10 semanas / 70 días.
 
-El prototipo busca ayudar a convertir necesidades, recursos institucionales y objetivos de autorregulación en acciones concretas y sostenibles.
+El prototipo busca ayudar a convertir necesidades de autorregulación, recursos institucionales verificados y objetivos semanales en acciones concretas y sostenibles, empleando el LLM únicamente como **componente instrumental** (contextualización, explicación, adaptación de tono y extracción estructurada con JSON Schema sobre recursos autorizados; **LLM ≠ ML predictivo**).
 
 No pretende:
 
-- diagnosticar estudiantes;
-- automatizar decisiones académicas;
-- etiquetar públicamente estudiantes como "de alto riesgo";
+- diagnosticar psicológica o clínicamente a estudiantes;
+- entrenar un modelo predictivo de deserción ni un clasificador de riesgo propio;
+- hacer benchmarking fundacional del modelo de lenguaje;
+- automatizar decisiones académicas o asignar sanciones/calificaciones;
+- etiquetar públicamente estudiantes como "en riesgo" o "de alto riesgo";
+- inventar recursos institucionales, horarios, contactos o convocatorias;
 - demostrar causalmente reducción de deserción;
-- entrenar o validar un modelo avanzado propio de IA;
-- integrarse completamente con sistemas institucionales oficiales;
+- integrarse obligatoriamente con sistemas académicos restringidos;
 - convertirse en una plataforma de producción institucional durante la tesis.
 
 ---
@@ -127,6 +147,22 @@ Puede:
 - administrar configuración general.
 
 Las escrituras administrativas requieren conexión.
+
+## PROFESSOR (`RESOURCE_CONTRIBUTOR`)
+
+Rol colaborativo institucional (docente o colaborador autorizado) introducido en `ADR-006`:
+
+Puede:
+
+- iniciar sesión;
+- registrar o proponer recursos institucionales mediante formulario estructurado (creados en estado `PENDING_REVIEW`, o aprobados según `contributor_trust_level`);
+- consultar el estado de moderación y vigencia de los recursos que aportó.
+
+No puede:
+
+- acceder a datos personales, perfiles, progreso ni seguimiento de estudiantes;
+- publicar directamente en el catálogo estudiantil sin revisión (salvo `INSTITUTIONAL_EDITOR` autorizado);
+- alterar reglas globales de ludificación o IA.
 
 ## Rol eliminado
 
@@ -1113,8 +1149,9 @@ No cambiar decisiones unilateralmente.
 
 Si una conversación futura necesita máxima fidelidad académica, adjuntar además de este archivo:
 
-1. `PROYECTO_DE_TESIS_HINARA_SANCHEZ (2).docx`
-2. `Versión 2_Marco arquitectónico para plataformas de acompañamiento estudiantil_ integración de ludificación e inteligencia artificial desde el diseño de software (1).docx`
+1. `PROYECTO_DE_TESIS_HINARA_SANCHEZ (6).docx` y `PROYECTO_DE_TESIS_HINARA_SANCHEZ_v7_ACTUALIZADO.docx` (con espejo en `docs/thesis/proyecto-tesis-actualizado-v7.md`)
+2. `Articulo_Revision_Sistematica_PRISMA_v5_FINAL.docx` (fuente autoritativa PRISMA V5: 57 estudios primarios)
+3. `Versión 2_Marco arquitectónico para plataformas de acompañamiento estudiantil_ integración de ludificación e inteligencia artificial desde el diseño de software (1).docx`
 
 Para trabajo técnico también son útiles:
 
@@ -1228,6 +1265,19 @@ Vivu
   - Pantalla `STU-03` (Consentimiento informado v1.0 sin dark patterns, con opción de no aceptar y salir).
   - Wizard de Onboarding de 5 pasos (`STU-04` a `STU-08`: contexto académico, carga y asignaturas retadoras, disponibilidad y responsabilidades, prácticas e intereses, y bienestar opcional con botón de omitir).
   - Pantallas `STU-19` (Perfil editable) y `STU-20` (Privacidad y retiro voluntario del consentimiento).
+
+### Resumen de la Actualización Integral Tesis V7 + PRISMA V5 + Arquitectura Vivu (45 requerimientos):
+- **Documento de Tesis (`.docx` y `.md`):**
+  - Actualizado `PROYECTO_DE_TESIS_HINARA_SANCHEZ (6).docx` in-place y generado `PROYECTO_DE_TESIS_HINARA_SANCHEZ_v7_ACTUALIZADO.docx` + espejo completo en `docs/thesis/proyecto-tesis-actualizado-v7.md`.
+  - Sustituidas todas las cifras y gráficos antiguos de la revisión por **PRISMA V5** (`Articulo_Revision_Sistematica_PRISMA_v5_FINAL.docx`: Scopus, IEEE Xplore, ERIC; 2014–2026; 6.573 identificados, 1.240 duplicados, 5.333 únicos, 249 buscados, 72 recuperados, 63 revisados humanamente y **57 estudios empíricos primarios**; 6 figuras PNG actualizadas dentro del `.docx`).
+  - Reformulado el enfoque conceptual: *"Sistema de ludificación adaptativa asistido por un modelo de lenguaje de gran escala"* (LLM ≠ ML predictivo), objetivo general con desarrollo y evaluación exploratoria, y OE4 centrado en calidad de software, QoE (ISO 9241-11 / ISO 9241-210), QoS, calidad instrumental del componente LLM, continuidad y pertinencia.
+- **Nuevos ADRs, Gobernanza de Datos y Especificaciones (`docs/`):**
+  - `docs/adr/006-multi-source-resource-ingestion-and-moderation.md`: ingesta multifuente (`InstitutionalWebCollector`, `InstitutionalMailConnector` con sanitización PII previa al LLM, y carga manual por `PROFESSOR`/`ADMIN`), estados `DRAFT` -> `PUBLISHED`, entidad `Resource` de 26 campos, `resource_versions`, deduplicación y prioridad de fuentes.
+  - `docs/security/data-governance-matrix.md`: matriz formal de 11 columnas variable por variable y datos prohibidos por defecto.
+  - Actualizados `docs/ai/llm-policy.md`, `docs/ai/recommender-v1.md`, `docs/ai/evaluation.md`, `docs/testing/analytics-events.md` (16 eventos canónicos), `docs/research/instrumentos-piloto.md` (dimensión de valor percibido de la universidad, 14 ítems QoE, constructos no clínicos `perceivedLoad` y `organizationDifficulty`) y `docs/security/privacy-and-consent.md`.
+- **Contratos y Servicios Actualizados (`packages/` y `services/`):**
+  - `@vivu/contracts`: creado `resource-contracts.ts` (26 campos de `InstitutionalResourceDto`, `ResourceVersionRecordDto`, `LlmExtractedResourcePayload`, `RecommendationTraceRecordDto`, `TelemetryEventRecordDto`, `canRecommendInstitutionalResource`, `sanitizeEmailContentBeforeLlm`), añadido rol `PROFESSOR` (`RESOURCE_CONTRIBUTOR`) en `auth-contracts.ts` y `organizationDifficulty` no clínico en `student-contracts.ts`.
+  - `@vivu/identity-service`, `@vivu/student-service`, `@vivu/api-gateway` y `@vivu/web`: soporte para `PROFESSOR` (`prof.recursos@vivu.local`), `organizationDifficulty` en onboarding/perfil y bloqueo de diagnósticos clínicos (`clinicalStressDiagnosis`, `mentalHealthDiagnosis`).
 
 ## Próximo sprint planeado
 

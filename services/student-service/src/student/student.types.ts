@@ -9,6 +9,8 @@ export const FORBIDDEN_PROFILE_FIELDS = [
   'academicHistory',
   'institutionalIdNumber',
   'clinicalDiagnosis',
+  'clinicalStressDiagnosis',
+  'mentalHealthDiagnosis',
 ] as const;
 
 export interface ConsentRecordEntity {
@@ -30,6 +32,7 @@ export interface PersonalizationPreferencesEntity {
 
 export interface WellbeingInputs {
   motivationLevel?: 1 | 2 | 3 | 4 | 5;
+  organizationDifficulty?: PerceivedLoad;
   stressPerception?: PerceivedLoad;
   preferredSupportGoal?: string;
 }
@@ -77,4 +80,3 @@ export interface DomainEventRecord {
   schemaVersion: number;
   payload: Record<string, unknown>;
 }
-

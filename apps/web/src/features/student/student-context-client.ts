@@ -20,6 +20,7 @@ export interface StudentPersonalizationPreferences {
 
 export interface StudentWellbeingInputs {
   motivationLevel?: 1 | 2 | 3 | 4 | 5;
+  organizationDifficulty?: PerceivedLoad;
   stressPerception?: PerceivedLoad;
   preferredSupportGoal?: string;
 }
@@ -90,6 +91,7 @@ export class StudentContextClient {
       interests: ['programacion', 'organizacion'],
       wellbeingInputs: {
         motivationLevel: 4,
+        organizationDifficulty: 'moderate',
         stressPerception: 'moderate',
         preferredSupportGoal: 'Sostener constancia semanal sin saturarme',
       },
@@ -123,6 +125,7 @@ export class StudentContextClient {
       interests: ['monitorias', 'gestion_tiempo'],
       wellbeingInputs: {
         motivationLevel: 3,
+        organizationDifficulty: 'high',
         stressPerception: 'high',
         preferredSupportGoal: 'Retomar con pasos pequeños esta semana',
       },

@@ -107,5 +107,25 @@
 
 ---
 
+## Actualización Integral — Alineación Tesis V7 (PRISMA V5) y Arquitectura Vivu (45 Requerimientos)
+
+- **Fecha:** 2026-11-10
+- **Rama:** `feat/sprint-2-consent-onboarding-profile`
+- **Objetivo:** Alinear integralmente el documento maestro de tesis (`PROYECTO_DE_TESIS_HINARA_SANCHEZ (6).docx`) con la versión definitiva de la revisión sistemática (`Articulo_Revision_Sistematica_PRISMA_v5_FINAL.docx`) y reflejar los 45 lineamientos conceptuales, metodológicos, arquitectónicos y de gobernanza tanto en el documento `.docx` como en las especificaciones y contratos del monorepo Vivu.
+- **Entregables implementados:**
+  1. **Actualización del documento Word de Tesis y figuras PRISMA V5:**
+     - Actualización in-place de `PROYECTO_DE_TESIS_HINARA_SANCHEZ (6).docx`, generación de `PROYECTO_DE_TESIS_HINARA_SANCHEZ_v7_ACTUALIZADO.docx` y espejo Markdown en `docs/thesis/proyecto-tesis-actualizado-v7.md`.
+     - Reemplazo de cifras antiguas por PRISMA V5 (Scopus, IEEE Xplore, ERIC; 2014–2026; 6.573 identificados; 1.240 duplicados; 5.333 únicos; 249 buscados; 72 recuperados; 63 evaluados humanamente; **57 estudios empíricos primarios**) y actualización de las 6 figuras PNG embebidas en el `.docx`.
+     - Precisión conceptual: *sistema de ludificación adaptativa asistido por un modelo de lenguaje de gran escala* (LLM como componente instrumental ≠ ML predictivo de deserción).
+  2. **Arquitectura de ingesta multifuente, moderación, recomendador híbrido y gobernanza (`docs/`):**
+     - `docs/adr/006-multi-source-resource-ingestion-and-moderation.md`: conectores `InstitutionalWebCollector` (whitelist), `InstitutionalMailConnector` (API/IMAP con sanitización PII obligatoria antes del LLM) y carga manual por `PROFESSOR` (`RESOURCE_CONTRIBUTOR`) y `ADMIN`; ciclo de vida `DRAFT` -> `PUBLISHED`; entidad `Resource` de 26 campos; `resource_versions`; deduplicación y jerarquía de prioridad de fuentes.
+     - `docs/security/data-governance-matrix.md`: matriz de gobernanza de datos de 11 columnas y listado de datos prohibidos por defecto.
+     - Actualización de `docs/ai/llm-policy.md`, `docs/ai/recommender-v1.md`, `docs/ai/evaluation.md` (KPIs de uso/continuidad, recomendación, QoE ISO 9241-11/210, QoS y calidad del componente LLM), `docs/testing/analytics-events.md` (16 eventos canónicos seudonimizados) y `docs/research/instrumentos-piloto.md` (dimensión de valor percibido de la universidad y constructos no clínicos).
+  3. **Contratos y código del prototipo (`packages/`, `services/`, `apps/`):**
+     - `@vivu/contracts`: `resource-contracts.ts` + `resource-contracts.spec.ts` (modelos de recursos, versiones, extracción LLM, trazabilidad de recomendaciones, telemetría, guardia `canRecommendInstitutionalResource` y sanitizador `sanitizeEmailContentBeforeLlm`); adición de rol `PROFESSOR` en `auth-contracts.ts`; adición de `organizationDifficulty` no clínico en `student-contracts.ts`.
+     - Actualización sincronizada en `@vivu/identity-service`, `@vivu/student-service`, `@vivu/api-gateway` y `@vivu/web`.
+
+---
+
 ## Sprints 3 a 9 *(Se completarán iterativamente siguiendo la misma estructura)*
 

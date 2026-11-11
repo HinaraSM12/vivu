@@ -62,6 +62,7 @@ export class StudentRepository {
       interests: ['programacion', 'organizacion'],
       wellbeingInputs: {
         motivationLevel: 4,
+        organizationDifficulty: 'moderate',
         stressPerception: 'moderate',
         preferredSupportGoal: 'Sostener constancia semanal sin saturarme',
       },
@@ -102,6 +103,7 @@ export class StudentRepository {
       interests: ['monitorias', 'gestion_tiempo'],
       wellbeingInputs: {
         motivationLevel: 3,
+        organizationDifficulty: 'high',
         stressPerception: 'high',
         preferredSupportGoal: 'Retomar con pasos pequeños esta semana',
       },

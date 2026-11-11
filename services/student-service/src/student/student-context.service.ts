@@ -259,7 +259,12 @@ export class StudentContextService {
       preferences.allowOptionalWellbeingContext && payload.wellbeingInputs
         ? {
             motivationLevel: payload.wellbeingInputs.motivationLevel,
-            stressPerception: payload.wellbeingInputs.stressPerception,
+            organizationDifficulty:
+              payload.wellbeingInputs.organizationDifficulty ??
+              payload.wellbeingInputs.stressPerception,
+            stressPerception:
+              payload.wellbeingInputs.stressPerception ??
+              payload.wellbeingInputs.organizationDifficulty,
             preferredSupportGoal:
               payload.wellbeingInputs.preferredSupportGoal?.trim(),
           }

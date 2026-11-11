@@ -1,4 +1,9 @@
-export const ROLE_CODES = ['STUDENT', 'FACILITATOR', 'ADMIN'] as const;
+export const ROLE_CODES = [
+  'STUDENT',
+  'PROFESSOR',
+  'FACILITATOR',
+  'ADMIN',
+] as const;
 export type RoleCode = (typeof ROLE_CODES)[number];
 
 export const ACCOUNT_STATUSES = ['active', 'disabled', 'locked'] as const;
@@ -18,6 +23,7 @@ export interface SessionCapabilities {
   canSelfManageProfile: boolean;
   canCompleteMissions: boolean;
   canOperateOffline: boolean;
+  canContributeResourcesOnline: boolean;
   canViewAssignedStudents: boolean;
   canWriteSupportNotesOnline: boolean;
   canManageCatalogsAndRulesOnline: boolean;
@@ -65,6 +71,7 @@ export function buildCapabilitiesForRoles(
 ): SessionCapabilities {
   const roleSet = new Set<RoleCode>(roles);
   const isStudent = roleSet.has('STUDENT');
+  const isProfessor = roleSet.has('PROFESSOR');
   const isFacilitator = roleSet.has('FACILITATOR');
   const isAdmin = roleSet.has('ADMIN');
 
@@ -72,10 +79,10 @@ export function buildCapabilitiesForRoles(
     canSelfManageProfile: isStudent,
     canCompleteMissions: isStudent,
     canOperateOffline: isStudent,
+    canContributeResourcesOnline: isProfessor || isAdmin,
     canViewAssignedStudents: isFacilitator || isAdmin,
     canWriteSupportNotesOnline: isFacilitator || isAdmin,
     canManageCatalogsAndRulesOnline: isAdmin,
     canExportAnonymizedDataOnline: isAdmin,
   };
 }
-

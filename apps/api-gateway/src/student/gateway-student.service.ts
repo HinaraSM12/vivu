@@ -16,6 +16,8 @@ const FORBIDDEN_PROFILE_FIELDS = [
   'academicHistory',
   'institutionalIdNumber',
   'clinicalDiagnosis',
+  'clinicalStressDiagnosis',
+  'mentalHealthDiagnosis',
 ] as const;
 const VALID_LOADS = new Set<PerceivedLoad>(['low', 'moderate', 'high']);
 const VALID_TONES = new Set<PreferredTone>(['warm', 'neutral', 'concise']);
@@ -39,6 +41,7 @@ export interface GatewayPersonalizationPreferences {
 
 export interface GatewayWellbeingInputs {
   motivationLevel?: 1 | 2 | 3 | 4 | 5;
+  organizationDifficulty?: PerceivedLoad;
   stressPerception?: PerceivedLoad;
   preferredSupportGoal?: string;
 }
@@ -300,7 +303,12 @@ export class GatewayStudentService {
         prefs.allowOptionalWellbeingContext && rawWellbeing
           ? {
               motivationLevel: rawWellbeing.motivationLevel,
-              stressPerception: rawWellbeing.stressPerception,
+              organizationDifficulty:
+                rawWellbeing.organizationDifficulty ??
+                rawWellbeing.stressPerception,
+              stressPerception:
+                rawWellbeing.stressPerception ??
+                rawWellbeing.organizationDifficulty,
               preferredSupportGoal: rawWellbeing.preferredSupportGoal?.trim(),
             }
           : null,
