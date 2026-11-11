@@ -13,6 +13,14 @@ import {
   type StudentPersonalizationPreferences,
   type StudentProfileRecord,
 } from '../features/student/student-context-client';
+import {
+  defaultGamificationClient,
+  type MissionCategoryCode,
+  type MissionFeedbackBannerView,
+  type MissionListFilter,
+  type StudentMissionView,
+  type StudentProgressSummaryView,
+} from '../features/gamification/gamification-client';
 import type { RoleCode } from '../local-data/session-snapshot';
 
 type AuthScreenMode = 'login' | 'register';
@@ -98,6 +106,37 @@ export function App() {
   const [preferredToneInput, setPreferredToneInput] =
     useState<PreferredTone>('warm');
 
+  // Sprint 3: Misiones, Ludificación No Competitiva y Progreso
+  const [missions, setMissions] = useState<StudentMissionView[]>([]);
+  const [progressSummary, setProgressSummary] =
+    useState<StudentProgressSummaryView | null>(null);
+  const [missionFilter, setMissionFilter] = useState<MissionListFilter>('all');
+  const [missionCategoryFilter, setMissionCategoryFilter] = useState<
+    MissionCategoryCode | 'ALL'
+  >('ALL');
+  const [selectedMissionCode, setSelectedMissionCode] = useState<string | null>(
+    null,
+  );
+  const [reflectionNoteInput, setReflectionNoteInput] = useState<string>('');
+  const [skipReasonInput, setSkipReasonInput] = useState<string>('');
+  const [completionFeedback, setCompletionFeedback] =
+    useState<MissionFeedbackBannerView | null>(null);
+
+  const syncGamificationState = (
+    studentId: string,
+    filter: MissionListFilter = missionFilter,
+    category: MissionCategoryCode | 'ALL' = missionCategoryFilter,
+  ) => {
+    setMissions(
+      defaultGamificationClient.listStudentMissions(
+        studentId,
+        filter,
+        category,
+      ),
+    );
+    setProgressSummary(defaultGamificationClient.getStudentProgress(studentId));
+  };
+
   const syncStudentStateFromStore = (studentId: string) => {
     const loadedConsent = defaultStudentContextClient.getConsent(studentId);
     const loadedPrefs = defaultStudentContextClient.getPreferences(studentId);
@@ -129,6 +168,7 @@ export function App() {
         'Avanzar con pasos pequeños y realistas cada semana',
     );
     setOnboardingStep(1);
+    syncGamificationState(studentId, 'all', 'ALL');
   };
 
   const applyAuthenticatedSession = (established: AuthSession) => {
@@ -194,12 +234,82 @@ export function App() {
     setConsent(null);
     setPreferences(null);
     setProfile(null);
+    setMissions([]);
+    setProgressSummary(null);
+    setSelectedMissionCode(null);
+    setCompletionFeedback(null);
     setEmail('');
     setPassword('');
     setConfirmPassword('');
     setErrorMessage(null);
     setStatusBanner(null);
     setAuthMode('login');
+  };
+
+  const handleFilterChange = (
+    newFilter: MissionListFilter,
+    newCategory: MissionCategoryCode | 'ALL' = missionCategoryFilter,
+  ) => {
+    setMissionFilter(newFilter);
+    setMissionCategoryFilter(newCategory);
+    if (session) {
+      syncGamificationState(session.user.userId, newFilter, newCategory);
+    }
+  };
+
+  const handleAcceptMission = (missionCode: string) => {
+    if (!session) return;
+    defaultGamificationClient.acceptMission(session.user.userId, missionCode);
+    syncGamificationState(session.user.userId);
+    setSelectedMissionCode(missionCode);
+    setCompletionFeedback(null);
+    setStatusBanner(
+      'Misión aceptada. Puedes empezarla ahora o retomarla cuando mejor se ajuste a tu día.',
+    );
+  };
+
+  const handleStartMission = (missionCode: string) => {
+    if (!session) return;
+    defaultGamificationClient.startMission(session.user.userId, missionCode);
+    syncGamificationState(session.user.userId);
+    setSelectedMissionCode(missionCode);
+    setCompletionFeedback(null);
+  };
+
+  const handlePauseMission = (missionCode: string) => {
+    if (!session) return;
+    defaultGamificationClient.pauseMission(session.user.userId, missionCode);
+    syncGamificationState(session.user.userId);
+    setStatusBanner(
+      'Misión en pausa. Tu avance se conserva sin ningún tipo de penalización.',
+    );
+  };
+
+  const handleSkipMission = (missionCode: string) => {
+    if (!session) return;
+    defaultGamificationClient.skipMission(
+      session.user.userId,
+      missionCode,
+      skipReasonInput,
+    );
+    syncGamificationState(session.user.userId);
+    setSkipReasonInput('');
+    setSelectedMissionCode(null);
+    setStatusBanner(
+      'Misión pospuesta para otro momento sin afectar tu nivel ni tus logros.',
+    );
+  };
+
+  const handleCompleteMission = (missionCode: string) => {
+    if (!session) return;
+    const result = defaultGamificationClient.completeMission(
+      session.user.userId,
+      missionCode,
+      reflectionNoteInput,
+    );
+    syncGamificationState(session.user.userId);
+    setReflectionNoteInput('');
+    setCompletionFeedback(result.feedback ?? null);
   };
 
   const handleAcceptConsent = () => {
@@ -903,6 +1013,357 @@ export function App() {
                   · Semestre {profile.semester} · Disponibilidad semanal:{' '}
                   {profile.weeklyAvailabilityMinutes} min · Versión de perfil v
                   {profile.version}
+                </div>
+              ) : null}
+
+              {completionFeedback ? (
+                <div
+                  className="alert-info"
+                  role="status"
+                  style={{ marginTop: '0.75rem' }}
+                >
+                  <h3>
+                    Misión completada: {completionFeedback.missionTitle}
+                  </h3>
+                  <p>{completionFeedback.encouragingMessage}</p>
+                  <p>
+                    <strong>{completionFeedback.levelProgressSummary}</strong>
+                  </p>
+                  {completionFeedback.unlockedAchievement ? (
+                    <p>
+                      Logro personal desbloqueado:{' '}
+                      <strong>
+                        {completionFeedback.unlockedAchievement.title}
+                      </strong>{' '}
+                      — {completionFeedback.unlockedAchievement.description}
+                    </p>
+                  ) : null}
+                  <div className="demo-buttons" style={{ marginTop: '0.5rem' }}>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => {
+                        setCompletionFeedback(null);
+                        setSelectedMissionCode(null);
+                        setActiveSection('Progreso');
+                      }}
+                    >
+                      Ver progreso
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => {
+                        setCompletionFeedback(null);
+                        setSelectedMissionCode(null);
+                        setActiveSection('Misiones');
+                      }}
+                    >
+                      Elegir otra misión
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              {activeSection === 'Inicio' && progressSummary ? (
+                <div style={{ marginTop: '1rem' }}>
+                  <div className="demo-box">
+                    <h3>
+                      Tu semana · Nivel {progressSummary.levelNumber}:{' '}
+                      {progressSummary.levelTitle}
+                    </h3>
+                    <p>{progressSummary.supportiveFeedback}</p>
+                    <p className="subtitle">
+                      {progressSummary.continuityMessage}
+                    </p>
+                    <div className="demo-buttons">
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        onClick={() => setActiveSection('Misiones')}
+                      >
+                        Explorar misiones de la semana
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => setActiveSection('Progreso')}
+                      >
+                        Ver mi progreso personal
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {activeSection === 'Misiones' ? (
+                <div style={{ marginTop: '1rem' }}>
+                  <div
+                    className="demo-buttons"
+                    role="group"
+                    aria-label="Filtros de misiones"
+                  >
+                    {(
+                      [
+                        { id: 'all', label: 'Todas' },
+                        { id: 'today', label: 'Hoy' },
+                        { id: 'week', label: 'Esta semana' },
+                        { id: 'completed', label: 'Completadas' },
+                      ] as const
+                    ).map((f) => (
+                      <button
+                        key={f.id}
+                        type="button"
+                        className={
+                          missionFilter === f.id
+                            ? 'btn btn-primary'
+                            : 'btn btn-tertiary'
+                        }
+                        onClick={() => handleFilterChange(f.id)}
+                      >
+                        Filtro: {f.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {selectedMissionCode && session ? (
+                    (() => {
+                      const detail =
+                        defaultGamificationClient.getMissionDetail(
+                          session.user.userId,
+                          selectedMissionCode,
+                        );
+                      return (
+                        <div
+                          className="demo-box"
+                          style={{ marginTop: '1rem' }}
+                        >
+                          <h3>
+                            Detalle de misión: {detail.template.title} (
+                            {detail.template.code})
+                          </h3>
+                          <p>
+                            <strong>¿Qué tengo que hacer?</strong>{' '}
+                            {detail.template.summary}
+                          </p>
+                          <p>
+                            <strong>¿Por qué puede servirme?</strong>{' '}
+                            {detail.template.whyItHelps}
+                          </p>
+                          <p>
+                            <strong>¿Cuánto tarda?</strong>{' '}
+                            {detail.template.durationMinutes} min · Esfuerzo:{' '}
+                            {detail.template.effort}
+                          </p>
+                          <p>
+                            <strong>¿Qué necesito?</strong>{' '}
+                            {detail.template.whatYouNeed}
+                          </p>
+                          {detail.template.relatedResourceTitle ? (
+                            <p>
+                              <strong>Recurso institucional relacionado:</strong>{' '}
+                              {detail.template.relatedResourceTitle}
+                            </p>
+                          ) : null}
+                          <h4>Pasos mínimos sugeridos:</h4>
+                          <ol>
+                            {detail.template.steps.map((step) => (
+                              <li key={step}>{step}</li>
+                            ))}
+                          </ol>
+
+                          {detail.assignment.status !== 'completed' ? (
+                            <div
+                              className="form-field"
+                              style={{ marginTop: '0.75rem' }}
+                            >
+                              <label htmlFor="mission-reflection">
+                                Nota breve o reflexión personal al completar
+                                (opcional)
+                              </label>
+                              <input
+                                id="mission-reflection"
+                                className="vivu-input"
+                                value={reflectionNoteInput}
+                                onChange={(e) =>
+                                  setReflectionNoteInput(e.target.value)
+                                }
+                                placeholder="Ej. Reservé martes y jueves a las 4 pm"
+                              />
+                            </div>
+                          ) : null}
+
+                          <div
+                            className="demo-buttons"
+                            style={{ marginTop: '0.75rem' }}
+                          >
+                            {detail.assignment.status === 'available' ||
+                            detail.assignment.status === 'skipped' ? (
+                              <button
+                                type="button"
+                                className="btn btn-primary"
+                                onClick={() =>
+                                  handleAcceptMission(detail.template.code)
+                                }
+                              >
+                                Aceptar misión
+                              </button>
+                            ) : null}
+
+                            {detail.assignment.status !== 'completed' &&
+                            detail.assignment.status !== 'in_progress' ? (
+                              <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={() =>
+                                  handleStartMission(detail.template.code)
+                                }
+                              >
+                                Empezar misión ahora
+                              </button>
+                            ) : null}
+
+                            {detail.assignment.status === 'in_progress' ? (
+                              <button
+                                type="button"
+                                className="btn btn-tertiary"
+                                onClick={() =>
+                                  handlePauseMission(detail.template.code)
+                                }
+                              >
+                                Pausar sin castigo
+                              </button>
+                            ) : null}
+
+                            {detail.assignment.status !== 'completed' ? (
+                              <>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={() =>
+                                    handleCompleteMission(detail.template.code)
+                                  }
+                                >
+                                  Completar misión
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-tertiary"
+                                  onClick={() =>
+                                    handleSkipMission(detail.template.code)
+                                  }
+                                >
+                                  Posponer para otro momento
+                                </button>
+                              </>
+                            ) : null}
+
+                            <button
+                              type="button"
+                              className="btn btn-tertiary"
+                              onClick={() => setSelectedMissionCode(null)}
+                            >
+                              Volver a la lista de misiones
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })()
+                  ) : null}
+
+                  <div style={{ marginTop: '1rem' }}>
+                    {missions.map(({ template, assignment }) => (
+                      <div
+                        key={template.code}
+                        className="demo-box"
+                        style={{ marginBottom: '0.75rem' }}
+                      >
+                        <h3>
+                          {template.title}{' '}
+                          <span className="badge-pill">{assignment.status}</span>
+                        </h3>
+                        <p className="subtitle">
+                          Categoría: {template.category} · Duración:{' '}
+                          {template.durationMinutes} min · Esfuerzo:{' '}
+                          {template.effort}
+                        </p>
+                        <p>{template.summary}</p>
+                        {assignment.recommendationReason ? (
+                          <p className="subtitle">
+                            <em>
+                              ¿Por qué te sirve?:{' '}
+                              {assignment.recommendationReason}
+                            </em>
+                          </p>
+                        ) : null}
+                        <div className="demo-buttons">
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() =>
+                              setSelectedMissionCode(template.code)
+                            }
+                          >
+                            Ver detalle ({template.code})
+                          </button>
+                          {assignment.status !== 'completed' ? (
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              onClick={() => handleCompleteMission(template.code)}
+                            >
+                              Marcar completada ({template.code})
+                            </button>
+                          ) : null}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {activeSection === 'Progreso' && progressSummary ? (
+                <div style={{ marginTop: '1rem' }}>
+                  <div className="demo-box">
+                    <h3>
+                      Nivel personal {progressSummary.levelNumber}:{' '}
+                      {progressSummary.levelTitle}
+                    </h3>
+                    <p>{progressSummary.supportiveFeedback}</p>
+                    <p>
+                      Misiones completadas:{' '}
+                      <strong>{progressSummary.completedMissionsCount}</strong>{' '}
+                      · Misiones aceptadas:{' '}
+                      <strong>{progressSummary.acceptedMissionsCount}</strong> ·
+                      Días activos esta semana:{' '}
+                      <strong>{progressSummary.weeklyActiveDays}</strong>
+                    </p>
+                    <p>{progressSummary.continuityMessage}</p>
+                    <p>
+                      Categorías trabajadas:{' '}
+                      {progressSummary.workedCategories.length > 0
+                        ? progressSummary.workedCategories.join(', ')
+                        : 'Aún por iniciar'}
+                    </p>
+                  </div>
+
+                  <div className="demo-box" style={{ marginTop: '0.75rem' }}>
+                    <h3>Logros personales (sin rankings competitivos)</h3>
+                    {progressSummary.achievements.length === 0 ? (
+                      <p>
+                        Completa tu primera misión para desbloquear tu primer
+                        logro personal.
+                      </p>
+                    ) : (
+                      <ul>
+                        {progressSummary.achievements.map((ach) => (
+                          <li key={ach.achievementCode}>
+                            <strong>{ach.title}</strong>: {ach.description}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </div>
               ) : null}
             </div>

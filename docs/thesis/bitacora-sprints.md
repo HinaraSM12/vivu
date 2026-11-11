@@ -12,8 +12,8 @@
 |---:|---|---|---|---|---|
 | 0 | Fundación técnica | Completado | `chore/sprint-0-foundation` | [#1](https://github.com/HinaraSM12/vivu/pull/1) | 2026-08-19 / Merge inicial |
 | 1 | Identidad y acceso | Completado | `feat/sprint-1-identity-access` | [#21](https://github.com/HinaraSM12/vivu/pull/21) | 2026-11-10 |
-| 2 | Consentimiento, onboarding y perfil | Implementado (en revisión PR) | `feat/sprint-2-consent-onboarding-profile` | PR Sprint 2 | 2026-11-10 |
-| 3 | Misiones, ludificación y progreso | Pendiente | `feat/sprint-3-missions-gamification` | — | — |
+| 2 | Consentimiento, onboarding y perfil | Completado | `feat/sprint-2-consent-onboarding-profile` | [#22](https://github.com/HinaraSM12/vivu/pull/22) | 2026-11-11 |
+| 3 | Misiones, ludificación y progreso | Implementado (en revisión PR) | `feat/sprint-3-missions-gamification` | PR Sprint 3 | 2026-11-11 |
 | 4 | Recursos, microcuestionarios y recuperación | Pendiente | `feat/sprint-4-resources-surveys-recovery` | — | — |
 | 5 | Recomendador V1 online | Pendiente | `feat/sprint-5-recommender-v1-online` | — | — |
 | 6 | PWA local-first y sincronización offline | Pendiente | `feat/sprint-6-pwa-offline-sync` | — | — |
@@ -127,5 +127,28 @@
 
 ---
 
-## Sprints 3 a 9 *(Se completarán iterativamente siguiendo la misma estructura)*
+## Sprint 3 — Misiones, ludificación y progreso
+
+- **Fecha:** 2026-11-11
+- **Rama:** `feat/sprint-3-missions-gamification`
+- **Issue relacionado:** [#4](https://github.com/HinaraSM12/vivu/issues/4)
+- **Objetivo del Sprint:** Implementar el motor de ludificación no competitiva y gestión de misiones en `@vivu/gamification-service`, su exposición segura en `@vivu/api-gateway` y las vistas del estudiante (`STU-09` a `STU-14`) en `@vivu/web`.
+- **Historias implementadas:**
+  - `PB-009`: Catálogo oficial de 7 misiones (`MIS-PLAN-01` a `MIS-REC-01`) con versión, duración, esfuerzo, pasos mínimos y recurso institucional relacionado.
+  - `PB-010`: Ciclo de vida completo de misión (`available`, `accepted`, `in_progress`, `paused`, `skipped`, `completed`) con pausa y posposición sin castigo e idempotencia mediante `clientEventId` / `Idempotency-Key`.
+  - `PB-011`: Cálculo determinístico de niveles personales (`1: Exploración`, `2: Constancia inicial`, `3: Ritmo autónomo`, `4: Autorregulación consolidada`), señal de continuidad semanal flexible y desbloqueo de logros personales no competitivos (`ACH-FIRST-STEP`, `ACH-INITIAL-CONSISTENCY`, `ACH-BALANCED-EXPLORER`).
+  - `PB-012` / `PB-027`: Emisión de eventos `mission.accepted.v1`, `mission.completed.v1` y `mission.skipped.v1` con `subjectId` seudónimo (`analyticsSubjectId`).
+  - Pantallas `STU-09` (Inicio semanal), `STU-10` (Misiones y filtros), `STU-11` (Detalle de misión), `STU-12` (Misión en progreso), `STU-13` (Feedback positivo al completar) y `STU-14` (Progreso personal).
+- **Evidencias de pruebas y calidad:**
+  - `@vivu/contracts`: pruebas de niveles personales y detector de campos competitivos prohibidos (`gamification-contracts.spec.ts`).
+  - `@vivu/gamification-service`: 4 pruebas unitarias en `gamification.service.spec.ts` (catálogo de 7 misiones, subida de Nivel 1 a Nivel 2 al completar la 3.ª misión + logro + evento seudónimo, idempotencia por `clientEventId`, pausa y posposición sin penalización).
+  - `@vivu/api-gateway`: pruebas E2E en `test/gamification.e2e-spec.ts` cubriendo flujo completo de `STUDENT` y restricción RBAC `403` para mutaciones por roles no `STUDENT`.
+  - `@vivu/web`: prueba de integración UI en `App.test.tsx` recorriendo `STU-09 -> STU-10 -> STU-11 -> STU-13 -> STU-14`.
+- **Decisiones arquitectónicas / ADR:**
+  - Cumplimiento de `ADR-001` (reglas de ludificación en backend bajo `ruleVersion: "1.0.0"`), `ADR-003` (eventos versionados seudonimizados) y `ADR-005` (idempotencia por `clientEventId` lista para sincronización offline en Sprint 6).
+- **Resultado:** Sprint 3 implementado con todas las puertas de calidad en verde.
+
+---
+
+## Sprints 4 a 9 *(Se completarán iterativamente siguiendo la misma estructura)*
 

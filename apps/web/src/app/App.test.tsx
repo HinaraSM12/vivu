@@ -1,13 +1,15 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { defaultAuthClient } from '../features/auth/auth-client';
+import { defaultGamificationClient } from '../features/gamification/gamification-client';
 import { defaultStudentContextClient } from '../features/student/student-context-client';
 import { App } from './App';
 
-describe('App (Sprints 1 & 2 — Identity, Consent, 5-Step Onboarding & Editable Profile)', () => {
+describe('App (Sprints 1, 2 & 3 — Identity, Consent, Onboarding, Missions & Non-Punitive Gamification)', () => {
   beforeEach(() => {
     defaultAuthClient.resetAccounts();
     defaultStudentContextClient.reset();
+    defaultGamificationClient.reset();
   });
 
   afterEach(() => {
@@ -177,6 +179,58 @@ describe('App (Sprints 1 & 2 — Identity, Consent, 5-Step Onboarding & Editable
     expect(
       screen.getByRole('heading', {
         name: /panel de acompañamiento \(facilitator\) — resumen/i,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('permite explorar misiones (STU-10), ver detalle (STU-11), completar una misión con feedback positivo (STU-13) y subir de nivel personal (STU-14)', () => {
+    render(<App />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /entrar como student/i }),
+    );
+
+    // En Inicio (STU-09) se muestra Nivel 1: Exploración (2 misiones completadas)
+    expect(
+      screen.getByText(/tu semana · nivel 1: exploración/i),
+    ).toBeInTheDocument();
+
+    // Ir a Misiones (STU-10)
+    fireEvent.click(
+      screen.getByRole('button', { name: /explorar misiones de la semana/i }),
+    );
+    expect(
+      screen.getByRole('heading', {
+        name: /espacio del estudiante — misiones/i,
+      }),
+    ).toBeInTheDocument();
+
+    // Abrir detalle de MIS-PLAN-02 (STU-11)
+    fireEvent.click(
+      screen.getByRole('button', { name: /ver detalle \(mis-plan-02\)/i }),
+    );
+    expect(
+      screen.getByRole('heading', {
+        name: /detalle de misión: diseña dos bloques de estudio de 45 minutos \(mis-plan-02\)/i,
+      }),
+    ).toBeInTheDocument();
+
+    // Completar misión y verificar feedback positivo (STU-13) + logro desbloqueado
+    fireEvent.click(screen.getByRole('button', { name: /completar misión/i }));
+    expect(
+      screen.getByRole('heading', {
+        name: /misión completada: diseña dos bloques de estudio de 45 minutos/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/constancia inicial alcanzada/i),
+    ).toBeInTheDocument();
+
+    // Ir a Progreso (STU-14) y comprobar Nivel 2: Constancia inicial con 3 misiones completadas
+    fireEvent.click(screen.getByRole('button', { name: /^ver progreso$/i }));
+    expect(
+      screen.getByRole('heading', {
+        name: /nivel personal 2: constancia inicial/i,
       }),
     ).toBeInTheDocument();
   });
