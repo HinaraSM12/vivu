@@ -1246,7 +1246,8 @@ Vivu
 
 - **Sprint 0 completado** (PR #1 mergeado en `main`).
 - **Sprint 1 — Identidad y acceso completado y mergeado en `main`** (PR #21, commit `3ebeb59`, Issue #2).
-- **Sprint 2 — Consentimiento, onboarding y perfil implementado** (sobre rama `feat/sprint-2-consent-onboarding-profile`, Issue #3).
+- **Sprint 2 — Consentimiento, onboarding y perfil + Actualización Integral Tesis V7 (PRISMA V5) completado y mergeado en `main`** (PR #22, commit `81e43a2`, Issue #3).
+- **Sprint 3 — Misiones, ludificación y progreso implementado** (sobre rama `feat/sprint-3-missions-gamification`, Issue #4).
 
 ### Resumen de lo entregado en Sprint 1 (mergeado):
 - **Contratos (`@vivu/contracts`):** `RoleCode` (`STUDENT`, `FACILITATOR`, `ADMIN`), `AccountStatus`, `JwtAccessClaims`, `SessionCapabilities`, `SessionUserDto`, `AuthSessionResponse`, `OfflineSessionSnapshot`, `UserRegisteredEventPayload`.
@@ -1279,9 +1280,19 @@ Vivu
   - `@vivu/contracts`: creado `resource-contracts.ts` (26 campos de `InstitutionalResourceDto`, `ResourceVersionRecordDto`, `LlmExtractedResourcePayload`, `RecommendationTraceRecordDto`, `TelemetryEventRecordDto`, `canRecommendInstitutionalResource`, `sanitizeEmailContentBeforeLlm`), añadido rol `PROFESSOR` (`RESOURCE_CONTRIBUTOR`) en `auth-contracts.ts` y `organizationDifficulty` no clínico en `student-contracts.ts`.
   - `@vivu/identity-service`, `@vivu/student-service`, `@vivu/api-gateway` y `@vivu/web`: soporte para `PROFESSOR` (`prof.recursos@vivu.local`), `organizationDifficulty` en onboarding/perfil y bloqueo de diagnósticos clínicos (`clinicalStressDiagnosis`, `mentalHealthDiagnosis`).
 
+### Resumen de lo entregado en Sprint 3:
+- **Contratos (`@vivu/contracts`):** `gamification-contracts.ts` y `gamification-contracts.spec.ts` (`MissionCategoryCode`, `MissionEffortLevel`, `MissionAssignmentStatus`, `ProgressLevelCode`, `ContinuitySignal`, `MissionTemplateDto`, `MissionAssignmentDto`, `PersonalAchievementDto`, `StudentProgressSummaryDto`, `MissionFeedbackBannerDto`, `computeProgressLevel` para niveles personales 1–4 bajo `ruleVersion: "1.0.0"`, y `findForbiddenCompetitiveFields`).
+- **Servicio de Ludificación (`@vivu/gamification-service`):**
+  - `GamificationRepository` con las 7 misiones oficiales del seed (`MIS-PLAN-01` a `MIS-REC-01`), estados iniciales para `usr-stu-001` y `usr-stu-002`, y soporte de idempotencia mediante `clientEventId` / `Idempotency-Key`.
+  - `GamificationService` y `GamificationController`: listado con filtros (`today`, `week`, `all`, `completed`, `category`), detalle de misión, aceptación (`mission.accepted.v1`), inicio, pausa sin castigo, posposición sin castigo (`mission.skipped.v1`), finalización idempotente (`mission.completed.v1`) con desbloqueo de logros personales (`ACH-FIRST-STEP`, `ACH-INITIAL-CONSISTENCY`, `ACH-BALANCED-EXPLORER`) y resumen de progreso personal sin rankings competitivos.
+- **API Gateway (`@vivu/api-gateway`):**
+  - `GatewayGamificationService` y `GamificationGatewayController` exponiendo `/api/v1/missions/catalog`, `/api/v1/missions`, `/api/v1/missions/:missionCode`, `/api/v1/missions/:missionCode/{accept,start,pause,skip,complete}` y `/api/v1/progress`, con pruebas E2E en `test/gamification.e2e-spec.ts`.
+- **Frontend (`@vivu/web`):**
+  - Pantallas `STU-09` (Inicio semanal con nivel y continuidad), `STU-10` (Lista y filtros de misiones), `STU-11` (Detalle de misión), `STU-12` (Misión en progreso con pausa y posposición sin castigo), `STU-13` (Feedback positivo al completar misión y logro desbloqueado) y `STU-14` (Progreso personal y logros no competitivos).
+
 ## Próximo sprint planeado
 
-**Sprint 3 — Misiones, ludificación y progreso.**
+**Sprint 4 — Recursos institucionales, microcuestionarios y modo recuperación.**
 
 ## Mockups
 

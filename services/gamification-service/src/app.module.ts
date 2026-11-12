@@ -6,6 +6,9 @@ import {
 import { ConfigModule } from '@nestjs/config';
 import { CorrelationIdMiddleware } from './common/correlation-id.middleware';
 import { validateEnvironment } from './config/environment.validation';
+import { GamificationController } from './gamification/gamification.controller';
+import { GamificationRepository } from './gamification/gamification.repository';
+import { GamificationService } from './gamification/gamification.service';
 import { HealthController } from './health/health.controller';
 
 @Module({
@@ -15,7 +18,8 @@ import { HealthController } from './health/health.controller';
       validate: validateEnvironment,
     }),
   ],
-  controllers: [HealthController],
+  controllers: [HealthController, GamificationController],
+  providers: [GamificationRepository, GamificationService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
