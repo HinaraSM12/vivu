@@ -14,6 +14,8 @@ import { StandardErrorFilter } from './common/filters/standard-error.filter';
 import { GamificationGatewayController } from './gamification/gamification-gateway.controller';
 import { GatewayGamificationService } from './gamification/gateway-gamification.service';
 import { HealthController } from './health/health.controller';
+import { GatewayRecommendationService } from './recommendation/gateway-recommendation.service';
+import { RecommendationGatewayController } from './recommendation/recommendation-gateway.controller';
 import { GatewayResourceService } from './resource/gateway-resource.service';
 import { ResourceGatewayController } from './resource/resource-gateway.controller';
 import { GatewayStudentService } from './student/gateway-student.service';
@@ -35,6 +37,7 @@ import { SurveyGatewayController } from './survey/survey-gateway.controller';
     GamificationGatewayController,
     ResourceGatewayController,
     SurveyGatewayController,
+    RecommendationGatewayController,
   ],
   providers: [
     GatewayAuthService,
@@ -42,6 +45,7 @@ import { SurveyGatewayController } from './survey/survey-gateway.controller';
     GatewayGamificationService,
     GatewayResourceService,
     GatewaySurveyService,
+    GatewayRecommendationService,
     JwtAuthGuard,
     RolesGuard,
     {

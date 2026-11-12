@@ -1248,7 +1248,8 @@ Vivu
 - **Sprint 1 — Identidad y acceso completado y mergeado en `main`** (PR #21, commit `3ebeb59`, Issue #2).
 - **Sprint 2 — Consentimiento, onboarding y perfil + Actualización Integral Tesis V7 (PRISMA V5) completado y mergeado en `main`** (PR #22, commit `81e43a2`, Issue #3).
 - **Sprint 3 — Misiones, ludificación y progreso completado y mergeado en `main`** (PR #23, commit `ea21092`, Issue #4).
-- **Sprint 4 — Recursos institucionales, microcuestionarios y modo recuperación implementado** (sobre rama `feat/sprint-4-resources-surveys-recovery`, Issue #5).
+- **Sprint 4 — Recursos institucionales, microcuestionarios y modo recuperación completado y mergeado en `main`** (PR #24, commit `e581b50`, Issue #5).
+- **Sprint 5 — Recomendador V1 online (híbrido determinista + LLM instrumental) implementado** (sobre rama `feat/sprint-5-recommender-v1-online`, Issue #6).
 
 ### Resumen de lo entregado en Sprint 1 (mergeado):
 - **Contratos (`@vivu/contracts`):** `RoleCode` (`STUDENT`, `FACILITATOR`, `ADMIN`), `AccountStatus`, `JwtAccessClaims`, `SessionCapabilities`, `SessionUserDto`, `AuthSessionResponse`, `OfflineSessionSnapshot`, `UserRegisteredEventPayload`.
@@ -1298,9 +1299,18 @@ Vivu
 - **Modo Recuperación (`@vivu/gamification-service`):** Endpoints `GET /students/:studentId/recovery` y `POST /students/:studentId/recovery/activate`, selección de misiones de bajo esfuerzo elegibles (`isRecoveryEligible && effort === 'LOW'`) y emisión de `recovery.activated.v1`.
 - **API Gateway (`@vivu/api-gateway`) y Frontend (`@vivu/web`):** Endpoints `/api/v1/resources/*`, `/api/v1/surveys/*` y `/api/v1/recovery/*` con pruebas E2E en `test/resources-surveys-recovery.e2e-spec.ts` y pantallas `STU-15`, `STU-17`, `STU-18` y envío de recursos por `PROFESSOR`.
 
+### Resumen de lo entregado en Sprint 5:
+- **Contratos (`@vivu/contracts`):** `recommendation-contracts.ts` y `recommendation-contracts.spec.ts` (`RecommendationSource`, `RecommendationReasonCode`, `RecommendationScoreBreakdownDto`, `RecommendationWeightConfigDto` v1.0.0, `RecommendationItemDto`, `RecordRecommendationActionRequest`, `computeDeterministicRecommendationScore`, `validateNonStigmatizingRationale`).
+- **Servicio de Recomendaciones (`services/recommendation-service` en Python + FastAPI):**
+  - `engine.py` y `main.py` con filtrado por reglas duras (modo recuperación exige `is_recovery_eligible && effort == "LOW"`, exclusión estricta de recursos no `PUBLISHED` como `RES-ARCH-01`, máximo 3 recomendaciones por corrida), puntaje determinista ponderado (`rule_version = "1.0.0"`), abstracción `LLMProvider` (`DisabledLLMProvider`, `ControlledContextualLLMProvider`, `FailingOrHallucinatingLLMProvider`) con fallback determinista a `ONLINE_RULES`, trazabilidad `RecommendationTraceRecord` y endpoint `/extract-resource` con sanitización PII (`ADR-006`).
+  - Pruebas en `tests/test_recommender.py` validadas con `ruff`, `mypy --strict` y `pytest`.
+- **API Gateway (`@vivu/api-gateway`) y Frontend (`@vivu/web`):**
+  - `GatewayRecommendationService` y `RecommendationGatewayController` exponiendo `GET /api/v1/recommendations`, `POST /api/v1/recommendations/refresh`, `POST /api/v1/recommendations/:recommendationId/action` y `GET /api/v1/recommendations/traces` con pruebas E2E en `test/recommendations.e2e-spec.ts`.
+  - Pantalla `STU-16` (*Recomendaciones explicadas*) en `@vivu/web` con explicación *"¿Por qué ves esta recomendación?"*, indicador de fuente (`ONLINE_AI` / `ONLINE_RULES`) y las 5 acciones de agencia del estudiante (`ACCEPT`, `POSTPONE`, `EDIT`, `REJECT`, `DISMISS_SIMILAR`).
+
 ## Próximo sprint planeado
 
-**Sprint 5 — Recomendador V1 online (`recommendation-service` en Python + FastAPI y vistas `STU-16`).**
+**Sprint 6 — PWA local-first y sincronización offline (`Outbox`, `IndexedDB`, `SyncEngine`, recomendador determinista TS `OFFLINE_RULES`, endpoints `/api/v1/sync/*` y pantalla `STU-21`).**
 
 ## Mockups
 
