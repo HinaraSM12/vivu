@@ -24,6 +24,8 @@ import {
   type GatewayMissionListFilter,
   type GatewayMissionTemplate,
   type GatewayMissionTransitionResponse,
+  type GatewayRecoveryChoiceCode,
+  type GatewayRecoveryState,
   type GatewayStudentMissionView,
   type GatewayStudentProgressSummary,
 } from './gateway-gamification.service';
@@ -162,6 +164,32 @@ export class GamificationGatewayController {
   ): GatewayStudentProgressSummary {
     const studentId = request.authClaims?.sub ?? '';
     return this.gamificationService.getStudentProgress(studentId);
+  }
+
+  @Get('recovery')
+  @RequireRoles('STUDENT')
+  getRecoveryState(
+    @Req() request: AuthenticatedRequest,
+  ): GatewayRecoveryState {
+    const studentId = request.authClaims?.sub ?? '';
+    return this.gamificationService.getRecoveryState(studentId);
+  }
+
+  @Post('recovery/activate')
+  @RequireRoles('STUDENT')
+  @HttpCode(HttpStatus.OK)
+  activateRecovery(
+    @Req() request: AuthenticatedRequest,
+    @Body()
+    body?: {
+      choice?: GatewayRecoveryChoiceCode;
+    },
+  ): GatewayRecoveryState {
+    const studentId = request.authClaims?.sub ?? '';
+    return this.gamificationService.activateRecovery(
+      studentId,
+      body?.choice ?? 'MICRO_MISSION_5M',
+    );
   }
 }
 

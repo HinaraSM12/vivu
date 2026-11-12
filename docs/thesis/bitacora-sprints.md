@@ -13,8 +13,8 @@
 | 0 | Fundación técnica | Completado | `chore/sprint-0-foundation` | [#1](https://github.com/HinaraSM12/vivu/pull/1) | 2026-08-19 / Merge inicial |
 | 1 | Identidad y acceso | Completado | `feat/sprint-1-identity-access` | [#21](https://github.com/HinaraSM12/vivu/pull/21) | 2026-11-10 |
 | 2 | Consentimiento, onboarding y perfil | Completado | `feat/sprint-2-consent-onboarding-profile` | [#22](https://github.com/HinaraSM12/vivu/pull/22) | 2026-11-11 |
-| 3 | Misiones, ludificación y progreso | Implementado (en revisión PR) | `feat/sprint-3-missions-gamification` | PR Sprint 3 | 2026-11-11 |
-| 4 | Recursos, microcuestionarios y recuperación | Pendiente | `feat/sprint-4-resources-surveys-recovery` | — | — |
+| 3 | Misiones, ludificación y progreso | Completado | `feat/sprint-3-missions-gamification` | [#23](https://github.com/HinaraSM12/vivu/pull/23) | 2026-11-11 |
+| 4 | Recursos, microcuestionarios y recuperación | Implementado (en revisión PR) | `feat/sprint-4-resources-surveys-recovery` | PR Sprint 4 | 2026-11-11 |
 | 5 | Recomendador V1 online | Pendiente | `feat/sprint-5-recommender-v1-online` | — | — |
 | 6 | PWA local-first y sincronización offline | Pendiente | `feat/sprint-6-pwa-offline-sync` | — | — |
 | 7 | Facilitador | Pendiente | `feat/sprint-7-facilitator-support` | — | — |
@@ -150,5 +150,26 @@
 
 ---
 
-## Sprints 4 a 9 *(Se completarán iterativamente siguiendo la misma estructura)*
+## Sprint 4 — Recursos institucionales, microcuestionarios y modo recuperación
+
+- **Fecha:** 2026-11-11
+- **Rama:** `feat/sprint-4-resources-surveys-recovery`
+- **Issue relacionado:** [#5](https://github.com/HinaraSM12/vivu/issues/5)
+- **Objetivo del Sprint:** Implementar el catálogo y flujo de moderación de recursos institucionales en `@vivu/resource-service` (`ADR-006`), los microcuestionarios breves en `@vivu/survey-service` y el modo recuperación sin castigo en `@vivu/gamification-service`, junto con las pantallas `STU-15`, `STU-17`, `STU-18` y el portal de propuestas de `PROFESSOR`.
+- **Historias implementadas:**
+  - `PB-013` / `ADR-006`: Catálogo de recursos institucionales verificados (`PUBLISHED`), exclusión de recursos vencidos (`RES-ARCH-01`), propuestas por `PROFESSOR` (`PENDING_REVIEW`), detección de duplicados, versionado (`resource_versions`) y evento `resource.viewed.v1`.
+  - `PB-014`: Microcuestionarios `SUR-WEEKLY-V1` y `SUR-RECOVERY-V1` (máximo 4 ítems), respuesta idempotente por `clientEventId` y evento `survey.submitted.v1`.
+  - `PB-015`: Modo recuperación sin castigo (`STU-15`: *"¿Cómo quieres retomar hoy?"*), recomendación de microacciones de 5 minutos (`MIS-REC-01`) y emisión de `recovery.activated.v1`.
+- **Evidencias de pruebas y calidad:**
+  - `@vivu/contracts`: `survey-contracts.spec.ts` en verde.
+  - `@vivu/resource-service`: `resource.service.spec.ts` en verde (filtrado de `PUBLISHED`, evento seudónimo, propuesta `PROFESSOR`, bloqueo de duplicados y moderación `ADMIN` con historial de versiones).
+  - `@vivu/survey-service`: `survey.service.spec.ts` en verde (límite de ítems, idempotencia y evento seudónimo).
+  - `@vivu/gamification-service`: prueba de activación de modo recuperación en `gamification.service.spec.ts` en verde.
+  - `@vivu/api-gateway`: pruebas E2E en `test/resources-surveys-recovery.e2e-spec.ts` en verde.
+  - `@vivu/web`: prueba de integración UI en `App.test.tsx` para `STU-15`, `STU-17` y `STU-18` en verde.
+- **Resultado:** Sprint 4 implementado con todas las puertas de calidad en verde.
+
+---
+
+## Sprints 5 a 9 *(Se completarán iterativamente siguiendo la misma estructura)*
 

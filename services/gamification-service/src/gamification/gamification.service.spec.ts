@@ -80,5 +80,20 @@ describe('GamificationService', () => {
     expect(skipped.progress.completedMissionsCount).toBe(2);
     expect(skipped.progress.levelNumber).toBe(1);
   });
+
+  it('activates non-punitive recovery mode (STU-15), returns only LOW-effort recovery-eligible missions, and emits recovery.activated.v1', () => {
+    const state = service.activateRecovery('usr-stu-002', 'MICRO_MISSION_5M', {
+      clientEventId: 'evt-rec-001',
+    });
+
+    expect(state.isRecoveryActive).toBe(true);
+    expect(state.selectedChoice).toBe('MICRO_MISSION_5M');
+    expect(state.recommendedRecoveryMissionCodes).toContain('MIS-REC-01');
+    expect(state.recommendedRecoveryMissionCodes).not.toContain('MIS-PLAN-02');
+
+    const events = repository.getEmittedEvents();
+    expect(events[0]?.eventType).toBe('recovery.activated.v1');
+    expect(events[0]?.subjectId).toBe('sub-anon-stu-002');
+  });
 });
 
