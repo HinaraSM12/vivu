@@ -2,14 +2,16 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { defaultAuthClient } from '../features/auth/auth-client';
 import { defaultGamificationClient } from '../features/gamification/gamification-client';
+import { defaultSprint4Client } from '../features/resources-surveys-recovery/sprint4-client';
 import { defaultStudentContextClient } from '../features/student/student-context-client';
 import { App } from './App';
 
-describe('App (Sprints 1, 2 & 3 — Identity, Consent, Onboarding, Missions & Non-Punitive Gamification)', () => {
+describe('App (Sprints 1–4 — Identity, Consent, Onboarding, Missions, Resources, Surveys & Recovery)', () => {
   beforeEach(() => {
     defaultAuthClient.resetAccounts();
     defaultStudentContextClient.reset();
     defaultGamificationClient.reset();
+    defaultSprint4Client.reset();
   });
 
   afterEach(() => {
@@ -233,5 +235,43 @@ describe('App (Sprints 1, 2 & 3 — Identity, Consent, Onboarding, Missions & No
         name: /nivel personal 2: constancia inicial/i,
       }),
     ).toBeInTheDocument();
+  });
+
+  it('permite activar el modo recuperación sin castigo (STU-15), responder el check-in semanal (STU-18) y consultar recursos PUBLISHED excluyendo inactivos (STU-17)', () => {
+    render(<App />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /entrar como student/i }),
+    );
+
+    // Activar modo recuperación (STU-15)
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /retomar con microacción de 5 min/i,
+      }),
+    );
+    expect(
+      screen.getByText(/modo recuperación activado sin penalización/i),
+    ).toBeInTheDocument();
+
+    // Responder check-in semanal (STU-18)
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /responder check-in semanal \(sur-weekly-v1\)/i,
+      }),
+    );
+    expect(
+      screen.getByText(/check-in semanal completado esta semana/i),
+    ).toBeInTheDocument();
+
+    // Ir a Recursos (STU-17) y comprobar que aparecen los 5 recursos PUBLISHED y no RES-ARCH-01
+    fireEvent.click(screen.getByRole('button', { name: /^recursos$/i }));
+    expect(
+      screen.getByRole('heading', {
+        name: /catálogo de recursos institucionales verificados \(published\)/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/RES-ACAD-01/i)).toBeInTheDocument();
+    expect(screen.queryByText(/RES-ARCH-01/i)).not.toBeInTheDocument();
   });
 });

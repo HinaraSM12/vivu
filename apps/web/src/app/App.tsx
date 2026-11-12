@@ -21,6 +21,13 @@ import {
   type StudentMissionView,
   type StudentProgressSummaryView,
 } from '../features/gamification/gamification-client';
+import {
+  defaultSprint4Client,
+  type InstitutionalResourceView,
+  type RecoveryChoiceCode,
+  type RecoveryStateView,
+  type ResourceCategoryCode,
+} from '../features/resources-surveys-recovery/sprint4-client';
 import type { RoleCode } from '../local-data/session-snapshot';
 
 type AuthScreenMode = 'login' | 'register';
@@ -122,6 +129,24 @@ export function App() {
   const [completionFeedback, setCompletionFeedback] =
     useState<MissionFeedbackBannerView | null>(null);
 
+  // Sprint 4: Recursos Institucionales, Microcuestionarios y Modo Recuperación
+  const [publishedResources, setPublishedResources] = useState<
+    InstitutionalResourceView[]
+  >([]);
+  const [recoveryState, setRecoveryState] = useState<RecoveryStateView | null>(
+    null,
+  );
+  const [submittedSurveyCodes, setSubmittedSurveyCodes] = useState<string[]>(
+    [],
+  );
+  const [contribTitleInput, setContribTitleInput] = useState<string>('');
+  const [contribSummaryInput, setContribSummaryInput] = useState<string>('');
+  const [contribCategoryInput, setContribCategoryInput] =
+    useState<ResourceCategoryCode>('ACADEMIC_SUPPORT');
+  const [contribUnitInput, setContribUnitInput] = useState<string>(
+    'Departamento de Ingeniería de Sistemas',
+  );
+
   const syncGamificationState = (
     studentId: string,
     filter: MissionListFilter = missionFilter,
@@ -135,6 +160,11 @@ export function App() {
       ),
     );
     setProgressSummary(defaultGamificationClient.getStudentProgress(studentId));
+    setPublishedResources(defaultSprint4Client.listPublishedResources('ALL'));
+    setRecoveryState(defaultSprint4Client.getRecoveryState(studentId));
+    setSubmittedSurveyCodes(
+      defaultSprint4Client.getSubmittedSurveys(studentId),
+    );
   };
 
   const syncStudentStateFromStore = (studentId: string) => {
@@ -310,6 +340,51 @@ export function App() {
     syncGamificationState(session.user.userId);
     setReflectionNoteInput('');
     setCompletionFeedback(result.feedback ?? null);
+  };
+
+  const handleActivateRecovery = (choice: RecoveryChoiceCode) => {
+    if (!session) return;
+    const updated = defaultSprint4Client.activateRecovery(
+      session.user.userId,
+      choice,
+    );
+    setRecoveryState(updated);
+    setStatusBanner(
+      'Modo recuperación activado sin penalización. Retomar con algo pequeño también cuenta.',
+    );
+  };
+
+  const handleSubmitMicroSurvey = (surveyCode: string) => {
+    if (!session) return;
+    const submitted = defaultSprint4Client.submitSurvey(
+      session.user.userId,
+      surveyCode,
+    );
+    setSubmittedSurveyCodes(submitted);
+    setStatusBanner(
+      `Microcuestionario ${surveyCode} registrado. ¡Gracias por compartir tu experiencia esta semana!`,
+    );
+  };
+
+  const handleSubmitProfessorResource = () => {
+    if (!contribTitleInput.trim() || !contribSummaryInput.trim()) {
+      setErrorMessage(
+        'Completa el título y el resumen del recurso institucional.',
+      );
+      return;
+    }
+    setErrorMessage(null);
+    const created = defaultSprint4Client.submitResourceProposal({
+      title: contribTitleInput,
+      summary: contribSummaryInput,
+      category: contribCategoryInput,
+      organizerUnit: contribUnitInput,
+    });
+    setContribTitleInput('');
+    setContribSummaryInput('');
+    setStatusBanner(
+      `Propuesta de recurso "${created.title}" (${created.code}) enviada en estado ${created.status} para revisión humana.`,
+    );
   };
 
   const handleAcceptConsent = () => {
@@ -1093,6 +1168,69 @@ export function App() {
                       </button>
                     </div>
                   </div>
+
+                  {recoveryState ? (
+                    <div className="demo-box" style={{ marginTop: '0.75rem' }}>
+                      <h3>
+                        Modo recuperación sin castigo ·{' '}
+                        {recoveryState.headline}
+                      </h3>
+                      <p>{recoveryState.supportiveCopy}</p>
+                      {recoveryState.isRecoveryActive ? (
+                        <p>
+                          <strong>
+                            Estado: Modo recuperación activo (opción elegida:{' '}
+                            {recoveryState.selectedChoice})
+                          </strong>
+                        </p>
+                      ) : null}
+                      <div className="demo-buttons">
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          onClick={() =>
+                            handleActivateRecovery('MICRO_MISSION_5M')
+                          }
+                        >
+                          Retomar con microacción de 5 min
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() =>
+                            handleActivateRecovery('CONSULT_RESOURCE')
+                          }
+                        >
+                          Consultar un apoyo institucional
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div className="demo-box" style={{ marginTop: '0.75rem' }}>
+                    <h3>
+                      Check-in semanal de autorregulación (SUR-WEEKLY-V1)
+                    </h3>
+                    <p className="subtitle">
+                      Breve pulso de 4 preguntas (menos de 2 minutos) sobre tu
+                      semana.
+                    </p>
+                    {submittedSurveyCodes.includes('SUR-WEEKLY-V1') ? (
+                      <p>
+                        <strong>
+                          Check-in semanal completado esta semana.
+                        </strong>
+                      </p>
+                    ) : (
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => handleSubmitMicroSurvey('SUR-WEEKLY-V1')}
+                      >
+                        Responder check-in semanal (SUR-WEEKLY-V1)
+                      </button>
+                    )}
+                  </div>
                 </div>
               ) : null}
 
@@ -1366,6 +1504,36 @@ export function App() {
                   </div>
                 </div>
               ) : null}
+
+              {activeSection === 'Recursos' ? (
+                <div style={{ marginTop: '1rem' }}>
+                  <h3>
+                    Catálogo de recursos institucionales verificados (PUBLISHED)
+                  </h3>
+                  <p className="subtitle">
+                    Únicamente se muestran recursos revisados y vigentes de la
+                    Facultad de Minas / Sede Medellín.
+                  </p>
+                  {publishedResources.map((res) => (
+                    <div
+                      key={res.code}
+                      className="demo-box"
+                      style={{ marginBottom: '0.75rem' }}
+                    >
+                      <h4>
+                        {res.title}{' '}
+                        <span className="badge-pill">{res.code}</span>
+                      </h4>
+                      <p>{res.summary}</p>
+                      <p className="subtitle">
+                        Categoría: {res.category} · Modalidad: {res.modality} ·
+                        Horario: {res.scheduleInfo} · Contacto:{' '}
+                        {res.contactInfo}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
           ) : null}
 
@@ -1465,6 +1633,66 @@ export function App() {
                 asesorías, talleres, semilleros y actividades académicas con
                 flujo de moderación (DRAFT → PENDING_REVIEW → PUBLISHED).
               </p>
+              <div className="demo-box" style={{ marginTop: '0.75rem' }}>
+                <h3>Proponer nuevo apoyo o recurso institucional</h3>
+                <div className="form-field">
+                  <label htmlFor="contrib-title">Título del recurso</label>
+                  <input
+                    id="contrib-title"
+                    className="vivu-input"
+                    value={contribTitleInput}
+                    onChange={(e) => setContribTitleInput(e.target.value)}
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="contrib-summary">
+                    Descripción y cómo acceder
+                  </label>
+                  <input
+                    id="contrib-summary"
+                    className="vivu-input"
+                    value={contribSummaryInput}
+                    onChange={(e) => setContribSummaryInput(e.target.value)}
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="contrib-category">Categoría</label>
+                  <select
+                    id="contrib-category"
+                    className="vivu-input"
+                    value={contribCategoryInput}
+                    onChange={(e) =>
+                      setContribCategoryInput(
+                        e.target.value as ResourceCategoryCode,
+                      )
+                    }
+                  >
+                    <option value="ACADEMIC_SUPPORT">Apoyo académico</option>
+                    <option value="STUDY_HABITS">Hábitos de estudio</option>
+                    <option value="PLANNING">Planificación</option>
+                    <option value="WELLBEING_BALANCE">Bienestar</option>
+                    <option value="CAMPUS_INTEGRATION">
+                      Integración universitaria
+                    </option>
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label htmlFor="contrib-unit">Unidad organizadora</label>
+                  <input
+                    id="contrib-unit"
+                    className="vivu-input"
+                    value={contribUnitInput}
+                    onChange={(e) => setContribUnitInput(e.target.value)}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSubmitProfessorResource}
+                >
+                  Enviar recurso a moderación (PENDING_REVIEW)
+                </button>
+              </div>
             </div>
           ) : null}
 

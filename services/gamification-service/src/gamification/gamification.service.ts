@@ -16,6 +16,8 @@ import {
   type MissionTransitionResponseDto,
   type PersonalAchievementEntity,
   type ProgressLevelCode,
+  type RecoveryChoiceCode,
+  type RecoveryStateDto,
   type StudentMissionViewDto,
   type StudentProgressSummaryDto,
 } from './gamification.types';
@@ -519,6 +521,58 @@ export class GamificationService {
       supportiveFeedback,
       lastInteractionAt: continuity.lastInteractionAt,
     };
+  }
+
+  getRecoveryState(studentId: string): RecoveryStateDto {
+    const continuity = this.repository.getStudentContinuity(studentId);
+    const eligibleMissions = this.repository
+      .getAllTemplates()
+      .filter((t) => t.isRecoveryEligible && t.effort === 'LOW')
+      .map((t) => t.code);
+
+    return {
+      studentId,
+      isRecoveryActive: continuity.isRecoveryActive,
+      continuitySignal: continuity.continuitySignal,
+      headline: '¿Cómo quieres retomar hoy?',
+      supportiveCopy:
+        'Retomar con algo pequeño también cuenta. Elige una opción breve sin perder ningún nivel ni logro previo.',
+      lastActivatedAt: continuity.lastRecoveryActivatedAt,
+      selectedChoice: continuity.selectedRecoveryChoice,
+      recommendedRecoveryMissionCodes: eligibleMissions,
+      recommendedResourceCodes: ['RES-ACA-03', 'RES-WEL-01', 'RES-ACAD-01'],
+    };
+  }
+
+  activateRecovery(
+    studentId: string,
+    choice: RecoveryChoiceCode,
+    options?: {
+      clientEventId?: string;
+      correlationId?: string;
+    },
+  ): RecoveryStateDto {
+    const now = new Date().toISOString();
+    this.repository.activateRecoveryMode(studentId, choice, now);
+
+    const analyticsSubjectId =
+      this.repository.getAnalyticsSubjectId(studentId);
+    this.repository.recordDomainEvent({
+      eventId: randomUUID(),
+      eventType: 'recovery.activated.v1',
+      occurredAt: now,
+      actorId: analyticsSubjectId,
+      subjectId: analyticsSubjectId,
+      correlationId: options?.correlationId ?? randomUUID(),
+      schemaVersion: 1,
+      clientEventId: options?.clientEventId,
+      payload: {
+        choice,
+        ruleVersion: CURRENT_GAMIFICATION_RULE_VERSION,
+      },
+    });
+
+    return this.getRecoveryState(studentId);
   }
 
   private evaluateAndUnlockAchievements(

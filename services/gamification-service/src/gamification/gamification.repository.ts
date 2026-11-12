@@ -8,6 +8,7 @@ import {
   type MissionTemplateEntity,
   type MissionTransitionResponseDto,
   type PersonalAchievementEntity,
+  type RecoveryChoiceCode,
 } from './gamification.types';
 
 const SEED_MISSION_TEMPLATES: MissionTemplateEntity[] = [
@@ -191,6 +192,9 @@ export class GamificationRepository {
       weeklyActiveDays: number;
       continuitySignal: ContinuitySignal;
       lastInteractionAt: string | null;
+      isRecoveryActive?: boolean;
+      lastRecoveryActivatedAt?: string | null;
+      selectedRecoveryChoice?: RecoveryChoiceCode | null;
     }
   >();
   private readonly analyticsSubjectIds = new Map<string, string>();
@@ -411,9 +415,36 @@ export class GamificationRepository {
     weeklyActiveDays: number;
     continuitySignal: ContinuitySignal;
     lastInteractionAt: string | null;
+    isRecoveryActive: boolean;
+    lastRecoveryActivatedAt: string | null;
+    selectedRecoveryChoice: RecoveryChoiceCode | null;
   } {
     this.ensureStudentInitialized(studentId);
-    return { ...this.continuityByStudent.get(studentId)! };
+    const current = this.continuityByStudent.get(studentId)!;
+    return {
+      weeklyActiveDays: current.weeklyActiveDays,
+      continuitySignal: current.continuitySignal,
+      lastInteractionAt: current.lastInteractionAt,
+      isRecoveryActive: current.isRecoveryActive ?? false,
+      lastRecoveryActivatedAt: current.lastRecoveryActivatedAt ?? null,
+      selectedRecoveryChoice: current.selectedRecoveryChoice ?? null,
+    };
+  }
+
+  activateRecoveryMode(
+    studentId: string,
+    choice: RecoveryChoiceCode,
+    occurredAt: string,
+  ): void {
+    this.ensureStudentInitialized(studentId);
+    const current = this.continuityByStudent.get(studentId)!;
+    this.continuityByStudent.set(studentId, {
+      ...current,
+      isRecoveryActive: true,
+      lastRecoveryActivatedAt: occurredAt,
+      selectedRecoveryChoice: choice,
+      lastInteractionAt: occurredAt,
+    });
   }
 
   recordPositiveInteraction(studentId: string, occurredAt: string): void {

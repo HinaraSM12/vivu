@@ -93,3 +93,19 @@ export {
   PERCEIVED_LOAD_LEVELS,
   PREFERRED_TONES,
 } from './student/student-contracts';
+export type {
+  ActivateRecoveryRequest,
+  RecoveryChoiceCode,
+  RecoveryStateDto,
+  SubmitSurveyRequest,
+  SurveyAnswerDto,
+  SurveyCode,
+  SurveyDefinitionDto,
+  SurveyQuestionDto,
+  SurveyResponseRecordDto,
+} from './survey/survey-contracts';
+export {
+  RECOVERY_CHOICE_CODES,
+  SURVEY_CODES,
+  validateSurveyQuestionsCount,
+} from './survey/survey-contracts';

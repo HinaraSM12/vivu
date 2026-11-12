@@ -16,6 +16,8 @@ import type {
   MissionListFilter,
   MissionTemplateEntity,
   MissionTransitionResponseDto,
+  RecoveryChoiceCode,
+  RecoveryStateDto,
   StudentMissionViewDto,
   StudentProgressSummaryDto,
 } from './gamification.types';
@@ -134,6 +136,33 @@ export class GamificationController {
     @Param('studentId') studentId: string,
   ): StudentProgressSummaryDto {
     return this.gamificationService.getStudentProgress(studentId);
+  }
+
+  @Get('students/:studentId/recovery')
+  getRecoveryState(@Param('studentId') studentId: string): RecoveryStateDto {
+    return this.gamificationService.getRecoveryState(studentId);
+  }
+
+  @Post('students/:studentId/recovery/activate')
+  @HttpCode(HttpStatus.OK)
+  activateRecovery(
+    @Param('studentId') studentId: string,
+    @Body()
+    body: {
+      choice: RecoveryChoiceCode;
+      clientEventId?: string;
+    },
+    @Headers('idempotency-key') idempotencyKey?: string,
+    @Headers('x-correlation-id') correlationId?: string,
+  ): RecoveryStateDto {
+    return this.gamificationService.activateRecovery(
+      studentId,
+      body?.choice ?? 'MICRO_MISSION_5M',
+      {
+        clientEventId: body?.clientEventId ?? idempotencyKey,
+        correlationId,
+      },
+    );
   }
 }
 

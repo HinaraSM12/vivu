@@ -1247,7 +1247,8 @@ Vivu
 - **Sprint 0 completado** (PR #1 mergeado en `main`).
 - **Sprint 1 — Identidad y acceso completado y mergeado en `main`** (PR #21, commit `3ebeb59`, Issue #2).
 - **Sprint 2 — Consentimiento, onboarding y perfil + Actualización Integral Tesis V7 (PRISMA V5) completado y mergeado en `main`** (PR #22, commit `81e43a2`, Issue #3).
-- **Sprint 3 — Misiones, ludificación y progreso implementado** (sobre rama `feat/sprint-3-missions-gamification`, Issue #4).
+- **Sprint 3 — Misiones, ludificación y progreso completado y mergeado en `main`** (PR #23, commit `ea21092`, Issue #4).
+- **Sprint 4 — Recursos institucionales, microcuestionarios y modo recuperación implementado** (sobre rama `feat/sprint-4-resources-surveys-recovery`, Issue #5).
 
 ### Resumen de lo entregado en Sprint 1 (mergeado):
 - **Contratos (`@vivu/contracts`):** `RoleCode` (`STUDENT`, `FACILITATOR`, `ADMIN`), `AccountStatus`, `JwtAccessClaims`, `SessionCapabilities`, `SessionUserDto`, `AuthSessionResponse`, `OfflineSessionSnapshot`, `UserRegisteredEventPayload`.
@@ -1290,9 +1291,16 @@ Vivu
 - **Frontend (`@vivu/web`):**
   - Pantallas `STU-09` (Inicio semanal con nivel y continuidad), `STU-10` (Lista y filtros de misiones), `STU-11` (Detalle de misión), `STU-12` (Misión en progreso con pausa y posposición sin castigo), `STU-13` (Feedback positivo al completar misión y logro desbloqueado) y `STU-14` (Progreso personal y logros no competitivos).
 
+### Resumen de lo entregado en Sprint 4:
+- **Contratos (`@vivu/contracts`):** `survey-contracts.ts` y `survey-contracts.spec.ts` (`SURVEY_CODES`, `RECOVERY_CHOICE_CODES`, `SurveyDefinitionDto`, `SurveyResponseRecordDto`, `RecoveryStateDto`, `validateSurveyQuestionsCount`).
+- **Servicio de Recursos (`@vivu/resource-service`):** `ResourceRepository`, `ResourceService` y `ResourceController` conforme a `ADR-006` (catálogo de 5 recursos `PUBLISHED` vigentes y 1 recurso `EXPIRED` `RES-ARCH-01` excluido del catálogo estudiantil, historial `resource_versions`, detección de duplicados, propuestas por `PROFESSOR` en estado `PENDING_REVIEW`, moderación por `ADMIN` a `PUBLISHED` y evento `resource.viewed.v1`).
+- **Servicio de Encuestas (`@vivu/survey-service`):** `SurveyRepository`, `SurveyService` y `SurveyController` con `SUR-WEEKLY-V1` (4 ítems) y `SUR-RECOVERY-V1` (2 ítems), idempotencia por `clientEventId` y emisión de `survey.submitted.v1`.
+- **Modo Recuperación (`@vivu/gamification-service`):** Endpoints `GET /students/:studentId/recovery` y `POST /students/:studentId/recovery/activate`, selección de misiones de bajo esfuerzo elegibles (`isRecoveryEligible && effort === 'LOW'`) y emisión de `recovery.activated.v1`.
+- **API Gateway (`@vivu/api-gateway`) y Frontend (`@vivu/web`):** Endpoints `/api/v1/resources/*`, `/api/v1/surveys/*` y `/api/v1/recovery/*` con pruebas E2E en `test/resources-surveys-recovery.e2e-spec.ts` y pantallas `STU-15`, `STU-17`, `STU-18` y envío de recursos por `PROFESSOR`.
+
 ## Próximo sprint planeado
 
-**Sprint 4 — Recursos institucionales, microcuestionarios y modo recuperación.**
+**Sprint 5 — Recomendador V1 online (`recommendation-service` en Python + FastAPI y vistas `STU-16`).**
 
 ## Mockups
 

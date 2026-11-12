@@ -34,6 +34,25 @@ export type GatewayContinuitySignal =
   | 'gentle_pause'
   | 'recovery_suggested';
 
+export type GatewayRecoveryChoiceCode =
+  | 'MICRO_MISSION_5M'
+  | 'REORGANIZE_PRIORITY'
+  | 'CONSULT_RESOURCE'
+  | 'REQUEST_SUPPORT'
+  | 'LATER';
+
+export interface GatewayRecoveryState {
+  studentId: string;
+  isRecoveryActive: boolean;
+  continuitySignal: GatewayContinuitySignal;
+  headline: string;
+  supportiveCopy: string;
+  lastActivatedAt: string | null;
+  selectedChoice: GatewayRecoveryChoiceCode | null;
+  recommendedRecoveryMissionCodes: string[];
+  recommendedResourceCodes: string[];
+}
+
 export const GATEWAY_GAMIFICATION_RULE_VERSION = '1.0.0';
 
 export interface GatewayMissionTemplate {
@@ -344,6 +363,9 @@ export class GatewayGamificationService {
       weeklyActiveDays: number;
       continuitySignal: GatewayContinuitySignal;
       lastInteractionAt: string | null;
+      isRecoveryActive?: boolean;
+      lastRecoveryActivatedAt?: string | null;
+      selectedRecoveryChoice?: GatewayRecoveryChoiceCode | null;
     }
   >();
   private readonly idempotentTransitions = new Map<
@@ -961,6 +983,44 @@ export class GatewayGamificationService {
       return;
     }
     this.idempotentTransitions.set(`${studentId}:${clientEventId}`, response);
+  }
+
+  getRecoveryState(studentId: string): GatewayRecoveryState {
+    this.ensureStudentInitialized(studentId);
+    const continuity = this.continuityByStudent.get(studentId)!;
+    const eligibleMissions = Array.from(this.templates.values())
+      .filter((t) => t.isRecoveryEligible && t.effort === 'LOW')
+      .map((t) => t.code);
+
+    return {
+      studentId,
+      isRecoveryActive: continuity.isRecoveryActive ?? false,
+      continuitySignal: continuity.continuitySignal,
+      headline: '¿Cómo quieres retomar hoy?',
+      supportiveCopy:
+        'Retomar con algo pequeño también cuenta. Elige una opción breve sin perder ningún nivel ni logro previo.',
+      lastActivatedAt: continuity.lastRecoveryActivatedAt ?? null,
+      selectedChoice: continuity.selectedRecoveryChoice ?? null,
+      recommendedRecoveryMissionCodes: eligibleMissions,
+      recommendedResourceCodes: ['RES-ACA-03', 'RES-WEL-01', 'RES-ACAD-01'],
+    };
+  }
+
+  activateRecovery(
+    studentId: string,
+    choice: GatewayRecoveryChoiceCode,
+  ): GatewayRecoveryState {
+    this.ensureStudentInitialized(studentId);
+    const current = this.continuityByStudent.get(studentId)!;
+    const now = new Date().toISOString();
+    this.continuityByStudent.set(studentId, {
+      ...current,
+      isRecoveryActive: true,
+      lastRecoveryActivatedAt: now,
+      selectedRecoveryChoice: choice,
+      lastInteractionAt: now,
+    });
+    return this.getRecoveryState(studentId);
   }
 }
 

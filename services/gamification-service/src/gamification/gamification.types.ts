@@ -25,6 +25,25 @@ export type ProgressLevelCode =
 
 export type ContinuitySignal = 'active' | 'gentle_pause' | 'recovery_suggested';
 
+export type RecoveryChoiceCode =
+  | 'MICRO_MISSION_5M'
+  | 'REORGANIZE_PRIORITY'
+  | 'CONSULT_RESOURCE'
+  | 'REQUEST_SUPPORT'
+  | 'LATER';
+
+export interface RecoveryStateDto {
+  studentId: string;
+  isRecoveryActive: boolean;
+  continuitySignal: ContinuitySignal;
+  headline: string;
+  supportiveCopy: string;
+  lastActivatedAt: string | null;
+  selectedChoice: RecoveryChoiceCode | null;
+  recommendedRecoveryMissionCodes: string[];
+  recommendedResourceCodes: string[];
+}
+
 export const CURRENT_GAMIFICATION_RULE_VERSION = '1.0.0';
 
 export interface MissionTemplateEntity {
