@@ -167,9 +167,30 @@
   - `@vivu/gamification-service`: prueba de activación de modo recuperación en `gamification.service.spec.ts` en verde.
   - `@vivu/api-gateway`: pruebas E2E en `test/resources-surveys-recovery.e2e-spec.ts` en verde.
   - `@vivu/web`: prueba de integración UI en `App.test.tsx` para `STU-15`, `STU-17` y `STU-18` en verde.
-- **Resultado:** Sprint 4 implementado con todas las puertas de calidad en verde.
+- **Resultado:** Sprint 4 implementado con todas las puertas de calidad en verde (PR #24 mergeado en `main`, commit `e581b50`).
 
 ---
 
-## Sprints 5 a 9 *(Se completarán iterativamente siguiendo la misma estructura)*
+## Sprint 5 — Recomendador V1 online (Híbrido determinista + LLM instrumental)
+
+- **Fecha:** 2026-11-11
+- **Rama:** `feat/sprint-5-recommender-v1-online`
+- **Issue relacionado:** [#6](https://github.com/HinaraSM12/vivu/issues/6)
+- **Objetivo del Sprint:** Implementar el motor híbrido de recomendaciones online (`@vivu/recommendation-service` en Python/FastAPI, contratos en `@vivu/contracts`, exposición en `@vivu/api-gateway` y pantalla `STU-16` en `@vivu/web`), subordinando el LLM a reglas deterministas y garantizando explicabilidad, trazabilidad y agencia completa del estudiante.
+- **Historias implementadas:**
+  - `PB-016`: Motor determinista `ruleVersion: "1.0.0"` con reglas duras (modo recuperación restringido a `isRecoveryEligible && effort === 'LOW'`, exclusión de recursos no `PUBLISHED` como `RES-ARCH-01`, máximo 3 recomendaciones por ejecución) y fórmula ponderada configurable (`0.30*need + 0.20*time + 0.15*difficulty + 0.15*continuity + 0.15*resource + 0.05*diversity`).
+  - `PB-017`: Abstracción `LLMProvider` para contextualización/explicación controlada (`ONLINE_AI`, `prompt-rec-v1.0.0`), validador anti-estigma y fallback determinista automático (`ONLINE_RULES`, `fallbackUsed: true`) ante fallo o salida no fundamentada, además de extracción estructurada con sanitización PII previa (`/extract-resource`, `ADR-006`).
+  - `PB-018`: Registro trazable (`RecommendationTraceRecordDto`) de las 5 acciones de agencia del estudiante (`ACCEPT`, `POSTPONE`, `EDIT`, `REJECT`, `DISMISS_SIMILAR`) y pantalla `STU-16` en `@vivu/web`.
+- **Evidencias de pruebas y calidad:**
+  - `@vivu/contracts`: `recommendation-contracts.spec.ts` en verde.
+  - `services/recommendation-service`: `ruff`, `mypy --strict` y `pytest` (`tests/test_recommender.py`, 9 passed) en verde.
+  - `@vivu/api-gateway`: pruebas E2E en `test/recommendations.e2e-spec.ts` en verde.
+  - `@vivu/web`: prueba de integración UI en `App.test.tsx` para `STU-16` en verde.
+- **Decisiones arquitectónicas / ADR:**
+  - Cumplimiento estricto de `ADR-002` (recomendador híbrido con fallback determinista) y `ADR-006` (exclusión de recursos no `PUBLISHED` y sanitización PII antes del LLM).
+- **Resultado:** Sprint 5 implementado con todas las puertas de calidad Node y Python en verde.
+
+---
+
+## Sprints 6 a 9 *(Se completarán iterativamente siguiendo la misma estructura)*
 

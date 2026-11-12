@@ -52,6 +52,22 @@ export {
   PROGRESS_LEVEL_CODES,
 } from './gamification/gamification-contracts';
 export type {
+  RecommendationItemDto,
+  RecommendationReasonCode,
+  RecommendationScoreBreakdownDto,
+  RecommendationSource,
+  RecommendationWeightConfigDto,
+  RecordRecommendationActionRequest,
+} from './recommendation/recommendation-contracts';
+export {
+  computeDeterministicRecommendationScore,
+  DEFAULT_RECOMMENDATION_WEIGHT_CONFIG,
+  FORBIDDEN_STIGMATIZING_TERMS,
+  RECOMMENDATION_REASON_CODES,
+  RECOMMENDATION_SOURCES,
+  validateNonStigmatizingRationale,
+} from './recommendation/recommendation-contracts';
+export type {
   ContributorTrustLevel,
   InstitutionalResourceDto,
   LlmExtractedResourcePayload,

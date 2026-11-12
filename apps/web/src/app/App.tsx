@@ -6,14 +6,6 @@ import {
   SEED_DEMO_PASSWORD,
 } from '../features/auth/auth-client';
 import {
-  defaultStudentContextClient,
-  type PerceivedLoad,
-  type PreferredTone,
-  type StudentConsentRecord,
-  type StudentPersonalizationPreferences,
-  type StudentProfileRecord,
-} from '../features/student/student-context-client';
-import {
   defaultGamificationClient,
   type MissionCategoryCode,
   type MissionFeedbackBannerView,
@@ -22,12 +14,26 @@ import {
   type StudentProgressSummaryView,
 } from '../features/gamification/gamification-client';
 import {
+  defaultRecommendationClient,
+  type RecommendationLlmMode,
+  type RecommendationView,
+  type StudentRecommendationAction,
+} from '../features/recommendations/recommendation-client';
+import {
   defaultSprint4Client,
   type InstitutionalResourceView,
   type RecoveryChoiceCode,
   type RecoveryStateView,
   type ResourceCategoryCode,
 } from '../features/resources-surveys-recovery/sprint4-client';
+import {
+  defaultStudentContextClient,
+  type PerceivedLoad,
+  type PreferredTone,
+  type StudentConsentRecord,
+  type StudentPersonalizationPreferences,
+  type StudentProfileRecord,
+} from '../features/student/student-context-client';
 import type { RoleCode } from '../local-data/session-snapshot';
 
 type AuthScreenMode = 'login' | 'register';
@@ -35,6 +41,7 @@ type AuthScreenMode = 'login' | 'register';
 const STUDENT_DESTINATIONS = [
   'Inicio',
   'Misiones',
+  'Recomendaciones',
   'Progreso',
   'Recursos',
   'Perfil',
@@ -147,6 +154,13 @@ export function App() {
     'Departamento de Ingeniería de Sistemas',
   );
 
+  // Sprint 5: Recomendador V1 Online (Híbrido Determinista + LLM Instrumental)
+  const [recommendations, setRecommendations] = useState<RecommendationView[]>(
+    [],
+  );
+  const [llmMode, setLlmMode] = useState<RecommendationLlmMode>('contextual');
+  const [editRecNoteInput, setEditRecNoteInput] = useState<string>('');
+
   const syncGamificationState = (
     studentId: string,
     filter: MissionListFilter = missionFilter,
@@ -164,6 +178,9 @@ export function App() {
     setRecoveryState(defaultSprint4Client.getRecoveryState(studentId));
     setSubmittedSurveyCodes(
       defaultSprint4Client.getSubmittedSurveys(studentId),
+    );
+    setRecommendations(
+      defaultRecommendationClient.listRecommendations(studentId, llmMode),
     );
   };
 
@@ -349,8 +366,54 @@ export function App() {
       choice,
     );
     setRecoveryState(updated);
+    setRecommendations(
+      defaultRecommendationClient.refreshRecommendations(
+        session.user.userId,
+        llmMode,
+      ),
+    );
     setStatusBanner(
       'Modo recuperación activado sin penalización. Retomar con algo pequeño también cuenta.',
+    );
+  };
+
+  const handleRefreshRecommendations = (mode: RecommendationLlmMode) => {
+    if (!session) return;
+    setLlmMode(mode);
+    const refreshed = defaultRecommendationClient.refreshRecommendations(
+      session.user.userId,
+      mode,
+    );
+    setRecommendations(refreshed);
+    setStatusBanner(
+      mode === 'simulate_failure'
+        ? 'Fallback determinista activado (ONLINE_RULES) tras indisponibilidad del componente LLM.'
+        : 'Recomendaciones actualizadas con reglas deterministas v1.0.0.',
+    );
+  };
+
+  const handleRecommendationAction = (
+    recommendationId: string,
+    action: StudentRecommendationAction,
+  ) => {
+    if (!session) return;
+    const updated = defaultRecommendationClient.recordAction(
+      session.user.userId,
+      recommendationId,
+      action,
+      {
+        editedNotes:
+          action === 'EDIT'
+            ? editRecNoteInput || 'Meta ajustada a mi ritmo semanal'
+            : undefined,
+        postponedUntil: action === 'POSTPONE' ? 'Próxima semana' : undefined,
+      },
+    );
+    setRecommendations(updated);
+    syncGamificationState(session.user.userId);
+    setEditRecNoteInput('');
+    setStatusBanner(
+      `Acción de agencia «${action}» registrada sobre la recomendación con trazabilidad completa.`,
     );
   };
 
@@ -1502,6 +1565,157 @@ export function App() {
                       </ul>
                     )}
                   </div>
+                </div>
+              ) : null}
+
+              {activeSection === 'Recomendaciones' ? (
+                <div style={{ marginTop: '1rem' }}>
+                  <h3>
+                    Recomendaciones explicadas (Motor híbrido determinista + LLM
+                    instrumental)
+                  </h3>
+                  <p className="subtitle">
+                    Máximo 3 sugerencias priorizadas por reglas deterministas (v
+                    1.0.0). Tú decides qué hacer con cada una.
+                  </p>
+                  <div className="demo-buttons" style={{ marginBottom: '0.75rem' }}>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => handleRefreshRecommendations('contextual')}
+                    >
+                      Actualizar con explicación IA (ONLINE_AI)
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-tertiary"
+                      onClick={() =>
+                        handleRefreshRecommendations('simulate_failure')
+                      }
+                    >
+                      Probar fallback determinista (ONLINE_RULES)
+                    </button>
+                  </div>
+
+                  <div className="form-field" style={{ marginBottom: '0.75rem' }}>
+                    <label htmlFor="rec-edit-note">
+                      Nota personal si decides editar una recomendación
+                      (opcional)
+                    </label>
+                    <input
+                      id="rec-edit-note"
+                      className="vivu-input"
+                      value={editRecNoteInput}
+                      onChange={(e) => setEditRecNoteInput(e.target.value)}
+                      placeholder="Ej. Haré primero 2 entregas hoy y 1 mañana"
+                    />
+                  </div>
+
+                  {recommendations.map((rec) => (
+                    <div
+                      key={rec.recommendationId}
+                      className="demo-box"
+                      style={{ marginBottom: '0.75rem' }}
+                    >
+                      <h4>
+                        {rec.title}{' '}
+                        <span className="badge-pill">{rec.missionId}</span>{' '}
+                        <span className="badge-pill">{rec.source}</span>
+                      </h4>
+                      <p>{rec.summary}</p>
+                      <p>
+                        <strong>¿Por qué ves esta recomendación?</strong>{' '}
+                        {rec.whyThisRecommendation}
+                      </p>
+                      <p className="subtitle">
+                        Motivo: {rec.reasonCode} · Esfuerzo: {rec.effort} (
+                        {rec.estimatedMinutes} min) · Puntaje determinista:{' '}
+                        {rec.score} · Regla v{rec.ruleVersion}
+                        {rec.fallbackUsed ? ' · Fallback determinista activo' : ''}
+                      </p>
+                      {rec.resourceTitle ? (
+                        <p className="subtitle">
+                          Apoyo institucional verificado (PUBLISHED):{' '}
+                          <strong>{rec.resourceTitle}</strong> ({rec.resourceId})
+                        </p>
+                      ) : null}
+                      {rec.studentAction ? (
+                        <p>
+                          <strong>
+                            Tu decisión registrada: {rec.studentAction}
+                          </strong>
+                          {rec.editedNotes
+                            ? ` — Nota: ${rec.editedNotes}`
+                            : ''}
+                        </p>
+                      ) : null}
+                      <div
+                        className="demo-buttons"
+                        style={{ marginTop: '0.5rem' }}
+                      >
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          onClick={() =>
+                            handleRecommendationAction(
+                              rec.recommendationId,
+                              'ACCEPT',
+                            )
+                          }
+                        >
+                          Aceptar recomendación
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() =>
+                            handleRecommendationAction(
+                              rec.recommendationId,
+                              'POSTPONE',
+                            )
+                          }
+                        >
+                          Posponer
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() =>
+                            handleRecommendationAction(
+                              rec.recommendationId,
+                              'EDIT',
+                            )
+                          }
+                        >
+                          Editar meta
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-tertiary"
+                          onClick={() =>
+                            handleRecommendationAction(
+                              rec.recommendationId,
+                              'REJECT',
+                            )
+                          }
+                        >
+                          Rechazar
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-tertiary"
+                          onClick={() =>
+                            handleRecommendationAction(
+                              rec.recommendationId,
+                              'DISMISS_SIMILAR',
+                            )
+                          }
+                        >
+                          No quiero recomendaciones como esta
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : null}
 

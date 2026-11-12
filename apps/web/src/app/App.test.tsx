@@ -274,4 +274,38 @@ describe('App (Sprints 1–4 — Identity, Consent, Onboarding, Missions, Resour
     expect(screen.getByText(/RES-ACAD-01/i)).toBeInTheDocument();
     expect(screen.queryByText(/RES-ARCH-01/i)).not.toBeInTheDocument();
   });
+
+  it('muestra hasta 3 recomendaciones explicadas (STU-16), soporta fallback determinista (ONLINE_RULES) y registra las 5 acciones de agencia del estudiante', () => {
+    render(<App />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /entrar como student/i }),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /^recomendaciones$/i }));
+    expect(
+      screen.getByRole('heading', {
+        name: /recomendaciones explicadas \(motor híbrido determinista \+ llm instrumental\)/i,
+      }),
+    ).toBeInTheDocument();
+
+    // Probar fallback determinista (ONLINE_RULES)
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /probar fallback determinista \(online_rules\)/i,
+      }),
+    );
+    expect(
+      screen.getByText(/fallback determinista activado \(online_rules\)/i),
+    ).toBeInTheDocument();
+
+    // Registrar acción EDIT sobre la primera recomendación
+    const editButtons = screen.getAllByRole('button', {
+      name: /^editar meta$/i,
+    });
+    fireEvent.click(editButtons[0]!);
+    expect(
+      screen.getByText(/tu decisión registrada: edit/i),
+    ).toBeInTheDocument();
+  });
 });
