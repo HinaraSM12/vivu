@@ -19,6 +19,9 @@ updates:
       - dependency-name: "@nestjs/*"
         update-types:
           - "version-update:semver-major"
+      - dependency-name: "typescript"
+        update-types:
+          - "version-update:semver-major"
     commit-message:
       prefix: "chore"
       include: "scope"
