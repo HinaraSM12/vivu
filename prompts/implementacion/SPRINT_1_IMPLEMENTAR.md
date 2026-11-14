@@ -18,3 +18,4 @@
 - No permitir que el autoregistro asigne `FACILITATOR` ni `ADMIN`.
 - No persistir tokens Bearer crudos en `localStorage`.
 - Al finalizar: pasar `npm run lint`, `npm run typecheck`, `npm run test` y `npm run build`, actualizar `VIVU_CONTEXT_HANDOFF.md` y registrar el sprint en `docs/thesis/bitacora-sprints.md`.
+

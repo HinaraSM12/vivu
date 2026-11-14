@@ -23,27 +23,47 @@ El proyecto corresponde a una tesis de maestría y no busca convertirse, durante
 
 # 2. Propósito académico
 
-Título de referencia de la tesis:
+Título de referencia actualizado de la tesis (V7 / PRISMA V5):
 
-**Sistema de ludificación basado en un modelo de lenguaje de gran escala para el fomento del aprendizaje autorregulado en estudiantes de ingeniería.**
+**Sistema de ludificación adaptativa asistido por un modelo de lenguaje de gran escala para el fomento del aprendizaje autorregulado y el uso de recursos institucionales en estudiantes de ingeniería.**
+
+Objetivo general actualizado:
+
+**Desarrollar y evaluar de forma exploratoria un prototipo de sistema de ludificación adaptativa asistido por un modelo de lenguaje de gran escala para apoyar acciones de aprendizaje autorregulado y el uso de recursos institucionales en estudiantes de ingeniería de la Facultad de Minas.**
+
+Objetivo específico de evaluación (OE4):
+
+**Evaluar el prototipo mediante indicadores de calidad de software, calidad de experiencia (QoE, ISO 9241-11 / ISO 9241-210), calidad de servicio (QoS), calidad instrumental del componente LLM, continuidad de uso y pertinencia de las recomendaciones durante una prueba piloto longitudinal con estudiantes de ingeniería de la Facultad de Minas.**
+
+Base científica de la revisión sistemática (PRISMA V5 — `Articulo_Revision_Sistematica_PRISMA_v5_FINAL.docx`):
+
+- Bases definitivas: **Scopus, IEEE Xplore, ERIC** (8 familias temáticas = 24 ejecuciones formales);
+- Ventana temporal: **2014–2026**;
+- Registros identificados: **6.573** (`2.584` Scopus + `2.474` IEEE Xplore + `1.515` ERIC);
+- Duplicados eliminados: **1.240** -> Registros únicos cribados: **5.333**;
+- Informes buscados para texto completo: **249** (`146` `DIRECT_CORE` + `103` `RESCUE_TO_FULLTEXT`);
+- Informes recuperados legalmente: **72** (`177` no recuperables por paywall/sin copia pública);
+- Revisados humanamente: **63** -> **Corpus final incluido: 57 estudios empíricos primarios** (fase exploratoria histórica mantenida por separado).
 
 Población objetivo:
 
 - estudiantes de ingeniería;
 - contexto inicial: Facultad de Minas, Universidad Nacional de Colombia, sede Medellín;
-- muestra prevista para validación: aproximadamente 5–10 estudiantes;
+- muestra prevista para validación exploratoria longitudinal: aproximadamente 5–10 estudiantes;
 - prueba longitudinal: 10 semanas / 70 días.
 
-El prototipo busca ayudar a convertir necesidades, recursos institucionales y objetivos de autorregulación en acciones concretas y sostenibles.
+El prototipo busca ayudar a convertir necesidades de autorregulación, recursos institucionales verificados y objetivos semanales en acciones concretas y sostenibles, empleando el LLM únicamente como **componente instrumental** (contextualización, explicación, adaptación de tono y extracción estructurada con JSON Schema sobre recursos autorizados; **LLM ≠ ML predictivo**).
 
 No pretende:
 
-- diagnosticar estudiantes;
-- automatizar decisiones académicas;
-- etiquetar públicamente estudiantes como "de alto riesgo";
+- diagnosticar psicológica o clínicamente a estudiantes;
+- entrenar un modelo predictivo de deserción ni un clasificador de riesgo propio;
+- hacer benchmarking fundacional del modelo de lenguaje;
+- automatizar decisiones académicas o asignar sanciones/calificaciones;
+- etiquetar públicamente estudiantes como "en riesgo" o "de alto riesgo";
+- inventar recursos institucionales, horarios, contactos o convocatorias;
 - demostrar causalmente reducción de deserción;
-- entrenar o validar un modelo avanzado propio de IA;
-- integrarse completamente con sistemas institucionales oficiales;
+- integrarse obligatoriamente con sistemas académicos restringidos;
 - convertirse en una plataforma de producción institucional durante la tesis.
 
 ---
@@ -127,6 +147,22 @@ Puede:
 - administrar configuración general.
 
 Las escrituras administrativas requieren conexión.
+
+## PROFESSOR (`RESOURCE_CONTRIBUTOR`)
+
+Rol colaborativo institucional (docente o colaborador autorizado) introducido en `ADR-006`:
+
+Puede:
+
+- iniciar sesión;
+- registrar o proponer recursos institucionales mediante formulario estructurado (creados en estado `PENDING_REVIEW`, o aprobados según `contributor_trust_level`);
+- consultar el estado de moderación y vigencia de los recursos que aportó.
+
+No puede:
+
+- acceder a datos personales, perfiles, progreso ni seguimiento de estudiantes;
+- publicar directamente en el catálogo estudiantil sin revisión (salvo `INSTITUTIONAL_EDITOR` autorizado);
+- alterar reglas globales de ludificación o IA.
 
 ## Rol eliminado
 
@@ -1113,8 +1149,9 @@ No cambiar decisiones unilateralmente.
 
 Si una conversación futura necesita máxima fidelidad académica, adjuntar además de este archivo:
 
-1. `PROYECTO_DE_TESIS_HINARA_SANCHEZ (2).docx`
-2. `Versión 2_Marco arquitectónico para plataformas de acompañamiento estudiantil_ integración de ludificación e inteligencia artificial desde el diseño de software (1).docx`
+1. `PROYECTO_DE_TESIS_HINARA_SANCHEZ (6).docx` y `PROYECTO_DE_TESIS_HINARA_SANCHEZ_v7_ACTUALIZADO.docx` (con espejo en `docs/thesis/proyecto-tesis-actualizado-v7.md`)
+2. `Articulo_Revision_Sistematica_PRISMA_v5_FINAL.docx` (fuente autoritativa PRISMA V5: 57 estudios primarios)
+3. `Versión 2_Marco arquitectónico para plataformas de acompañamiento estudiantil_ integración de ludificación e inteligencia artificial desde el diseño de software (1).docx`
 
 Para trabajo técnico también son útiles:
 
@@ -1207,11 +1244,73 @@ Vivu
 
 ## Último sprint conocido
 
-**Sprint 0 completado** (PR #1 mergeado en `main`, más alineación documental de roadmap Sprints 1–9, gobernanza `.github/`, seeds sintéticos `docs/architecture/seed-data-spec.md`, instrumentos de investigación `docs/research/instrumentos-piloto.md` y bitácora de tesis `docs/thesis/bitacora-sprints.md`).
+- **Sprint 0 completado** (PR #1 mergeado en `main`).
+- **Sprint 1 — Identidad y acceso completado y mergeado en `main`** (PR #21, commit `3ebeb59`, Issue #2).
+- **Sprint 2 — Consentimiento, onboarding y perfil + Actualización Integral Tesis V7 (PRISMA V5) completado y mergeado en `main`** (PR #22, commit `81e43a2`, Issue #3).
+- **Sprint 3 — Misiones, ludificación y progreso completado y mergeado en `main`** (PR #23, commit `ea21092`, Issue #4).
+- **Sprint 4 — Recursos institucionales, microcuestionarios y modo recuperación completado y mergeado en `main`** (PR #24, commit `e581b50`, Issue #5).
+- **Sprint 5 — Recomendador V1 online (híbrido determinista + LLM instrumental) implementado** (sobre rama `feat/sprint-5-recommender-v1-online`, Issue #6).
+
+### Resumen de lo entregado en Sprint 1 (mergeado):
+- **Contratos (`@vivu/contracts`):** `RoleCode` (`STUDENT`, `FACILITATOR`, `ADMIN`), `AccountStatus`, `JwtAccessClaims`, `SessionCapabilities`, `SessionUserDto`, `AuthSessionResponse`, `OfflineSessionSnapshot`, `UserRegisteredEventPayload`.
+- **Servicio de Identidad (`@vivu/identity-service`):** `PasswordHasher`, `TokenService`, `IdentityRepository` con seeds sintéticos, `AuthService` y `AuthController` (registro exclusivo `STUDENT`, emisión de `user.registered.v1` sin PII, login, rotación de refresh tokens con revocación de familia y logout).
+- **API Gateway (`@vivu/api-gateway`):** `/api/v1/auth/*`, `/api/v1/me`, `/api/v1/*/access-check`, `JwtAuthGuard`, `RolesGuard` y `StandardErrorFilter`.
+- **Frontend (`@vivu/web`):** Pantallas `STU-01` (Login) y `STU-02` (Registro exclusivo `STUDENT`), shells por rol, vista `403` y `SessionSnapshotStore`.
+
+### Resumen de lo entregado en Sprint 2:
+- **Contratos (`@vivu/contracts`):** `ConsentStatus` (`pending`, `accepted`, `withdrawn`), `PerceivedLoad`, `PreferredTone`, `ConsentRecordDto`, `PersonalizationPreferencesDto`, `WellbeingInputsDto`, `StudentProfileDto`, `ConsentUpdatedEventPayload`, `StudentProfileUpdatedEventPayload` y validador `findForbiddenProfileFields` (rechaza `gpa`, `grades`, `academicHistory`, `institutionalIdNumber`, `clinicalDiagnosis`).
+- **Servicio de Estudiante (`@vivu/student-service`):**
+  - `StudentRepository` con mapeo interno `analyticsSubjectId` seudónimo y seeds coherentes para `est.activo@vivu.local`, `est.recuperacion@vivu.local` y `est.nuevo@vivu.local`.
+  - `StudentContextService` y `StudentController`: verificación obligatoria de consentimiento (`403 CONSENT_REQUIRED`) antes de guardar perfil/preferencias, bloqueo de campos sensibles no autorizados (`400 UNSUPPORTED_SENSITIVE_FIELD`), retiro voluntario de consentimiento (`POST /me/consent/withdraw`) que desactiva personalización y limpia `wellbeingInputs`, y emisión de `consent.updated.v1` y `student.profile_updated.v1` usando `analyticsSubjectId`.
+- **API Gateway (`@vivu/api-gateway`):**
+  - Endpoints protegidos bajo `@RequireRoles('STUDENT')`: `GET/POST /api/v1/me/consent`, `POST /api/v1/me/consent/withdraw`, `GET/PUT /api/v1/me/profile`, `GET/PUT /api/v1/me/personalization-preferences`.
+- **Frontend (`@vivu/web`):**
+  - Pantalla `STU-03` (Consentimiento informado v1.0 sin dark patterns, con opción de no aceptar y salir).
+  - Wizard de Onboarding de 5 pasos (`STU-04` a `STU-08`: contexto académico, carga y asignaturas retadoras, disponibilidad y responsabilidades, prácticas e intereses, y bienestar opcional con botón de omitir).
+  - Pantallas `STU-19` (Perfil editable) y `STU-20` (Privacidad y retiro voluntario del consentimiento).
+
+### Resumen de la Actualización Integral Tesis V7 + PRISMA V5 + Arquitectura Vivu (45 requerimientos):
+- **Documento de Tesis (`.docx` y `.md`):**
+  - Actualizado `PROYECTO_DE_TESIS_HINARA_SANCHEZ (6).docx` in-place y generado `PROYECTO_DE_TESIS_HINARA_SANCHEZ_v7_ACTUALIZADO.docx` + espejo completo en `docs/thesis/proyecto-tesis-actualizado-v7.md`.
+  - Sustituidas todas las cifras y gráficos antiguos de la revisión por **PRISMA V5** (`Articulo_Revision_Sistematica_PRISMA_v5_FINAL.docx`: Scopus, IEEE Xplore, ERIC; 2014–2026; 6.573 identificados, 1.240 duplicados, 5.333 únicos, 249 buscados, 72 recuperados, 63 revisados humanamente y **57 estudios empíricos primarios**; 6 figuras PNG actualizadas dentro del `.docx`).
+  - Reformulado el enfoque conceptual: *"Sistema de ludificación adaptativa asistido por un modelo de lenguaje de gran escala"* (LLM ≠ ML predictivo), objetivo general con desarrollo y evaluación exploratoria, y OE4 centrado en calidad de software, QoE (ISO 9241-11 / ISO 9241-210), QoS, calidad instrumental del componente LLM, continuidad y pertinencia.
+- **Nuevos ADRs, Gobernanza de Datos y Especificaciones (`docs/`):**
+  - `docs/adr/006-multi-source-resource-ingestion-and-moderation.md`: ingesta multifuente (`InstitutionalWebCollector`, `InstitutionalMailConnector` con sanitización PII previa al LLM, y carga manual por `PROFESSOR`/`ADMIN`), estados `DRAFT` -> `PUBLISHED`, entidad `Resource` de 26 campos, `resource_versions`, deduplicación y prioridad de fuentes.
+  - `docs/security/data-governance-matrix.md`: matriz formal de 11 columnas variable por variable y datos prohibidos por defecto.
+  - Actualizados `docs/ai/llm-policy.md`, `docs/ai/recommender-v1.md`, `docs/ai/evaluation.md`, `docs/testing/analytics-events.md` (16 eventos canónicos), `docs/research/instrumentos-piloto.md` (dimensión de valor percibido de la universidad, 14 ítems QoE, constructos no clínicos `perceivedLoad` y `organizationDifficulty`) y `docs/security/privacy-and-consent.md`.
+- **Contratos y Servicios Actualizados (`packages/` y `services/`):**
+  - `@vivu/contracts`: creado `resource-contracts.ts` (26 campos de `InstitutionalResourceDto`, `ResourceVersionRecordDto`, `LlmExtractedResourcePayload`, `RecommendationTraceRecordDto`, `TelemetryEventRecordDto`, `canRecommendInstitutionalResource`, `sanitizeEmailContentBeforeLlm`), añadido rol `PROFESSOR` (`RESOURCE_CONTRIBUTOR`) en `auth-contracts.ts` y `organizationDifficulty` no clínico en `student-contracts.ts`.
+  - `@vivu/identity-service`, `@vivu/student-service`, `@vivu/api-gateway` y `@vivu/web`: soporte para `PROFESSOR` (`prof.recursos@vivu.local`), `organizationDifficulty` en onboarding/perfil y bloqueo de diagnósticos clínicos (`clinicalStressDiagnosis`, `mentalHealthDiagnosis`).
+
+### Resumen de lo entregado en Sprint 3:
+- **Contratos (`@vivu/contracts`):** `gamification-contracts.ts` y `gamification-contracts.spec.ts` (`MissionCategoryCode`, `MissionEffortLevel`, `MissionAssignmentStatus`, `ProgressLevelCode`, `ContinuitySignal`, `MissionTemplateDto`, `MissionAssignmentDto`, `PersonalAchievementDto`, `StudentProgressSummaryDto`, `MissionFeedbackBannerDto`, `computeProgressLevel` para niveles personales 1–4 bajo `ruleVersion: "1.0.0"`, y `findForbiddenCompetitiveFields`).
+- **Servicio de Ludificación (`@vivu/gamification-service`):**
+  - `GamificationRepository` con las 7 misiones oficiales del seed (`MIS-PLAN-01` a `MIS-REC-01`), estados iniciales para `usr-stu-001` y `usr-stu-002`, y soporte de idempotencia mediante `clientEventId` / `Idempotency-Key`.
+  - `GamificationService` y `GamificationController`: listado con filtros (`today`, `week`, `all`, `completed`, `category`), detalle de misión, aceptación (`mission.accepted.v1`), inicio, pausa sin castigo, posposición sin castigo (`mission.skipped.v1`), finalización idempotente (`mission.completed.v1`) con desbloqueo de logros personales (`ACH-FIRST-STEP`, `ACH-INITIAL-CONSISTENCY`, `ACH-BALANCED-EXPLORER`) y resumen de progreso personal sin rankings competitivos.
+- **API Gateway (`@vivu/api-gateway`):**
+  - `GatewayGamificationService` y `GamificationGatewayController` exponiendo `/api/v1/missions/catalog`, `/api/v1/missions`, `/api/v1/missions/:missionCode`, `/api/v1/missions/:missionCode/{accept,start,pause,skip,complete}` y `/api/v1/progress`, con pruebas E2E en `test/gamification.e2e-spec.ts`.
+- **Frontend (`@vivu/web`):**
+  - Pantallas `STU-09` (Inicio semanal con nivel y continuidad), `STU-10` (Lista y filtros de misiones), `STU-11` (Detalle de misión), `STU-12` (Misión en progreso con pausa y posposición sin castigo), `STU-13` (Feedback positivo al completar misión y logro desbloqueado) y `STU-14` (Progreso personal y logros no competitivos).
+
+### Resumen de lo entregado en Sprint 4:
+- **Contratos (`@vivu/contracts`):** `survey-contracts.ts` y `survey-contracts.spec.ts` (`SURVEY_CODES`, `RECOVERY_CHOICE_CODES`, `SurveyDefinitionDto`, `SurveyResponseRecordDto`, `RecoveryStateDto`, `validateSurveyQuestionsCount`).
+- **Servicio de Recursos (`@vivu/resource-service`):** `ResourceRepository`, `ResourceService` y `ResourceController` conforme a `ADR-006` (catálogo de 5 recursos `PUBLISHED` vigentes y 1 recurso `EXPIRED` `RES-ARCH-01` excluido del catálogo estudiantil, historial `resource_versions`, detección de duplicados, propuestas por `PROFESSOR` en estado `PENDING_REVIEW`, moderación por `ADMIN` a `PUBLISHED` y evento `resource.viewed.v1`).
+- **Servicio de Encuestas (`@vivu/survey-service`):** `SurveyRepository`, `SurveyService` y `SurveyController` con `SUR-WEEKLY-V1` (4 ítems) y `SUR-RECOVERY-V1` (2 ítems), idempotencia por `clientEventId` y emisión de `survey.submitted.v1`.
+- **Modo Recuperación (`@vivu/gamification-service`):** Endpoints `GET /students/:studentId/recovery` y `POST /students/:studentId/recovery/activate`, selección de misiones de bajo esfuerzo elegibles (`isRecoveryEligible && effort === 'LOW'`) y emisión de `recovery.activated.v1`.
+- **API Gateway (`@vivu/api-gateway`) y Frontend (`@vivu/web`):** Endpoints `/api/v1/resources/*`, `/api/v1/surveys/*` y `/api/v1/recovery/*` con pruebas E2E en `test/resources-surveys-recovery.e2e-spec.ts` y pantallas `STU-15`, `STU-17`, `STU-18` y envío de recursos por `PROFESSOR`.
+
+### Resumen de lo entregado en Sprint 5:
+- **Contratos (`@vivu/contracts`):** `recommendation-contracts.ts` y `recommendation-contracts.spec.ts` (`RecommendationSource`, `RecommendationReasonCode`, `RecommendationScoreBreakdownDto`, `RecommendationWeightConfigDto` v1.0.0, `RecommendationItemDto`, `RecordRecommendationActionRequest`, `computeDeterministicRecommendationScore`, `validateNonStigmatizingRationale`).
+- **Servicio de Recomendaciones (`services/recommendation-service` en Python + FastAPI):**
+  - `engine.py` y `main.py` con filtrado por reglas duras (modo recuperación exige `is_recovery_eligible && effort == "LOW"`, exclusión estricta de recursos no `PUBLISHED` como `RES-ARCH-01`, máximo 3 recomendaciones por corrida), puntaje determinista ponderado (`rule_version = "1.0.0"`), abstracción `LLMProvider` (`DisabledLLMProvider`, `ControlledContextualLLMProvider`, `FailingOrHallucinatingLLMProvider`) con fallback determinista a `ONLINE_RULES`, trazabilidad `RecommendationTraceRecord` y endpoint `/extract-resource` con sanitización PII (`ADR-006`).
+  - Pruebas en `tests/test_recommender.py` validadas con `ruff`, `mypy --strict` y `pytest`.
+- **API Gateway (`@vivu/api-gateway`) y Frontend (`@vivu/web`):**
+  - `GatewayRecommendationService` y `RecommendationGatewayController` exponiendo `GET /api/v1/recommendations`, `POST /api/v1/recommendations/refresh`, `POST /api/v1/recommendations/:recommendationId/action` y `GET /api/v1/recommendations/traces` con pruebas E2E en `test/recommendations.e2e-spec.ts`.
+  - Pantalla `STU-16` (*Recomendaciones explicadas*) en `@vivu/web` con explicación *"¿Por qué ves esta recomendación?"*, indicador de fuente (`ONLINE_AI` / `ONLINE_RULES`) y las 5 acciones de agencia del estudiante (`ACCEPT`, `POSTPONE`, `EDIT`, `REJECT`, `DISMISS_SIMILAR`).
 
 ## Próximo sprint planeado
 
-**Sprint 1 — Identidad y acceso.**
+**Sprint 6 — PWA local-first y sincronización offline (`Outbox`, `IndexedDB`, `SyncEngine`, recomendador determinista TS `OFFLINE_RULES`, endpoints `/api/v1/sync/*` y pantalla `STU-21`).**
 
 ## Mockups
 

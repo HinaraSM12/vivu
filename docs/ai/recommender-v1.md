@@ -1,26 +1,49 @@
-# Especificación del recomendador V1
+# Especificación de la Arquitectura Híbrida de Recomendación V1
 
-## Objetivo
+## 1. Objetivo y Arquitectura Híbrida (Puntos 1, 3, 38 y 39)
 
-Priorizar misiones y recursos autorizados de forma explicable y reproducible usando **hard rules + scoring determinístico + LLM controlado** online, manteniendo un motor determinístico equivalente en la PWA para operación offline.
+Priorizar misiones de aprendizaje autorregulado y recursos institucionales verificados de forma explicable, trazable y reproducible mediante una **arquitectura híbrida** que separa estrictamente la decisión determinista de la redacción asistida por LLM:
 
-## No objetivo
+```text
+DATOS MÍNIMOS Y AUTORIZADOS (no clínicos)
+        ↓
+REGLAS DETERMINISTAS (Hard Rules)
+        ↓
+CATÁLOGO DE MISIONES Y RECURSOS (status = PUBLISHED / ACTIVE)
+        ↓
+SELECCIÓN / PRIORIZACIÓN (Rule Engine + Scoring sencillo)
+        ↓
+LLM INSTRUMENTAL PARA CONTEXTUALIZAR O EXPLICAR (con Fallback determinista)
+        ↓
+ESTUDIANTE (Agencia completa)
+        ↓
+ACEPTA / POSPONE / EDITA / RECHAZA / NO QUIERO RECOMENDACIONES COMO ESTA
+        ↓
+TELEMETRÍA PSEUDONIMIZADA
+        ↓
+ANÁLISIS QoE + QoS + CALIDAD LLM + CONTINUIDAD + PERTINENCIA
+```
 
-No predecir deserción con un modelo propio ni convertir el LLM en agente autónomo que decide acciones académicas.
+El proyecto **NO entrena un modelo predictivo de Machine Learning** con 5–10 estudiantes ni convierte al LLM en el único motor de decisión.
 
-## Input normalizado
+---
+
+## 2. Entrada normalizada y no clínica (Puntos 43–45)
 
 ```json
 {
   "student": {
-    "program": "string",
+    "program": "Ingeniería de Sistemas e Informática",
     "semester": 2,
-    "perceivedLoad": "low|medium|high",
-    "difficultSubjects": ["string"],
+    "perceivedAcademicLoad": "low|medium|high",
+    "perceivedOrganizationDifficulty": "low|medium|high",
+    "difficultSubjects": ["Cálculo Diferencial"],
     "weeklyAvailabilityMinutes": 180,
-    "studyPractices": ["string"],
+    "preferredTimeBlocks": ["MORNING", "AFTERNOON"],
+    "studyPractices": ["pomodoro", "resumenes"],
     "continuityState": "stable|low|recovery",
-    "optionalWellbeing": null
+    "mutedRecommendationCategories": [],
+    "mutedResourceIds": []
   },
   "recentActivity": {
     "acceptedMissionTypes": ["academic"],
@@ -29,145 +52,72 @@ No predecir deserción con un modelo propio ni convertir el LLM en agente autón
   },
   "candidateMissionIds": ["uuid"],
   "candidateResourceIds": ["uuid"],
-  "configVersion": 1
+  "ruleVersion": "1.0.0"
 }
 ```
 
-No incluir email, contraseña, documento, historia académica restringida ni datos no requeridos.
+- Nunca incluye correo, contraseña, documento de identidad, calificaciones, historia académica ni diagnósticos clínicos de estrés o salud mental.
 
-## Modos de ejecución
+---
 
-- `ONLINE_AI`: rules + score Python + LLM controlado.
-- `ONLINE_RULES`: rules + score Python + explicación determinística cuando LLM no está disponible.
-- `OFFLINE_RULES`: rules + score TypeScript en PWA + explicación determinística, sin llamadas de red/LLM.
+## 3. Separación entre decisión (Reglas + Scoring) y redacción (LLM) (Puntos 37–40)
 
-## Pipeline
+### 3.1. Reglas deterministas obligatorias (Hard Rules)
+1. Toda misión candidata debe tener estado `PUBLISHED` y versión activa;
+2. Todo recurso institucional candidato debe tener `resource_id` existente y `status = PUBLISHED` (o `ACTIVE`) y encontrarse dentro de su ventana de vigencia (`start_date` $\le$ hoy $\le$ `end_date`); **si no existe `resource_id` publicado, está prohibido recomendarlo como recurso institucional real (Punto 37)**;
+3. Respeto absoluto al consentimiento activo y a las exclusiones de agencia del estudiante (`mutedRecommendationCategories`, `mutedResourceIds` de la acción `NO QUIERO RECOMENDACIONES COMO ESTA`);
+4. Si el estudiante tiene activo el **Modo Recuperación** (`recoveryActive = true`) o reporta `perceivedAcademicLoad = high` con `perceivedOrganizationDifficulty = high`, se filtran misiones de alto esfuerzo y se priorizan metas mínimas viables;
+5. Ejemplo canónico de regla determinista (Punto 39):
+   `dificultad reportada en Cálculo` + `monitoría activa en catálogo (status = PUBLISHED)` + `horario compatible` $\rightarrow$ **recurso candidato elegible**.
 
-1. Construir candidatos desde misiones publicadas y recursos activos.
-2. Aplicar hard rules.
-3. Calcular componentes de score en `[0,1]`.
-4. Calcular score ponderado.
-5. Ordenar y aplicar límites de diversidad/saturación.
-6. Seleccionar Top-N.
-7. Si LLM está habilitado y saludable, solicitar explicación/rewrite controlado.
-8. Validar salida contra JSON Schema y listas de IDs permitidas.
-9. Si falla, usar plantilla determinística.
-10. Persistir run, componentes, versiones y fallback.
-
-## Score baseline
+### 3.2. Scoring determinista sencillo (Punto 38)
+Sobre los candidatos que superan las reglas duras se calcula un puntaje transparente y reproducible en $[0, 1]$:
 
 ```text
 score =
-  0.30 * need_fit
-+ 0.20 * time_fit
-+ 0.15 * difficulty_fit
-+ 0.15 * continuity_fit
-+ 0.15 * resource_fit
-+ 0.05 * diversity_fit
+  0.25 * thematic_affinity      (afinidad temática / asignatura de dificultad)
++ 0.10 * semester_fit           (adecuación al semestre actual, priorizando 1.º a 4.º)
++ 0.10 * program_fit            (compatibilidad con el programa de ingeniería)
++ 0.20 * need_fit               (alineación con carga académica y dificultad de organización)
++ 0.10 * availability_fit       (compatibilidad con minutos semanales disponibles)
++ 0.10 * validity_freshness     (vigencia y verificación reciente del recurso)
++ 0.10 * schedule_fit           (compatibilidad con bloques horarios del estudiante)
++ 0.05 * preference_diversity   (preferencias declaradas y diversidad semanal)
 ```
 
-Los pesos son configuración de ingeniería V1, no conclusión científica. Deben versionarse.
+### 3.3. Explicabilidad no estigmatizante (Punto 40)
+El componente LLM (o la plantilla determinista en modo fallback/offline) redacta la explicación mostrando la razón concreta y accionable:
+- **Correcto:** *"Te sugerimos esta monitoría porque reportaste dificultad en esta asignatura y actualmente existe una sesión disponible compatible con tu horario."*
+- **Prohibido:** *"Te recomendamos esto porque eres un estudiante de alto riesgo de deserción."*
 
-### need_fit
-Compatibilidad entre necesidad reportada y objetivo/etiquetas de la misión.
+---
 
-### time_fit
-Compatibilidad entre tiempo disponible y duración estimada.
+## 4. Agencia del estudiante sobre cada recomendación (Punto 41)
 
-### difficulty_fit
-Evita recomendar acciones desproporcionadas para carga/dificultad actual.
+Toda recomendación presentada en la interfaz expone cinco acciones explícitas de agencia estudiantil:
+1. `ACCEPT` (`ACEPTAR`): incorpora la misión o abre/agenda el recurso sugerido;
+2. `REJECT` (`RECHAZAR`): descarta la recomendación actual;
+3. `POSTPONE` (`POSPONER`): pospone la sugerencia para otro momento de la semana;
+4. `EDIT` (`EDITAR`): permite ajustar meta, duración o paso mínimo de la misión sugerida;
+5. `DISMISS_CATEGORY` (`NO QUIERO RECOMENDACIONES COMO ESTA`): silencia ese tipo de recomendación o recurso específico en futuras ejecuciones del motor.
 
-### continuity_fit
-Favorece continuidad o recuperación sin castigar interrupciones.
+---
 
-### resource_fit
-Sube cuando la misión tiene recurso autorizado y pertinente.
+## 5. Registro de trazabilidad de recomendaciones (Punto 42)
 
-### diversity_fit
-Reduce repetición excesiva del mismo tipo de misión.
-
-## Hard rules obligatorias
-
-- misión `published` y versión válida;
-- recurso `active` y vigente;
-- respeto a preferencias/consentimiento;
-- no exceder límite de recomendaciones simultáneas;
-- recuperación -> preferir duración/esfuerzo bajo;
-- no recomendar el mismo ítem ya completado si no es repetible;
-- no usar recursos fuera del catálogo autorizado.
-
-## Salida interna
+Cada recomendación generada y mostrada persiste un registro auditable con los campos canónicos:
 
 ```json
 {
-  "runId": "uuid",
-  "configVersion": 1,
-  "fallbackUsed": false,
-  "items": [
-    {
-      "candidateType": "mission",
-      "candidateId": "uuid",
-      "score": 0.87,
-      "scoreComponents": {
-        "needFit": 1.0,
-        "timeFit": 0.8,
-        "difficultyFit": 0.9,
-        "continuityFit": 0.8,
-        "resourceFit": 0.7,
-        "diversityFit": 0.5
-      },
-      "why": "Se ajusta a la dificultad que reportaste y al tiempo disponible esta semana."
-    }
-  ]
+  "recommendation_id": "uuid",
+  "participant_id_pseudonym": "pseudonym-uuid",
+  "resource_id": "uuid-or-null",
+  "mission_id": "uuid-or-null",
+  "reason_code": "DIFFICULT_SUBJECT_ACTIVE_TUTORING_MATCH",
+  "rule_version": "1.0.0",
+  "prompt_version": "explain-rec-v1.0",
+  "model_version": "gemini-2.5-flash-or-deterministic-fallback",
+  "shown_at": "2026-11-10T18:00:00.000Z",
+  "student_action": "ACCEPTED|REJECTED|POSTPONED|EDITED|DISMISSED_SIMILAR|PENDING"
 }
 ```
-
-## Pseudocódigo
-
-```python
-def recommend(ctx, catalog, config, llm):
-    candidates = build_candidates(ctx, catalog)
-    eligible = [c for c in candidates if hard_rules_pass(ctx, c, config)]
-    scored = [score_candidate(ctx, c, config) for c in eligible]
-    top = diversify_and_limit(scored, config)
-    try:
-        explanation = llm.explain(ctx=minimize(ctx), items=top) if llm.enabled else None
-        validated = validate_llm_output(explanation, allowed_ids={x.id for x in top})
-        return persist_result(top, validated, fallback=False)
-    except RecoverableLLMError:
-        return persist_result(top, deterministic_explanations(top, ctx), fallback=True)
-```
-
-## Trazabilidad
-
-Por run registrar: `configVersion`, `policyVersion`, `provider`, `model`, `promptVersion`, scores, IDs candidatos/seleccionados, timeout/fallback y timestamps. No guardar prompts completos con PII en logs generales.
-
-## Tests mínimos
-
-- recurso inactivo nunca se selecciona;
-- modo recuperación favorece baja carga;
-- score reproducible con misma entrada/config;
-- IDs inventados por LLM son rechazados;
-- timeout del LLM activa fallback;
-- datos prohibidos no aparecen en payload hacia `LLMProvider`.
-
-
-## Contrato de reglas compartido PWA/servidor
-
-La configuración versionada del scoring es un contrato serializable consumido por Python y TypeScript. `packages/recommendation-fixtures` contiene casos canónicos con input y output esperado. CI debe ejecutar los mismos fixtures en ambos motores.
-
-La PWA solo usa una configuración recibida del servidor y marcada como `lastKnownGood`. No modifica pesos ni inventa reglas.
-
-## Recomendación offline
-
-Sin conexión, el contexto se construye únicamente con datos ya sincronizados. Se aplican hard rules que puedan evaluarse localmente y se genera un ranking determinístico. El resultado se almacena con `source=OFFLINE_RULES`, `ruleVersion`, `catalogVersion`, `clientGeneratedAt` y score components.
-
-Al volver la conexión, la recomendación histórica no se reemplaza. El backend puede generar una recomendación nueva para el contexto actual.
-
-## Tests de paridad adicionales
-
-- mismos fixtures -> mismo orden de candidatos Python/TypeScript;
-- componentes de score equivalentes dentro de tolerancia;
-- versión desconocida/inválida -> no ejecutar reglas inventadas; usar última versión válida o mostrar que se requiere sincronización;
-- `OFFLINE_RULES` no invoca `LLMProvider`;
-- un recurso no presente en el catálogo cacheado válido nunca se inventa.

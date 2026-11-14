@@ -1,4 +1,127 @@
 export type {
+  AccountStatus,
+  AuthSessionResponse,
+  JwtAccessClaims,
+  OfflineSessionSnapshot,
+  RoleCode,
+  SessionCapabilities,
+  SessionUserDto,
+  UserRegisteredEventPayload,
+} from './auth/auth-contracts';
+export {
+  ACCOUNT_STATUSES,
+  buildCapabilitiesForRoles,
+  isValidRoleCode,
+  ROLE_CODES,
+} from './auth/auth-contracts';
+export type {
   ConnectivityMode,
   EventEnvelope,
 } from './events/event-envelope';
+export type {
+  AcceptMissionRequest,
+  CompleteMissionRequest,
+  ContinuitySignal,
+  MissionAssignmentDto,
+  MissionAssignmentStatus,
+  MissionCategoryCode,
+  MissionEffortLevel,
+  MissionFeedbackBannerDto,
+  MissionLifecycleEventPayload,
+  MissionListFilter,
+  MissionTemplateDto,
+  MissionTransitionResponseDto,
+  PauseMissionRequest,
+  PersonalAchievementDto,
+  ProgressLevelCode,
+  ProgressLevelDescriptor,
+  SkipMissionRequest,
+  StartMissionRequest,
+  StudentMissionViewDto,
+  StudentProgressSummaryDto,
+} from './gamification/gamification-contracts';
+export {
+  CONTINUITY_SIGNALS,
+  computeProgressLevel,
+  FORBIDDEN_COMPETITIVE_RANKING_FIELDS,
+  findForbiddenCompetitiveFields,
+  MISSION_ASSIGNMENT_STATUSES,
+  MISSION_CATEGORY_CODES,
+  MISSION_EFFORT_LEVELS,
+  MISSION_LIST_FILTERS,
+  PROGRESS_LEVEL_CODES,
+} from './gamification/gamification-contracts';
+export type {
+  RecommendationItemDto,
+  RecommendationReasonCode,
+  RecommendationScoreBreakdownDto,
+  RecommendationSource,
+  RecommendationWeightConfigDto,
+  RecordRecommendationActionRequest,
+} from './recommendation/recommendation-contracts';
+export {
+  computeDeterministicRecommendationScore,
+  DEFAULT_RECOMMENDATION_WEIGHT_CONFIG,
+  FORBIDDEN_STIGMATIZING_TERMS,
+  RECOMMENDATION_REASON_CODES,
+  RECOMMENDATION_SOURCES,
+  validateNonStigmatizingRationale,
+} from './recommendation/recommendation-contracts';
+export type {
+  ContributorTrustLevel,
+  InstitutionalResourceDto,
+  LlmExtractedResourcePayload,
+  RecommendationTraceRecordDto,
+  ResourceLifecycleStatus,
+  ResourceSourceType,
+  ResourceVersionRecordDto,
+  StudentRecommendationAction,
+  TelemetryEventRecordDto,
+  TelemetryEventType,
+} from './resource/resource-contracts';
+export {
+  canRecommendInstitutionalResource,
+  CONTRIBUTOR_TRUST_LEVELS,
+  DEFAULT_SOURCE_PRIORITY_HIERARCHY,
+  RESOURCE_LIFECYCLE_STATUSES,
+  RESOURCE_SOURCE_TYPES,
+  sanitizeEmailContentBeforeLlm,
+  STUDENT_RECOMMENDATION_ACTIONS,
+  TELEMETRY_EVENT_TYPES,
+} from './resource/resource-contracts';
+export type {
+  ConsentRecordDto,
+  ConsentStatus,
+  ConsentUpdatedEventPayload,
+  PerceivedLoad,
+  PersonalizationPreferencesDto,
+  PreferredTone,
+  StudentProfileDto,
+  StudentProfileUpdatedEventPayload,
+  UpdateStudentProfileInput,
+  WellbeingInputsDto,
+} from './student/student-contracts';
+export {
+  CONSENT_STATUSES,
+  CURRENT_CONSENT_VERSION,
+  FORBIDDEN_SENSITIVE_PROFILE_FIELDS,
+  findForbiddenProfileFields,
+  PERCEIVED_LOAD_LEVELS,
+  PREFERRED_TONES,
+} from './student/student-contracts';
+export type {
+  ActivateRecoveryRequest,
+  RecoveryChoiceCode,
+  RecoveryStateDto,
+  SubmitSurveyRequest,
+  SurveyAnswerDto,
+  SurveyCode,
+  SurveyDefinitionDto,
+  SurveyQuestionDto,
+  SurveyResponseRecordDto,
+} from './survey/survey-contracts';
+export {
+  RECOVERY_CHOICE_CODES,
+  SURVEY_CODES,
+  validateSurveyQuestionsCount,
+} from './survey/survey-contracts';

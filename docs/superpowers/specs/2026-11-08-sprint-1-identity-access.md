@@ -78,3 +78,4 @@ Alineado con `docs/ux/mockup-guide.md` (`STU-01`, `STU-02`, shells por rol):
 - [ ] Pruebas de autorización allow/deny en `api-gateway` verifican que `STUDENT` recibe `403` en rutas de `FACILITATOR` y `ADMIN`, y `FACILITATOR` recibe `403` en rutas exclusivas de `ADMIN`.
 - [ ] Pruebas de UI en `@vivu/web` verifican Login, Registro, transición al shell del rol correspondiente, bloqueo de vista no autorizada y Logout.
 - [ ] `npm run lint`, `npm run typecheck`, `npm run test` y `npm run build` pasan en verde.
+
