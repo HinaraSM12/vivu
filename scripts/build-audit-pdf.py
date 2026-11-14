@@ -33,11 +33,11 @@ def bg(n,section):
  circle(30,H-120,90,'#efd7ef',.55);circle(W-20,H-225,105,'#e4d7fb',.52);circle(W-15,105,110,'#f7d7e9',.44)
  c.setFillColor(HexColor('#926b9d'));c.setFont('DejaVuBold',8);c.drawString(37,H-38,'VIVU  /  AUDITORÍA ARQUITECTÓNICA')
  c.setStrokeColor(HexColor('#e8dbea'));c.line(37,37,W-37,37)
- txt(38,21,'13 NOV 2026  ·  CORTE 4b330ad',7,MUTED);txt(W-77,21,f'{n:02d} / 06',7,MUTED,'DejaVuBold')
+ txt(38,21,'13 NOV 2026  ·  CORTE 4b330ad',7,MUTED);txt(W-77,21,f'{n:02d} / 10',7,MUTED,'DejaVuBold')
  c.bookmarkPage('p'+str(n)); c.addOutlineEntry(section,'p'+str(n),0)
  # Enlaces internos discretos
- for i in range(1,7):
-  x=W-125+i*15;c.setFillColor(PURPLE if i==n else HexColor('#d9cbe2'));c.circle(x,H-35,3,stroke=0,fill=1);c.linkRect('', 'p'+str(i),(x-7,H-42,x+7,H-28),relative=0,thickness=0)
+ for i in range(1,11):
+  x=W-175+i*13;c.setFillColor(PURPLE if i==n else HexColor('#d9cbe2'));c.circle(x,H-35,3,stroke=0,fill=1);c.linkRect('', 'p'+str(i),(x-7,H-42,x+7,H-28),relative=0,thickness=0)
 def title(k,heading,subtitle):
  txt(40,H-75,k.upper(),8,ROSE,'DejaVuBold');txt(40,H-107,heading,23,INK,'DejaVuBold');para(41,H-120,W-82,subtitle,9.5,15,MUTED)
 def card(x,y,w,h,k,heading,body):
@@ -91,8 +91,42 @@ card(40,307,245,158,'IDEA 03','Seguridad desde el arranque','Las contraseñas y 
 card(300,307,255,158,'IDEA 04','Saber qué está pasando','Necesitamos señales claras para saber si Vivu puede completar sus tareas y para entender qué ocurrió cuando algo falla.')
 panel(40,160,515,120);txt(58,255,'EL EQUILIBRIO',8,ROSE,'DejaVuBold');para(58,235,475,'Compartir reglas y guardar datos en un lugar confiable ayuda a mantener el orden. También debemos preparar qué hacer si se pierde la conexión o algo deja de responder.',9,15,MUTED)
 footer_source();c.showPage()
-# 6
-bg(6,'Plan y fuentes');title('05 · Ruta de mejora','Pequeños pasos, impacto real','Un camino sugerido para cuidar la información, conectar las partes y aprender de las pruebas.')
+# 6–8: evaluación por las nueve características de ISO/IEC 25010:2023.
+def quality_page(number, heading, subtitle, entries):
+ bg(number, heading)
+ title('05 · Las nueve características',heading,subtitle)
+ y=667
+ for name, current, action, check in entries:
+  panel(40,y-157,515,145)
+  txt(57,y-34,name,10,INK,'DejaVuBold')
+  para(57,y-45,480,'<b>Hoy:</b> '+current,8.4,12,MUTED)
+  para(57,y-80,480,'<b>Mejora:</b> '+action,8.4,12,MUTED)
+  para(57,y-115,480,'<b>Cómo comprobarlo:</b> '+check,8.1,11,MUTED)
+  y-=161
+ footer_source();c.showPage()
+quality_page(6,'Lo que Vivu debe hacer','Tres características para comprobar que las funciones y sus conexiones sirven a las personas.',[
+ ('01 · Adecuación funcional','Hay misiones, perfiles, recursos, encuestas y recomendaciones con reglas y pruebas. Acompañamiento y análisis están en etapa inicial.','Definir qué tareas debe completar cada tipo de persona y terminar primero los recorridos esenciales.','Probar registro, consentimiento y una misión completa de principio a fin; registrar qué pasos funcionan.'),
+ ('02 · Eficiencia de desempeño','No hay mediciones de tiempos de respuesta ni de uso bajo una cantidad definida de personas.','Elegir las tareas más frecuentes y acordar con el equipo un tiempo de respuesta aceptable.','Medir tiempos y errores con una cantidad acordada de usuarios; repetir la prueba después de cada mejora.'),
+ ('03 · Compatibilidad','Hay contratos y herramientas preparadas, pero no se ha demostrado la comunicación completa entre todas las partes.','Decidir qué parte es responsable de cada función y conectar las demás con acuerdos claros.','Hacer una prueba que pase por la web y las partes necesarias; confirmar que todas muestran el mismo resultado.')])
+quality_page(7,'Una experiencia confiable','Tres características para que Vivu sea comprensible, conserve el progreso y proteja los datos.',[
+ ('04 · Capacidad de interacción','Existe una interfaz y pruebas, pero no se ha observado una evaluación completa con usuarios o herramientas de apoyo.','Simplificar las tareas principales y corregir barreras de lectura, teclado y navegación.','Pedir a personas usuarias que completen tareas; revisar teclado, lector de pantalla y dificultades encontradas.'),
+ ('05 · Fiabilidad','Varias funciones guardan datos temporalmente; al reiniciar podrían perderse o quedar diferentes entre instancias.','Guardar el progreso de forma duradera y preparar la recuperación cuando una parte falle.','Completar una misión, reiniciar y confirmar que sigue guardada una sola vez; registrar el resultado.'),
+ ('06 · Seguridad','Hay controles de roles y protección de contraseñas, pero también accesos de ejemplo y ajustes de desarrollo.','Eliminar accesos de prueba de espacios compartidos y proteger la información según quién pueda verla.','Comprobar que se rechazan accesos indebidos y credenciales de ejemplo; revisar el retiro del consentimiento.')])
+quality_page(8,'Prepararse para crecer','Tres características para cambiar Vivu con cuidado y evitar consecuencias no deseadas.',[
+ ('07 · Mantenibilidad','El proyecto tiene pruebas y decisiones documentadas, pero algunas reglas están repetidas en distintas partes.','Reducir la repetición y nombrar una parte responsable de cada regla importante.','Cambiar una regla y comprobar sus funciones relacionadas; documentar dónde se hizo el cambio.'),
+ ('08 · Flexibilidad','Las herramientas de instalación están descritas; todavía no se ha medido cómo se adapta el sistema a otros entornos o mayor uso.','Preparar una instalación repetible y acordar cómo responder cuando aumente el número de personas.','Instalar desde cero siguiendo la guía y ensayar una carga acordada; anotar pasos manuales y problemas.'),
+ ('09 · Seguridad operacional','Hay reglas y explicaciones para recomendaciones, pero no se ha evaluado de forma completa el posible daño.','Revisar riesgos con personas expertas y permitir rechazar o corregir recomendaciones inadecuadas.','Probar casos delicados: la persona puede rechazar la sugerencia y existe un camino de revisión humana.')])
+# 9: orientación de trabajo y metas explícitamente propuestas.
+bg(9,'Cómo orientar el desarrollo')
+title('06 · Plan basado en calidad','Convertir calidad en hábitos','Una propuesta para planear y revisar cada entrega; las metas deben acordarse antes de medirlas.')
+card(40,488,245,158,'PASO 01','Elegir lo esencial','Producto y el equipo técnico eligen un recorrido, por ejemplo completar una misión, y sus prioridades: continuidad, seguridad y facilidad de uso.')
+card(300,488,255,158,'PASO 02','Definir una prueba','Para cada prioridad escriben una situación, el resultado esperado, quién la comprueba y el límite aceptable. No se inventan resultados previos.')
+card(40,307,245,158,'PASO 03','Construir y comprobar','El equipo conecta las partes necesarias, protege los datos y prueba el recorrido completo, incluyendo reinicio, errores y acceso indebido.')
+card(300,307,255,158,'PASO 04','Aprender y repetir','Antes de cada entrega se revisan resultados y problemas abiertos. Se registran decisiones y se actualizan las prioridades con las personas usuarias.')
+panel(40,160,515,120);txt(58,255,'EJEMPLO DE META PROPUESTA',8,ROSE,'DejaVuBold');para(58,235,475,'<b>Situación:</b> una persona completa una misión y el sistema se reinicia. <b>Esperado:</b> el progreso sigue visible y aparece una sola vez. <b>Comprobación:</b> repetir la prueba en el entorno acordado y guardar el resultado.',9,15,MUTED)
+footer_source();c.showPage()
+# 10
+bg(10,'Plan y fuentes');title('05 · Ruta de mejora','Pequeños pasos, impacto real','Un camino sugerido para cuidar la información, conectar las partes y aprender de las pruebas.')
 for y,num,tag,heading,body in [(558,'01','ANTES DE DATOS REALES','Proteger y conservar','Retirar contraseñas de ejemplo y decidir cómo guardar, recuperar y eliminar la información con respeto al consentimiento.'),(431,'02','ANTES DE AMPLIAR EL PILOTO','Conectar y comprobar','Acordar quién cuida cada función y comprobar que las partes trabajen juntas, incluso cuando algo falle.'),(304,'03','EVOLUCIÓN','Medir y aprender','Definir cómo se comparte la información; probar la facilidad de uso y la rapidez; acordar responsables y fechas.')]:
  panel(40,y,515,108);circle(75,y+57,20,'#ead6f2',1);txt(65,y+53,num,9,PURPLE,'DejaVuBold');txt(110,y+82,tag,7.5,ROSE,'DejaVuBold');txt(110,y+61,heading,11,INK,'DejaVuBold');para(110,y+50,425,body,8.5,13,MUTED)
 panel(40,114,515,166);txt(58,254,'PARA SEGUIR EXPLORANDO  ↗',8,ROSE,'DejaVuBold')
