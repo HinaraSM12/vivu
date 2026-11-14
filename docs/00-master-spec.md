@@ -1,9 +1,9 @@
 # Especificación Técnica Maestra
-## Plataforma de ludificación e inteligencia artificial para apoyo a la autorregulación académica
+## Sistema de ludificación adaptativa asistido por un modelo de lenguaje de gran escala para apoyo a la autorregulación académica y al uso de recursos institucionales
 
-**Versión:** 1.1  
-**Fecha:** 2026-08-19  
-**Estado:** Base aprobada para continuar diseño e implementación  
+**Versión:** 1.2  
+**Fecha:** 2026-11-10  
+**Estado:** Base aprobada y alineada integralmente con Tesis V7 y Revisión Sistemática PRISMA V5  
 **Uso principal:** fuente de verdad para desarrolladores y asistentes de IA que continúen el proyecto.
 
 > **Regla de continuidad:** una IA que reciba este documento debe conservar las decisiones marcadas como **FIJAS**. Si necesita cambiarlas, debe explicar el motivo y pedir aprobación explícita antes de modificar arquitectura, roles, alcance o principios éticos.
@@ -39,8 +39,9 @@ La primera versión se construirá como un prototipo funcional completo para tre
 | Mensajería | RabbitMQ para eventos asíncronos. |
 | Desarrollo local | Docker Compose. |
 | API | HTTP/REST + OpenAPI para operaciones síncronas; RabbitMQ para eventos. |
-| Roles funcionales | STUDENT, FACILITATOR, ADMIN. No existe RESEARCHER. Las funciones de operación del piloto corresponden a ADMIN. |
-| Filosofía IA | Rules + scoring determinístico + LLM controlado. El LLM no es el recomendador completo. |
+| Roles funcionales | STUDENT, FACILITATOR, PROFESSOR (`RESOURCE_CONTRIBUTOR`), ADMIN. No existe RESEARCHER. Las funciones de operación del piloto corresponden a ADMIN, y PROFESSOR aporta recursos institucionales sujetos a moderación (`PENDING_REVIEW`) sin acceso a datos personales de estudiantes. |
+| Filosofía IA | Arquitectura híbrida: Datos mínimos y autorizados -> Reglas deterministas -> Catálogo de misiones y recursos `PUBLISHED` -> Selección/priorización (scoring simple configurable) -> LLM como componente instrumental para contextualizar/explicar o extraer JSON estructurado. El LLM ≠ ML predictivo de deserción y nunca es el único motor de decisión. |
+| Ingesta y moderación de recursos | Tres fuentes controladas (`ADR-006`): `InstitutionalWebCollector` (whitelist), `InstitutionalMailConnector` (API/IMAP sobre carpeta/remitentes autorizados con sanitización PII previa al LLM) y carga manual (`PROFESSOR`/`ADMIN`). Estados `DRAFT` -> `PENDING_REVIEW` / `NEEDS_REVIEW` -> `APPROVED` -> `PUBLISHED` (`EXPIRED`, `REJECTED`, `ARCHIVED`), `resource_versions`, deduplicación y jerarquía de prioridad de fuentes. |
 | Proveedor LLM | Abstraído mediante interfaz `LLMProvider`; proveedor/modelo quedan abiertos. |
 | Ludificación | Las reglas se ejecutan en backend, no en componentes React. |
 | Privacidad | Minimización de datos, consentimiento, control de acceso, trazabilidad, seudonimización/anonimización para análisis. |
@@ -71,9 +72,22 @@ Funciones V1:
 - Consultar recursos institucionales autorizados.
 - Responder microcuestionarios breves de seguimiento.
 - Consultar y modificar preferencias de personalización y privacidad permitidas.
+- Ejercer agencia completa sobre cada recomendación: `ACEPTAR`, `RECHAZAR`, `POSPONER`, `EDITAR` (ajustar duración, momento o variante equivalente) y `NO QUIERO RECOMENDACIONES COMO ESTA`.
 - Retirar consentimiento y solicitar cierre de participación según el flujo definido para el piloto.
 - Usar los flujos esenciales previamente sincronizados sin conexión: consultar/gestionar misiones, progreso local, recuperación, recursos cacheados, microcuestionarios y recomendaciones determinísticas offline.
 - Ver el estado de sincronización de sus acciones sin mensajes alarmistas.
+
+## 3.1.B PROFESSOR (`RESOURCE_CONTRIBUTOR`)
+
+El docente o colaborador institucional autorizado aporta información sobre recursos, semilleros, monitorías, asesorías o eventos académicos sin acceder a perfiles ni telemetría individual de estudiantes.
+
+Funciones V1:
+
+- Inicio de sesión con rol `PROFESSOR` (`RESOURCE_CONTRIBUTOR`).
+- Registrar o proponer recursos institucionales mediante formulario estructurado (creados en estado `PENDING_REVIEW`, o aprobados directamente solo si su `contributor_trust_level` es `VERIFIED` o `INSTITUTIONAL_EDITOR`).
+- Consultar el estado de moderación y vigencia de los recursos que ha enviado.
+- Sin acceso a datos personales, perfiles, misiones ni seguimiento de estudiantes.
+- Requiere conexión online para registrar propuestas de recursos.
 
 ## 3.2 FACILITATOR
 
@@ -197,7 +211,7 @@ El primer login/primer bootstrap requieren conexión. Al reconectar, el servidor
 | `identity-service` | NestJS | Usuarios, credenciales, roles, sesiones y refresh tokens. | users, roles, user_roles, refresh_sessions. |
 | `student-service` | NestJS | Perfil, consentimiento, preferencias y contexto mínimo del estudiante. | student_profiles, consent_records, personalization_preferences. |
 | `gamification-service` | NestJS | Catálogo de misiones, asignaciones, estados, progreso, logros personales, continuidad y modo recuperación. | mission_templates, mission_assignments, progress_state, achievements, recovery_state. |
-| `resource-service` | NestJS | Recursos institucionales autorizados y metadatos vigentes. | institutional_resources, resource_categories, availability_rules. |
+| `resource-service` | NestJS | Recursos institucionales autorizados, conectores (`InstitutionalWebCollector`, `InstitutionalMailConnector`), moderación, deduplicación, procedencia y versionado (`ADR-006`). | institutional_resources (26 campos), resource_versions, resource_categories, availability_rules, ingestion_runs. |
 | `recommendation-service` | FastAPI | Candidatos, reglas de elegibilidad, scoring, integración LLM, explicación y trazabilidad. | recommendation_runs, recommendation_items, score_components, ai_config_versions. |
 | `survey-service` | NestJS | Microcuestionarios, versiones e interacción de respuestas. | survey_definitions, survey_versions, survey_responses. |
 | `support-service` | NestJS | Asignaciones facilitador-estudiante, notas y compromisos. | facilitator_assignments, support_notes, commitments. |
@@ -304,7 +318,7 @@ El contexto puede incluir únicamente datos mínimos y autorizados necesarios pa
 - disponibilidad de tiempo;
 - responsabilidades externas;
 - intereses relevantes;
-- motivación, estrés o bienestar cuando exista consentimiento para ese uso;
+- motivación, dificultad percibida de organización y manejo del tiempo (`organizationDifficulty`) y bienestar general no clínico cuando exista consentimiento explícito para ese uso (sin diagnósticos clínicos ni perfiles psicológicos);
 - prácticas de estudio;
 - historial reciente de interacción;
 - misiones aceptadas/completadas;
@@ -972,11 +986,15 @@ Al continuar:
 
 # 24. Trazabilidad con documentos de origen
 
-## Proyecto de tesis
+## Proyecto de tesis (Versión actualizada V7 + PRISMA V5)
 
-**Archivo:** `PROYECTO_DE_TESIS_HINARA_SANCHEZ (2).docx`
+**Archivos:**
+- `PROYECTO_DE_TESIS_HINARA_SANCHEZ (6).docx` (actualizado in-place)
+- `PROYECTO_DE_TESIS_HINARA_SANCHEZ_v7_ACTUALIZADO.docx`
+- `docs/thesis/proyecto-tesis-actualizado-v7.md`
+- `Articulo_Revision_Sistematica_PRISMA_v5_FINAL.docx` (fuente científica y metodológica autoritativa: ventana 2014–2026; bases Scopus, IEEE Xplore y ERIC; 6.573 identificados, 1.240 duplicados, 5.333 únicos, 249 buscados, 72 recuperados, 63 revisados humanamente y **57 estudios empíricos primarios**)
 
-Aporta el alcance del prototipo, componentes funcionales, estrategia de ludificación, modo recuperación, personalización mediante IA, datos mínimos, ética, validación longitudinal y limitaciones. Las secciones especialmente relevantes son las páginas 2-7 y 17-22 del archivo suministrado.
+Aporta el marco conceptual de ludificación adaptativa asistida por LLM (LLM ≠ ML predictivo), la arquitectura híbrida, la ingesta multifuente y moderación de recursos (`ADR-006`), la matriz de gobernanza de datos de 11 columnas (`docs/security/data-governance-matrix.md`), los KPIs de uso/continuidad y recomendación, las métricas QoE (ISO 9241-11 / ISO 9241-210), QoS y calidad instrumental del componente LLM, la dimensión contextual sobre valor percibido de la universidad y la validación exploratoria longitudinal de 10 semanas.
 
 ## Marco arquitectónico
 

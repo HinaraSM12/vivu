@@ -67,3 +67,4 @@ apps/web/src/app/App.test.tsx
 ### Task 5: Verificación Integral, Handoff y Bitácora
 - [ ] Ejecutar `npm run lint`, `npm run typecheck`, `npm run test` y `npm run build`.
 - [ ] Actualizar `VIVU_CONTEXT_HANDOFF.md` y `docs/thesis/bitacora-sprints.md` con los resultados del Sprint 1.
+
