@@ -7,6 +7,9 @@ import { ConfigModule } from '@nestjs/config';
 import { CorrelationIdMiddleware } from './common/correlation-id.middleware';
 import { validateEnvironment } from './config/environment.validation';
 import { HealthController } from './health/health.controller';
+import { ResourceController } from './resource/resource.controller';
+import { ResourceRepository } from './resource/resource.repository';
+import { ResourceService } from './resource/resource.service';
 
 @Module({
   imports: [
@@ -15,7 +18,8 @@ import { HealthController } from './health/health.controller';
       validate: validateEnvironment,
     }),
   ],
-  controllers: [HealthController],
+  controllers: [HealthController, ResourceController],
+  providers: [ResourceRepository, ResourceService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

@@ -1,57 +1,59 @@
-# Analítica de eventos para la validación
+# Telemetría Pseudonimizada y Analítica de Eventos (Punto 13)
 
-## Propósito
+## 1. Propósito
 
-Registrar evidencia suficiente para observar funcionamiento, adherencia, continuidad, misiones, recuperación, utilidad y pertinencia, sin convertir la plataforma en un sistema de vigilancia.
+Registrar evidencia estructurada y pseudonimizada para evaluar los **KPIs de uso y continuidad**, **KPIs de recomendaciones**, **QoS** y **calidad instrumental del componente LLM** durante las 10 semanas del estudio piloto, sin recolectar datos personales directos ni convertir la plataforma en un mecanismo de vigilancia.
 
-## Eventos de interacción
+---
 
-| Evento | Métrica derivable |
-|---|---|
-| `mission.assigned.v1` | misiones propuestas/asignadas |
-| `mission.accepted.v1` | tasa de aceptación |
-| `mission.completed.v1` | completitud y continuidad |
-| `mission.skipped.v1` | descarte/posposición según códigos definidos |
-| `recovery.activated.v1` | uso del modo recuperación |
-| `resource.viewed.v1` | consulta de apoyos |
-| `survey.submitted.v1` | adherencia al seguimiento |
-| `recommendation.generated.v1` | volumen, fallback y versiones del recomendador |
-| `recommendation.offline_used.v1` | uso de recomendaciones determinísticas offline |
-| `sync.action_applied.v1` | latencia y confiabilidad de sincronización, sin contenido sensible |
-| `commitment.updated.v1` | actividad de acompañamiento, si se incluye en análisis aprobado |
+## 2. Esquema canónico de eventos de telemetría (Punto 13)
 
-## Interacción significativa semanal
+Todo evento de telemetría registrado en `analytics-service` sigue la estructura canónica:
 
-Para V1, una semana cuenta como activa si el participante realiza al menos una interacción significativa definida por configuración del estudio, por ejemplo: completar/aceptar una misión, responder seguimiento o consultar un recurso desde una recomendación. La definición exacta debe congelarse antes del análisis final.
+```json
+{
+  "event_id": "uuid",
+  "participant_id_pseudonym": "pseudonym-uuid",
+  "timestamp": "2026-11-10T18:30:00.000Z",
+  "session_id": "uuid",
+  "event_type": "RECOMMENDATION_SHOWN",
+  "mission_id": "uuid-or-null",
+  "recommendation_id": "uuid-or-null",
+  "resource_id": "uuid-or-null",
+  "action": "SHOWN|ACCEPTED|REJECTED|POSTPONED|EDITED|DISMISSED_SIMILAR|OPENED|REPORTED_USED",
+  "status": "SUCCESS|FALLBACK|ERROR|TIMEOUT",
+  "latency_ms": 142,
+  "model_version": "gemini-2.5-flash|deterministic-v1|null",
+  "prompt_version": "explain-rec-v1.0|null"
+}
+```
 
-## Hitos
+---
 
-Calcular estado de actividad en semanas/hitos 1, 4 y 10, además de métricas semanales.
+## 3. Catálogo de eventos canónicos de telemetría (Punto 13)
 
-## Métricas
+| `event_type` (Canónico) | Evento de dominio equivalente | Indicadores que alimenta |
+|---|---|---|
+| `SESSION_STARTED` | `session.started.v1` | Adherencia semanal, retención en semanas 1, 4 y 10, retorno tras interrupción. |
+| `MISSION_SHOWN` | `mission.assigned.v1` / `mission.shown.v1` | Misiones mostradas. |
+| `MISSION_ACCEPTED` | `mission.accepted.v1` | Misiones aceptadas. |
+| `MISSION_REJECTED` | `mission.rejected.v1` | Tasa de descarte de misiones, agencia estudiantil. |
+| `MISSION_COMPLETED` | `mission.completed.v1` | Misiones completadas, tasa de finalización, continuidad de acciones SRL. |
+| `MISSION_POSTPONED` | `mission.skipped.v1` (`POSTPONED`) | Posposición de misiones, ajuste de carga semanal. |
+| `RECOVERY_MODE_ACTIVATED` | `recovery.activated.v1` | Uso del modo recuperación y retorno tras semanas difíciles. |
+| `RECOMMENDATION_SHOWN` | `recommendation.generated.v1` / `shown` | Denominador de tasas de aceptación, rechazo, posposición y edición. |
+| `RECOMMENDATION_ACCEPTED` | `recommendation.accepted.v1` | Tasa de aceptación de recomendaciones, denominador de conversión a recurso. |
+| `RECOMMENDATION_REJECTED` | `recommendation.rejected.v1` | Tasa de rechazo (incluye `POSTPONED`, `EDITED` y `DISMISSED_SIMILAR` en `action`). |
+| `RESOURCE_OPENED` | `resource.viewed.v1` | Conversión a recurso institucional ($\text{RESOURCE\_OPENED} / \text{RECOMMENDATION\_ACCEPTED}$). |
+| `RESOURCE_REPORTED_USED` | `resource.reported_used.v1` | Uso reportado voluntariamente del recurso institucional sin invadir privacidad. |
+| `LLM_REQUESTED` | `llm.requested.v1` | Latencia P50/P95 del LLM, cumplimiento de schema, trazabilidad de `model_version` y `prompt_version`. |
+| `LLM_FALLBACK` | `llm.fallback.v1` | `FALLBACK_RATE` y resiliencia del recomendador híbrido. |
+| `ERROR_OCCURRED` | `system.error.v1` | `ERROR_RATE`, `TIMEOUT_RATE`, `LLM_ERROR_RATE` e incidencias técnicas. |
+| `SESSION_ENDED` | `session.ended.v1` | Duración y cierre limpio de sesión online/offline. |
 
-- semanas activas por participante;
-- participantes activos en hitos;
-- misiones aceptadas/completadas;
-- proporción de finalización;
-- activaciones de recuperación;
-- recursos consultados;
-- microcuestionarios respondidos;
-- fallback rate del recomendador;
-- incidencias técnicas por sesión/semana cuando exista fuente válida.
+---
 
-## Percepción
+## 4. Reglas de privacidad y cronología offline
 
-Utilidad, pertinencia, presión/saturación, claridad e intención de continuidad provienen de instrumentos; no inferir estas variables únicamente de logs de clicks.
-
-## Privacidad
-
-Analytics recibe `subjectId` seudónimo. No necesita email ni credenciales. Eventos con texto libre deben evitarse; las notas del facilitador no se copian a analytics salvo decisión metodológica explícita.
-
-## Reproducibilidad
-
-Guardar definición/versiones de métricas, ventanas temporales y filtros utilizados para cada exportación del estudio.
-
-## Cronología offline
-
-Para acciones offline se conservan `clientOccurredAt` y tiempo de ingestión del servidor. El análisis conductual no debe confundir “sincronizado hoy” con “realizado hoy”. La definición de métricas debe documentar cuál timestamp usa y cómo trata timestamps de cliente anómalos.
+1. **Cero PII en telemetría:** `participant_id_pseudonym` es el único identificador de participante en `analytics-service`. Jamás se incluyen correos, nombres ni textos libres sensibles.
+2. **Preservación de cronología offline:** Cuando la PWA opera sin conexión, los eventos se almacenan localmente con su `timestamp` real de ocurrencia (`clientOccurredAt`) y se sincronizan al recuperar red conservando tanto el instante de acción del estudiante como el instante de ingesta en el servidor.

@@ -19,3 +19,4 @@
 4. **Puertas de calidad y trazabilidad:**
    - ¿Pasan `npm run lint`, `npm run typecheck`, `npm run test` y `npm run build`?
    - ¿Se actualizaron `VIVU_CONTEXT_HANDOFF.md` y `docs/thesis/bitacora-sprints.md`?
+
