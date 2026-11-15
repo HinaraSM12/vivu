@@ -391,4 +391,39 @@ describe('App (Sprints 1–6 — Identity, Consent, Onboarding, Missions, Resour
       ),
     ).toBeInTheDocument();
   });
+
+  it('permite al ADMIN actualizar pesos del recomendador (suma 1.00), exportar dataset anonimizado sin PII y auditar cambios (Sprint 8)', () => {
+    render(<App />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /entrar como admin/i }),
+    );
+
+    expect(
+      screen.getByRole('heading', {
+        name: /reglas del recomendador y pesos deterministas/i,
+      }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /aplicar ajuste de pesos \(needfit 0\.35 \/ resourcefit 0\.10\)/i,
+      }),
+    );
+    expect(
+      screen.getByText(
+        /pesos del recomendador actualizados a versión 1\.0\.1 con suma verificada = 1\.00/i,
+      ),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /exportar dataset anonimizado de investigación/i,
+      }),
+    );
+    expect(
+      screen.getByText(/participantes y cero pii \(adr-003\)/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/pseudo-stu-001/i)).toBeInTheDocument();
+  });
 });

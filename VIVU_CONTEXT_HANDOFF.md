@@ -1251,7 +1251,8 @@ Vivu
 - **Sprint 4 — Recursos institucionales, microcuestionarios y modo recuperación completado y mergeado en `main`** (PR #24, commit `e581b50`, Issue #5).
 - **Sprint 5 — Recomendador V1 online (híbrido determinista + LLM instrumental) completado y mergeado en `main`** (PR #25, commit `4b330ad`, Issue #6).
 - **Sprint 6 — PWA local-first y sincronización offline completado y mergeado en `main`** (PR #37, commit `7c7ac0b`, Issue #7).
-- **Sprint 7 — Facilitador (`@vivu/support-service`) implementado** (sobre rama `feat/sprint-7-facilitator-support`, Issue #8).
+- **Sprint 7 — Facilitador (`@vivu/support-service`) completado y mergeado en `main`** (PR #38, commit `265d2a3`, Issue #8).
+- **Sprint 8 — Administración (`ADMIN` online-only) implementado** (sobre rama `feat/sprint-8-admin-operations`, Issue #9).
 
 ### Resumen de lo entregado en Sprint 1 (mergeado):
 - **Contratos (`@vivu/contracts`):** `RoleCode` (`STUDENT`, `FACILITATOR`, `ADMIN`), `AccountStatus`, `JwtAccessClaims`, `SessionCapabilities`, `SessionUserDto`, `AuthSessionResponse`, `OfflineSessionSnapshot`, `UserRegisteredEventPayload`.
@@ -1320,9 +1321,14 @@ Vivu
 - **Servicio de Acompañamiento (`@vivu/support-service`):** `SupportRepository`, `SupportService`, `SupportController` y `support.service.spec.ts` con aislamiento estricto por facilitador (`403 FACILITATOR_STUDENT_NOT_ASSIGNED` sobre estudiantes no asignados), señales formativas no estigmatizantes, rechazo de lenguaje de riesgo/clínico (`400 STIGMATIZING_LANGUAGE_NOT_ALLOWED`) y emisión de `facilitator.note_created.v1` y `commitment.updated.v1` seudonimizados.
 - **API Gateway (`@vivu/api-gateway`) y Frontend (`@vivu/web`):** `GatewayFacilitatorService`, `FacilitatorGatewayController` (`/api/v1/facilitator/*`), pruebas E2E en `test/facilitator-support.e2e-spec.ts` y vistas `FAC-01..FAC-04` en `@vivu/web`.
 
+### Resumen de lo entregado en Sprint 8:
+- **Contratos (`@vivu/contracts`):** `admin-contracts.ts` y `admin-contracts.spec.ts` (`PilotFeatureFlagsDto`, `AdminAuditLogEntryDto`, `AnonymizedParticipantRowDto`, `AnonymizedResearchExportDto`, `validateRecommenderWeightsSum`, `findForbiddenPiiKeysInExport`).
+- **API Gateway (`@vivu/api-gateway`):** `GatewayAdminService` y `AdminGatewayController` (`/api/v1/admin/{overview,recommender-config,assignments,audit-logs,exports/anonymized}`), validación de suma de pesos (`1.00`), bloqueo `409 ConflictException` (`ADMIN_OFFLINE_MUTATION_FORBIDDEN`) ante mutaciones offline (`ADR-005`), exportación anonimizada con `containsPii: false` (`ADR-003`) y bitácora de auditoría, validado en `test/admin-operations.e2e-spec.ts`.
+- **Frontend (`@vivu/web`):** `admin-client.ts` y vistas `ADM-01..ADM-05` integradas en `App.tsx` con pruebas en `App.test.tsx`.
+
 ## Próximo sprint planeado
 
-**Sprint 8 — Administración (`ADMIN`: usuarios, asignaciones facilitador-estudiante, moderación de catálogos, pesos de ludificación/recomendador, feature flags, auditoría y exportaciones anonimizadas online-only).**
+**Sprint 9 — Analítica y preparación del piloto (`@vivu/analytics-service`, ingesta de los 16 eventos canónicos, KPIs longitudinales de uso y continuidad, KPIs de recomendación, QoE, QoS, calidad del componente LLM y checklist de alistamiento del piloto).**
 
 ## Mockups
 

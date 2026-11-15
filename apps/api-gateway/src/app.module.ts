@@ -26,6 +26,8 @@ import { GatewaySyncService } from './sync/gateway-sync.service';
 import { SyncGatewayController } from './sync/sync-gateway.controller';
 import { FacilitatorGatewayController } from './facilitator/facilitator-gateway.controller';
 import { GatewayFacilitatorService } from './facilitator/gateway-facilitator.service';
+import { AdminGatewayController } from './admin/admin-gateway.controller';
+import { GatewayAdminService } from './admin/gateway-admin.service';
 
 @Module({
   imports: [
@@ -44,6 +46,7 @@ import { GatewayFacilitatorService } from './facilitator/gateway-facilitator.ser
     RecommendationGatewayController,
     SyncGatewayController,
     FacilitatorGatewayController,
+    AdminGatewayController,
   ],
   providers: [
     GatewayAuthService,
@@ -54,6 +57,7 @@ import { GatewayFacilitatorService } from './facilitator/gateway-facilitator.ser
     GatewayRecommendationService,
     GatewaySyncService,
     GatewayFacilitatorService,
+    GatewayAdminService,
     JwtAuthGuard,
     RolesGuard,
     {
