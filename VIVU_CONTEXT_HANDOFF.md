@@ -1252,7 +1252,8 @@ Vivu
 - **Sprint 5 — Recomendador V1 online (híbrido determinista + LLM instrumental) completado y mergeado en `main`** (PR #25, commit `4b330ad`, Issue #6).
 - **Sprint 6 — PWA local-first y sincronización offline completado y mergeado en `main`** (PR #37, commit `7c7ac0b`, Issue #7).
 - **Sprint 7 — Facilitador (`@vivu/support-service`) completado y mergeado en `main`** (PR #38, commit `265d2a3`, Issue #8).
-- **Sprint 8 — Administración (`ADMIN` online-only) implementado** (sobre rama `feat/sprint-8-admin-operations`, Issue #9).
+- **Sprint 8 — Administración (`ADMIN` online-only) completado y mergeado en `main`** (PR #39, commit `aba2508`, Issue #9).
+- **Sprint 9 — Analítica longitudinal y preparación del piloto (`@vivu/analytics-service`) implementado** (sobre rama `feat/sprint-9-analytics-pilot-readiness`, Issue #10).
 
 ### Resumen de lo entregado en Sprint 1 (mergeado):
 - **Contratos (`@vivu/contracts`):** `RoleCode` (`STUDENT`, `FACILITATOR`, `ADMIN`), `AccountStatus`, `JwtAccessClaims`, `SessionCapabilities`, `SessionUserDto`, `AuthSessionResponse`, `OfflineSessionSnapshot`, `UserRegisteredEventPayload`.
@@ -1326,9 +1327,14 @@ Vivu
 - **API Gateway (`@vivu/api-gateway`):** `GatewayAdminService` y `AdminGatewayController` (`/api/v1/admin/{overview,recommender-config,assignments,audit-logs,exports/anonymized}`), validación de suma de pesos (`1.00`), bloqueo `409 ConflictException` (`ADMIN_OFFLINE_MUTATION_FORBIDDEN`) ante mutaciones offline (`ADR-005`), exportación anonimizada con `containsPii: false` (`ADR-003`) y bitácora de auditoría, validado en `test/admin-operations.e2e-spec.ts`.
 - **Frontend (`@vivu/web`):** `admin-client.ts` y vistas `ADM-01..ADM-05` integradas en `App.tsx` con pruebas en `App.test.tsx`.
 
-## Próximo sprint planeado
+### Resumen de lo entregado en Sprint 9:
+- **Contratos (`@vivu/contracts`):** `analytics-contracts.ts` y `analytics-contracts.spec.ts` (`CANONICAL_TELEMETRY_EVENT_NAMES` con los 16 eventos canónicos, `UsageAndContinuityKpiDto`, `RecommendationKpiDto`, `QualityOfExperienceKpiDto`, `QualityOfServiceKpiDto`, `LlmComponentQualityKpiDto`, `PilotReadinessCheckItemDto`, `PilotEvaluationDashboardDto`).
+- **Servicio de Analítica (`@vivu/analytics-service`):** `AnalyticsRepository`, `AnalyticsService`, `AnalyticsController` y `analytics.service.spec.ts` con ingesta seudonimizada libre de PII (`ADR-003`), agregación longitudinal (retención semanas 1, 4 y 10, adherencia semanal, modo recuperación), KPIs de recomendación, QoE (ISO 9241-11 / ISO 9241-210), QoS, calidad del componente LLM (`groundednessRate = 1.0`, `hallucinationCount = 0`) y checklist de alistamiento del piloto.
+- **API Gateway (`@vivu/api-gateway`) y Frontend (`@vivu/web`):** `GatewayAnalyticsService`, `AnalyticsGatewayController` (`/api/v1/analytics/*`), pruebas E2E en `test/analytics-pilot.e2e-spec.ts` y tablero de evaluación longitudinal y alistamiento en `@vivu/web`.
 
-**Sprint 9 — Analítica y preparación del piloto (`@vivu/analytics-service`, ingesta de los 16 eventos canónicos, KPIs longitudinales de uso y continuidad, KPIs de recomendación, QoE, QoS, calidad del componente LLM y checklist de alistamiento del piloto).**
+## Estado del Roadmap de Sprints (Sprints 0–9)
+
+**Roadmap técnico completo (Sprints 0 al 9 implementados y verificados). El prototipo Vivu está listo para la ejecución del piloto longitudinal exploratorio.**
 
 ## Mockups
 

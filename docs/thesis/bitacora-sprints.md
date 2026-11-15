@@ -246,9 +246,24 @@
   - `@vivu/contracts`: `admin-contracts.spec.ts` en verde.
   - `@vivu/api-gateway`: `test/admin-operations.e2e-spec.ts` en verde.
   - `@vivu/web`: prueba de integración UI en `App.test.tsx` para `ADMIN` en verde.
-- **Resultado:** Sprint 8 implementado con todas las puertas de calidad en verde.
+- **Resultado:** Sprint 8 implementado con todas las puertas de calidad en verde (PR #39 mergeado en `main`, commit `aba2508`).
 
 ---
 
-## Sprint 9 *(Se completará iterativamente siguiendo la misma estructura)*
+## Sprint 9 — Analítica Longitudinal y Preparación del Piloto (`@vivu/analytics-service`)
+
+- **Fecha:** 2026-11-14
+- **Rama:** `feat/sprint-9-analytics-pilot-readiness`
+- **Issue relacionado:** [#10](https://github.com/HinaraSM12/vivu/issues/10)
+- **Objetivo del Sprint:** Implementar el servicio de analítica longitudinal seudonimizada (`@vivu/analytics-service`), contratos de evaluación del piloto (`@vivu/contracts`), endpoints en `@vivu/api-gateway` y el tablero de indicadores (uso/continuidad, recomendaciones, QoE ISO 9241-11/210, QoS, calidad del componente LLM) y checklist de alistamiento del piloto en `@vivu/web`.
+- **Historias implementadas:**
+  - `PB-028`: Catálogo e ingesta de los 16 eventos canónicos con `schemaVersion: "1.0.0"`, `correlationId` y `participantIdPseudonym` (rechazo `400` ante cualquier campo PII o identificador con `@`, `ADR-003`).
+  - `PB-029`: Agregación de KPIs de uso y continuidad (adherencia semanal, retención semanas 1, 4 y 10, retorno tras interrupción, uso de modo recuperación), KPIs de recomendación (aceptación, rechazo, posposición, edición y conversión a recurso `PUBLISHED`), QoE (14 dimensiones), QoS (latencia P50/P95, disponibilidad, tasa de fallback determinista) y calidad instrumental del LLM (`groundednessRate = 1.0`, `hallucinationCount = 0`).
+  - `PB-030`: Checklist verificable de alistamiento del piloto longitudinal (`CHK-CONSENT-ETHICS`, `CHK-HYBRID-RECOMMENDER`, `CHK-PUBLISHED-RESOURCES-ONLY`, `CHK-OFFLINE-PWA-SYNC`, `CHK-PSEUDONYMIZED-TELEMETRY`).
+- **Evidencias de pruebas y calidad:**
+  - `@vivu/contracts`: `analytics-contracts.spec.ts` en verde.
+  - `@vivu/analytics-service`: `analytics.service.spec.ts` en verde.
+  - `@vivu/api-gateway`: `test/analytics-pilot.e2e-spec.ts` en verde.
+  - `@vivu/web`: prueba de integración UI en `App.test.tsx` en verde.
+- **Resultado:** Sprint 9 implementado con todas las puertas de calidad en verde. Roadmap de 9 sprints completado al 100 %.
 

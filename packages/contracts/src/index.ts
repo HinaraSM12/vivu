@@ -163,3 +163,18 @@ export {
   FORBIDDEN_PII_EXPORT_KEYS,
   validateRecommenderWeightsSum,
 } from './admin/admin-contracts';
+export type {
+  CanonicalTelemetryEventName,
+  LlmComponentQualityKpiDto,
+  PilotEvaluationDashboardDto,
+  PilotReadinessCheckItemDto,
+  QualityOfExperienceKpiDto,
+  QualityOfServiceKpiDto,
+  RecommendationKpiDto,
+  UsageAndContinuityKpiDto,
+} from './analytics/analytics-contracts';
+export {
+  CANONICAL_TELEMETRY_EVENT_NAMES,
+  computeRecommendationAcceptanceRate,
+  isCanonicalTelemetryEventName,
+} from './analytics/analytics-contracts';
