@@ -1,29 +1,47 @@
 # Vivu
 
+[![CI](https://github.com/HinaraSM12/vivu/actions/workflows/ci.yml/badge.svg)](https://github.com/HinaraSM12/vivu/actions/workflows/ci.yml) [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D22-339933?logo=node.js&logoColor=white)](https://nodejs.org/) [![Python](https://img.shields.io/badge/Python-%3E%3D3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+
 Vivu es un prototipo de acompañamiento académico con ludificación y recomendaciones controladas mediante inteligencia artificial. Busca ayudar a estudiantes a convertir su contexto y objetivos en misiones pequeñas, progreso personal, recuperación sin castigo y acceso a recursos institucionales autorizados.
 
-Sprint 0 entrega únicamente la fundación técnica. La autenticación, el onboarding, las misiones funcionales, el recomendador completo y la sincronización offline se implementarán en incrementos posteriores.
+El repositorio contiene un prototipo con incrementos de autenticación, contexto, misiones, recursos, encuestas y recomendaciones. Varias funciones operan con datos en memoria y existen implementaciones locales paralelas; consulta la [auditoría](docs/auditoria-arquitectura.md) antes de asumir integración o persistencia.
 
 ## Arquitectura
 
-```text
-React/Vite
-    |
-API Gateway (NestJS)
-    |
-    +-- Identity Service
-    +-- Student Service
-    +-- Gamification Service
-    +-- Resource Service
-    +-- Survey Service
-    +-- Support Service
-    +-- Analytics Service
-    +-- Recommendation Service (FastAPI)
-             |
-       PostgreSQL + RabbitMQ
+```mermaid
+flowchart LR
+  U[Estudiante] -->|interacción| W[Web React]
+  W -->|clientes locales en memoria| L[Estado y reglas locales]
+  W -.->|cliente HTTP disponible; integración por verificar| G[API Gateway]
+  G -->|llamadas internas| D[Dominios del gateway en memoria]
+  subgraph S[Servicios independientes]
+    I[Identity]
+    ST[Student]
+    GA[Gamification]
+    R[Resource]
+    SU[Survey]
+    SP[Support]
+    A[Analytics]
+    RE[Recommendation]
+  end
+  C[Docker Compose] -. configura .-> G
+  C -. configura .-> S
+  C -. aprovisiona .-> P[(PostgreSQL)]
+  C -. aprovisiona .-> Q[RabbitMQ]
 ```
 
-El gateway es el único punto de entrada externo. Cada servicio posee sus datos, esquema, credenciales y futuras migraciones. No se permiten consultas SQL directas entre dominios.
+Las líneas punteadas representan configuración o una capacidad que no demuestra un flujo de negocio integrado. El gateway implementa lógica propia y no actúa actualmente como proxy de los servicios; cada implementación mantiene su propio estado. Los servicios y la infraestructura están descritos en la [auditoría](docs/auditoria-arquitectura.md).
+
+| Servicio | Responsabilidad | Documentación |
+| --- | --- | --- |
+| Identity | Identidad y sesiones | [README](services/identity-service/README.md) |
+| Student | Consentimiento y perfil | [README](services/student-service/README.md) |
+| Gamification | Misiones y progreso | [README](services/gamification-service/README.md) |
+| Resource | Recursos y moderación | [README](services/resource-service/README.md) |
+| Survey | Encuestas y respuestas | [README](services/survey-service/README.md) |
+| Support | Base para acompañamiento | [README](services/support-service/README.md) |
+| Analytics | Base para analítica | [README](services/analytics-service/README.md) |
+| Recommendation | Reglas y recomendaciones | [README](services/recommendation-service/README.md) |
 
 ## Stack
 
@@ -171,7 +189,7 @@ npm run test:node
 npm run test:python
 ```
 
-Las pruebas actuales cubren el shell web, la frontera HTTP, health/readiness, correlation IDs, validación de configuración y el contrato de eventos.
+Las pruebas incluyen componentes web, reglas de dominio, endpoints del gateway, health/readiness, configuración y contratos. Consulta la [auditoría](docs/auditoria-arquitectura.md) para conocer sus límites.
 
 ## Estructura del monorepo
 
@@ -204,7 +222,7 @@ scripts/
 
 ## PWA local-first
 
-La arquitectura futura mantiene estas reglas:
+La arquitectura prevista mantiene estas reglas:
 
 - `STUDENT`: operación offline completa sobre datos previamente sincronizados.
 - `FACILITATOR`: principalmente online, con lectura cacheada limitada.
@@ -213,7 +231,7 @@ La arquitectura futura mantiene estas reglas:
 - La sincronización utilizará outbox, `clientEventId`, idempotencia y conflictos por dominio.
 - El recomendador offline será determinístico en TypeScript y no ejecutará un LLM local.
 
-Sprint 0 solo establece fronteras sustituibles para estas capacidades; no implementa todavía la PWA completa.
+Existen componentes y pruebas offline, pero su cobertura e integración deben verificarse por flujo; no se afirma que toda la PWA esté terminada.
 
 ## Estrategia de ramas
 
@@ -224,6 +242,8 @@ Sprint 0 solo establece fronteras sustituibles para estas capacidades; no implem
 Los commits siguen Conventional Commits con descripción en español. Los cambios se integran mediante Pull Request y CI verde; no se realiza force push sobre `main`.
 
 ## Documentación
+
+- [Auditoría arquitectónica y plan de mejora](docs/auditoria-arquitectura.md) · [Informe visual de cinco páginas](docs/informe-auditoria.html).
 
 La fuente de verdad está en:
 
