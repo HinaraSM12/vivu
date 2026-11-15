@@ -328,5 +328,22 @@ export class GatewayFacilitatorService {
     this.commitmentsById.set(commitmentId, updated);
     return updated;
   }
+
+  assignFacilitatorToStudent(
+    facilitatorId: string,
+    studentId: string,
+  ): GatewayAssignedStudentSummary {
+    const existing = this.students.get(studentId);
+    if (!existing) {
+      throw new NotFoundException({
+        code: 'STUDENT_NOT_FOUND',
+        message: `No se encontró el estudiante (${studentId}).`,
+      });
+    }
+    if (!existing.assignedFacilitatorIds.includes(facilitatorId)) {
+      existing.assignedFacilitatorIds.push(facilitatorId);
+    }
+    return existing;
+  }
 }
 

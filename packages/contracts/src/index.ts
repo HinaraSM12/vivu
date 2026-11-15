@@ -152,3 +152,14 @@ export {
   mapNonStigmatizingContinuityLabel,
   validateFacilitatorNoteContent,
 } from './support/support-contracts';
+export type {
+  AdminAuditLogEntryDto,
+  AnonymizedParticipantRowDto,
+  AnonymizedResearchExportDto,
+  PilotFeatureFlagsDto,
+} from './admin/admin-contracts';
+export {
+  findForbiddenPiiKeysInExport,
+  FORBIDDEN_PII_EXPORT_KEYS,
+  validateRecommenderWeightsSum,
+} from './admin/admin-contracts';

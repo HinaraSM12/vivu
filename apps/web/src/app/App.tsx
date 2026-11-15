@@ -1,5 +1,11 @@
 import { type FormEvent, useState } from 'react';
 import {
+  type AdminAnonymizedExportView,
+  type AdminAuditLogView,
+  type AdminRecommenderWeightsView,
+  defaultAdminClient,
+} from '../features/admin/admin-client';
+import {
   AuthClientError,
   type AuthSession,
   defaultAuthClient,
@@ -193,6 +199,16 @@ export function App() {
     useState<string>('');
   const [facCommitmentStepInput, setFacCommitmentStepInput] =
     useState<string>('');
+
+  // Sprint 8: Administración y Operación del Piloto (ADM-01..ADM-05)
+  const [adminWeights, setAdminWeights] = useState<AdminRecommenderWeightsView>(
+    () => defaultAdminClient.getState().weights,
+  );
+  const [adminAuditLogs, setAdminAuditLogs] = useState<AdminAuditLogView[]>(
+    () => defaultAdminClient.getState().auditLogs,
+  );
+  const [adminExport, setAdminExport] =
+    useState<AdminAnonymizedExportView | null>(null);
 
   const syncFacilitatorState = (facilitatorId: string) => {
     setAssignedStudents(
@@ -2226,6 +2242,94 @@ export function App() {
                 recursos autorizados, reglas de ludificación y exportación
                 anonimizada. Todas las mutaciones requieren conexión activa.
               </p>
+
+              <div className="demo-box" style={{ marginTop: '0.75rem' }}>
+                <h3>
+                  Reglas del recomendador y pesos deterministas (v
+                  {adminWeights.version})
+                </h3>
+                <p className="subtitle">
+                  needFit: {adminWeights.needFit} · timeFit:{' '}
+                  {adminWeights.timeFit} · difficultyFit:{' '}
+                  {adminWeights.difficultyFit} · continuityFit:{' '}
+                  {adminWeights.continuityFit} · resourceFit:{' '}
+                  {adminWeights.resourceFit} · diversityFit:{' '}
+                  {adminWeights.diversityFit} (Suma = 1.00)
+                </p>
+                <div className="demo-buttons">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => {
+                      const nextState = defaultAdminClient.updateWeights(
+                        session.user.userId,
+                        {
+                          needFit: 0.35,
+                          timeFit: 0.2,
+                          difficultyFit: 0.15,
+                          continuityFit: 0.15,
+                          resourceFit: 0.1,
+                          diversityFit: 0.05,
+                        },
+                      );
+                      setAdminWeights(nextState.weights);
+                      setAdminAuditLogs(nextState.auditLogs);
+                      setStatusBanner(
+                        `Pesos del recomendador actualizados a versión ${nextState.weights.version} con suma verificada = 1.00.`,
+                      );
+                    }}
+                  >
+                    Aplicar ajuste de pesos (needFit 0.35 / resourceFit 0.10)
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      const exported = defaultAdminClient.generateExport(
+                        session.user.userId,
+                      );
+                      setAdminExport(exported);
+                      setAdminAuditLogs(defaultAdminClient.getState().auditLogs);
+                      setStatusBanner(
+                        `Exportación anonimizada ${exported.exportId} generada con ${exported.participantCount} participantes y cero PII (ADR-003).`,
+                      );
+                    }}
+                  >
+                    Exportar dataset anonimizado de investigación
+                  </button>
+                </div>
+
+                {adminExport ? (
+                  <div style={{ marginTop: '0.75rem' }}>
+                    <h4>
+                      Última exportación anonimizada ({adminExport.exportId} ·
+                      containsPii: false):
+                    </h4>
+                    <ul>
+                      {adminExport.records.map((row) => (
+                        <li key={row.participantIdPseudonym}>
+                          <strong>{row.participantIdPseudonym}</strong> — Semestre{' '}
+                          {row.cohortSemester} · Misiones completadas:{' '}
+                          {row.completedMissionsCount} · Recomendaciones
+                          aceptadas: {row.acceptedRecommendationsCount}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+
+                <div style={{ marginTop: '0.75rem' }}>
+                  <h4>Bitácora de auditoría administrativa:</h4>
+                  <ul>
+                    {adminAuditLogs.map((log) => (
+                      <li key={log.auditId}>
+                        <strong>{log.action}</strong> sobre{' '}
+                        <code>{log.targetEntity}</code> ({log.createdAt})
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </div>
           ) : null}
 

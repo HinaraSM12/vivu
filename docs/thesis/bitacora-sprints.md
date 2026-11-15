@@ -228,9 +228,27 @@
   - `@vivu/support-service`: `support.service.spec.ts` (4 pruebas unitarias) en verde.
   - `@vivu/api-gateway`: `test/facilitator-support.e2e-spec.ts` en verde.
   - `@vivu/web`: prueba de integración UI en `App.test.tsx` para `FACILITATOR` en verde.
-- **Resultado:** Sprint 7 implementado con todas las puertas de calidad en verde.
+- **Resultado:** Sprint 7 implementado con todas las puertas de calidad en verde (PR #38 mergeado en `main`, commit `265d2a3`).
 
 ---
 
-## Sprints 8 y 9 *(Se completarán iterativamente siguiendo la misma estructura)*
+## Sprint 8 — Administración y Operación del Piloto (`ADMIN`)
+
+- **Fecha:** 2026-11-14
+- **Rama:** `feat/sprint-8-admin-operations`
+- **Issue relacionado:** [#9](https://github.com/HinaraSM12/vivu/issues/9)
+- **Objetivo del Sprint:** Implementar las capacidades administrativas online-only del piloto (`ADMIN`): resumen operativo, ajuste versionado de pesos del recomendador (suma exacta `1.00`), asignaciones facilitador–estudiante, bitácora de auditoría y exportación anonimizada de investigación sin PII (`ADR-003`, `ADR-005`).
+- **Historias implementadas:**
+  - `PB-025`: Configuración versionada de pesos deterministas (`validateRecommenderWeightsSum`) y feature flags del piloto con bitácora de auditoría.
+  - `PB-026`: Asignación administrativa de facilitadores a cohortes de estudiantes y bloqueo de mutaciones offline para `ADMIN` (`409 ADMIN_OFFLINE_MUTATION_FORBIDDEN`, `ADR-005`).
+  - `PB-027`: Exportación anonimizada (`containsPii: false`, `participantIdPseudonym`) verificada sin campos PII (`ADR-003`) y vistas `ADM-01..ADM-05` en `@vivu/web`.
+- **Evidencias de pruebas y calidad:**
+  - `@vivu/contracts`: `admin-contracts.spec.ts` en verde.
+  - `@vivu/api-gateway`: `test/admin-operations.e2e-spec.ts` en verde.
+  - `@vivu/web`: prueba de integración UI en `App.test.tsx` para `ADMIN` en verde.
+- **Resultado:** Sprint 8 implementado con todas las puertas de calidad en verde.
+
+---
+
+## Sprint 9 *(Se completará iterativamente siguiendo la misma estructura)*
 
