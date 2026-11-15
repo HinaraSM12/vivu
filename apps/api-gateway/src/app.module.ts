@@ -22,6 +22,8 @@ import { GatewayStudentService } from './student/gateway-student.service';
 import { StudentGatewayController } from './student/student-gateway.controller';
 import { GatewaySurveyService } from './survey/gateway-survey.service';
 import { SurveyGatewayController } from './survey/survey-gateway.controller';
+import { GatewaySyncService } from './sync/gateway-sync.service';
+import { SyncGatewayController } from './sync/sync-gateway.controller';
 
 @Module({
   imports: [
@@ -38,6 +40,7 @@ import { SurveyGatewayController } from './survey/survey-gateway.controller';
     ResourceGatewayController,
     SurveyGatewayController,
     RecommendationGatewayController,
+    SyncGatewayController,
   ],
   providers: [
     GatewayAuthService,
@@ -46,6 +49,7 @@ import { SurveyGatewayController } from './survey/survey-gateway.controller';
     GatewayResourceService,
     GatewaySurveyService,
     GatewayRecommendationService,
+    GatewaySyncService,
     JwtAuthGuard,
     RolesGuard,
     {

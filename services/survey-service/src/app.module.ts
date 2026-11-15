@@ -18,6 +18,7 @@ import { SurveyService } from './survey/survey.service';
       validate: validateEnvironment,
     }),
   ],
+  controllers: [HealthController],
   controllers: [HealthController, SurveyController],
   providers: [SurveyRepository, SurveyService],
 })

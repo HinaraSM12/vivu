@@ -1249,7 +1249,8 @@ Vivu
 - **Sprint 2 — Consentimiento, onboarding y perfil + Actualización Integral Tesis V7 (PRISMA V5) completado y mergeado en `main`** (PR #22, commit `81e43a2`, Issue #3).
 - **Sprint 3 — Misiones, ludificación y progreso completado y mergeado en `main`** (PR #23, commit `ea21092`, Issue #4).
 - **Sprint 4 — Recursos institucionales, microcuestionarios y modo recuperación completado y mergeado en `main`** (PR #24, commit `e581b50`, Issue #5).
-- **Sprint 5 — Recomendador V1 online (híbrido determinista + LLM instrumental) implementado** (sobre rama `feat/sprint-5-recommender-v1-online`, Issue #6).
+- **Sprint 5 — Recomendador V1 online (híbrido determinista + LLM instrumental) completado y mergeado en `main`** (PR #25, commit `4b330ad`, Issue #6).
+- **Sprint 6 — PWA local-first y sincronización offline implementado** (sobre rama `feat/sprint-6-pwa-offline-sync`, Issue #7).
 
 ### Resumen de lo entregado en Sprint 1 (mergeado):
 - **Contratos (`@vivu/contracts`):** `RoleCode` (`STUDENT`, `FACILITATOR`, `ADMIN`), `AccountStatus`, `JwtAccessClaims`, `SessionCapabilities`, `SessionUserDto`, `AuthSessionResponse`, `OfflineSessionSnapshot`, `UserRegisteredEventPayload`.
@@ -1308,9 +1309,14 @@ Vivu
   - `GatewayRecommendationService` y `RecommendationGatewayController` exponiendo `GET /api/v1/recommendations`, `POST /api/v1/recommendations/refresh`, `POST /api/v1/recommendations/:recommendationId/action` y `GET /api/v1/recommendations/traces` con pruebas E2E en `test/recommendations.e2e-spec.ts`.
   - Pantalla `STU-16` (*Recomendaciones explicadas*) en `@vivu/web` con explicación *"¿Por qué ves esta recomendación?"*, indicador de fuente (`ONLINE_AI` / `ONLINE_RULES`) y las 5 acciones de agencia del estudiante (`ACCEPT`, `POSTPONE`, `EDIT`, `REJECT`, `DISMISS_SIMILAR`).
 
+### Resumen de lo entregado en Sprint 6:
+- **Contratos (`@vivu/contracts`):** `sync-contracts.ts` y `sync-contracts.spec.ts` (`OfflineActionType`, `OutboxActionStatus`, `OutboxItemDto`, `SyncActionsBatchRequestDto`, `SyncActionsBatchResponseDto`, `SyncBootstrapResponseDto`, `SyncPullResponseDto`, y función de paridad matemática `evaluateOfflineRuleRecommendationParity` entre `OFFLINE_RULES` en TS y `ONLINE_RULES` en Python bajo `ruleVersion: "1.0.0"`).
+- **API Gateway (`@vivu/api-gateway`):** `GatewaySyncService` y `SyncGatewayController` exponiendo `GET /api/v1/sync/bootstrap`, `GET /api/v1/sync/pull` y `POST /api/v1/sync/actions` con deduplicación idempotente por `clientEventId` (`APPLIED` vs `IDEMPOTENT_DUPLICATE`), resolución de conflictos y bloqueo de sincronización offline para `ADMIN` (`ADR-005`), validado en `test/sync-offline.e2e-spec.ts`.
+- **Frontend (`@vivu/web`):** `offline-sync-client.ts` y vista `STU-21` (*Sincronización local-first y cola Outbox*) con simulación `ONLINE`/`OFFLINE`, encolado en `Outbox`, recomendador determinista local `OFFLINE_RULES` y vaciado idempotente de la cola al reconectar.
+
 ## Próximo sprint planeado
 
-**Sprint 6 — PWA local-first y sincronización offline (`Outbox`, `IndexedDB`, `SyncEngine`, recomendador determinista TS `OFFLINE_RULES`, endpoints `/api/v1/sync/*` y pantalla `STU-21`).**
+**Sprint 7 — Facilitador (`@vivu/support-service`, rutas `/api/v1/facilitator/*` y pantallas de acompañamiento para `FACILITATOR`).**
 
 ## Mockups
 
