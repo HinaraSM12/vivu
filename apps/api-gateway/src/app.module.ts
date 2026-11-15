@@ -24,6 +24,8 @@ import { GatewaySurveyService } from './survey/gateway-survey.service';
 import { SurveyGatewayController } from './survey/survey-gateway.controller';
 import { GatewaySyncService } from './sync/gateway-sync.service';
 import { SyncGatewayController } from './sync/sync-gateway.controller';
+import { FacilitatorGatewayController } from './facilitator/facilitator-gateway.controller';
+import { GatewayFacilitatorService } from './facilitator/gateway-facilitator.service';
 
 @Module({
   imports: [
@@ -41,6 +43,7 @@ import { SyncGatewayController } from './sync/sync-gateway.controller';
     SurveyGatewayController,
     RecommendationGatewayController,
     SyncGatewayController,
+    FacilitatorGatewayController,
   ],
   providers: [
     GatewayAuthService,
@@ -50,6 +53,7 @@ import { SyncGatewayController } from './sync/sync-gateway.controller';
     GatewaySurveyService,
     GatewayRecommendationService,
     GatewaySyncService,
+    GatewayFacilitatorService,
     JwtAuthGuard,
     RolesGuard,
     {

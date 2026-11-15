@@ -140,3 +140,15 @@ export {
   OFFLINE_ACTION_TYPES,
   OUTBOX_ACTION_STATUSES,
 } from './sync/sync-contracts';
+export type {
+  AssignedStudentDetailDto,
+  AssignedStudentSummaryDto,
+  CommitmentStatus,
+  FacilitatorCommitmentDto,
+  FacilitatorNoteDto,
+} from './support/support-contracts';
+export {
+  COMMITMENT_STATUSES,
+  mapNonStigmatizingContinuityLabel,
+  validateFacilitatorNoteContent,
+} from './support/support-contracts';

@@ -209,9 +209,28 @@
   - `@vivu/contracts`: `sync-contracts.spec.ts` en verde.
   - `@vivu/api-gateway`: `test/sync-offline.e2e-spec.ts` en verde.
   - `@vivu/web`: prueba de integración UI en `App.test.tsx` para `STU-21` en verde.
-- **Resultado:** Sprint 6 implementado con todas las puertas de calidad en verde.
+- **Resultado:** Sprint 6 implementado con todas las puertas de calidad en verde (PR #37 mergeado en `main`, commit `7c7ac0b`).
 
 ---
 
-## Sprints 7 a 9 *(Se completarán iterativamente siguiendo la misma estructura)*
+## Sprint 7 — Facilitador (`@vivu/support-service`)
+
+- **Fecha:** 2026-11-14
+- **Rama:** `feat/sprint-7-facilitator-support`
+- **Issue relacionado:** [#8](https://github.com/HinaraSM12/vivu/issues/8)
+- **Objetivo del Sprint:** Implementar el dominio de acompañamiento humano en `@vivu/support-service`, su exposición en `@vivu/api-gateway` (`/api/v1/facilitator/*`) y las vistas `FAC-01..FAC-04` en `@vivu/web`.
+- **Historias implementadas:**
+  - `PB-022`: Aislamiento estricto por facilitador (`403 FACILITATOR_STUDENT_NOT_ASSIGNED` al intentar acceder a estudiantes de otra cohorte).
+  - `PB-023`: Señales formativas de continuidad no estigmatizantes (`Continuidad activa`, `Pausa breve`, `Oportunidad de retomar con microacción ligera`) y bloqueo de etiquetas de riesgo o diagnósticos clínicos (`400 STIGMATIZING_LANGUAGE_NOT_ALLOWED`).
+  - `PB-024`: Creación de notas de seguimiento (`facilitator.note_created.v1`) y acuerdos compartidos (`commitment.updated.v1`) con actualización de estado (`PENDING`, `IN_PROGRESS`, `COMPLETED`, `ADJUSTED`).
+- **Evidencias de pruebas y calidad:**
+  - `@vivu/contracts`: `support-contracts.spec.ts` en verde.
+  - `@vivu/support-service`: `support.service.spec.ts` (4 pruebas unitarias) en verde.
+  - `@vivu/api-gateway`: `test/facilitator-support.e2e-spec.ts` en verde.
+  - `@vivu/web`: prueba de integración UI en `App.test.tsx` para `FACILITATOR` en verde.
+- **Resultado:** Sprint 7 implementado con todas las puertas de calidad en verde.
+
+---
+
+## Sprints 8 y 9 *(Se completarán iterativamente siguiendo la misma estructura)*
 
