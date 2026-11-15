@@ -352,4 +352,43 @@ describe('App (Sprints 1–6 — Identity, Consent, Onboarding, Missions, Resour
       ),
     ).toBeInTheDocument();
   });
+
+  it('permite al FACILITATOR consultar su cohorte asignada con señales no estigmatizantes y registrar notas y compromisos compartidos (Sprint 7)', () => {
+    render(<App />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /entrar como facilitator/i }),
+    );
+
+    expect(
+      screen.getByRole('heading', {
+        name: /estudiantes asignados a tu cohorte \(aislamiento por facilitador\)/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/oportunidad de retomar con microacción ligera/i),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /guardar nota de acompañamiento/i,
+      }),
+    );
+    expect(
+      screen.getByText(
+        /nota de seguimiento registrada y evento seudonimizado facilitator\.note_created\.v1 emitido/i,
+      ),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /registrar compromiso compartido/i,
+      }),
+    );
+    expect(
+      screen.getByText(
+        /compromiso compartido creado y evento commitment\.updated\.v1 emitido/i,
+      ),
+    ).toBeInTheDocument();
+  });
 });

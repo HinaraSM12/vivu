@@ -1250,7 +1250,8 @@ Vivu
 - **Sprint 3 — Misiones, ludificación y progreso completado y mergeado en `main`** (PR #23, commit `ea21092`, Issue #4).
 - **Sprint 4 — Recursos institucionales, microcuestionarios y modo recuperación completado y mergeado en `main`** (PR #24, commit `e581b50`, Issue #5).
 - **Sprint 5 — Recomendador V1 online (híbrido determinista + LLM instrumental) completado y mergeado en `main`** (PR #25, commit `4b330ad`, Issue #6).
-- **Sprint 6 — PWA local-first y sincronización offline implementado** (sobre rama `feat/sprint-6-pwa-offline-sync`, Issue #7).
+- **Sprint 6 — PWA local-first y sincronización offline completado y mergeado en `main`** (PR #37, commit `7c7ac0b`, Issue #7).
+- **Sprint 7 — Facilitador (`@vivu/support-service`) implementado** (sobre rama `feat/sprint-7-facilitator-support`, Issue #8).
 
 ### Resumen de lo entregado en Sprint 1 (mergeado):
 - **Contratos (`@vivu/contracts`):** `RoleCode` (`STUDENT`, `FACILITATOR`, `ADMIN`), `AccountStatus`, `JwtAccessClaims`, `SessionCapabilities`, `SessionUserDto`, `AuthSessionResponse`, `OfflineSessionSnapshot`, `UserRegisteredEventPayload`.
@@ -1314,9 +1315,14 @@ Vivu
 - **API Gateway (`@vivu/api-gateway`):** `GatewaySyncService` y `SyncGatewayController` exponiendo `GET /api/v1/sync/bootstrap`, `GET /api/v1/sync/pull` y `POST /api/v1/sync/actions` con deduplicación idempotente por `clientEventId` (`APPLIED` vs `IDEMPOTENT_DUPLICATE`), resolución de conflictos y bloqueo de sincronización offline para `ADMIN` (`ADR-005`), validado en `test/sync-offline.e2e-spec.ts`.
 - **Frontend (`@vivu/web`):** `offline-sync-client.ts` y vista `STU-21` (*Sincronización local-first y cola Outbox*) con simulación `ONLINE`/`OFFLINE`, encolado en `Outbox`, recomendador determinista local `OFFLINE_RULES` y vaciado idempotente de la cola al reconectar.
 
+### Resumen de lo entregado en Sprint 7:
+- **Contratos (`@vivu/contracts`):** `support-contracts.ts` y `support-contracts.spec.ts` (`CommitmentStatus`, `AssignedStudentSummaryDto`, `FacilitatorNoteDto`, `FacilitatorCommitmentDto`, `mapNonStigmatizingContinuityLabel`, `validateFacilitatorNoteContent`).
+- **Servicio de Acompañamiento (`@vivu/support-service`):** `SupportRepository`, `SupportService`, `SupportController` y `support.service.spec.ts` con aislamiento estricto por facilitador (`403 FACILITATOR_STUDENT_NOT_ASSIGNED` sobre estudiantes no asignados), señales formativas no estigmatizantes, rechazo de lenguaje de riesgo/clínico (`400 STIGMATIZING_LANGUAGE_NOT_ALLOWED`) y emisión de `facilitator.note_created.v1` y `commitment.updated.v1` seudonimizados.
+- **API Gateway (`@vivu/api-gateway`) y Frontend (`@vivu/web`):** `GatewayFacilitatorService`, `FacilitatorGatewayController` (`/api/v1/facilitator/*`), pruebas E2E en `test/facilitator-support.e2e-spec.ts` y vistas `FAC-01..FAC-04` en `@vivu/web`.
+
 ## Próximo sprint planeado
 
-**Sprint 7 — Facilitador (`@vivu/support-service`, rutas `/api/v1/facilitator/*` y pantallas de acompañamiento para `FACILITATOR`).**
+**Sprint 8 — Administración (`ADMIN`: usuarios, asignaciones facilitador-estudiante, moderación de catálogos, pesos de ludificación/recomendador, feature flags, auditoría y exportaciones anonimizadas online-only).**
 
 ## Mockups
 

@@ -6,6 +6,12 @@ import {
   SEED_DEMO_PASSWORD,
 } from '../features/auth/auth-client';
 import {
+  defaultFacilitatorClient,
+  type FacilitatorCommitmentView,
+  type FacilitatorNoteView,
+  type FacilitatorStudentSummaryView,
+} from '../features/facilitator/facilitator-client';
+import {
   defaultGamificationClient,
   type MissionCategoryCode,
   type MissionFeedbackBannerView,
@@ -171,6 +177,32 @@ export function App() {
   const [syncSummary, setSyncSummary] = useState<SyncStatusSummaryView | null>(
     null,
   );
+
+  // Sprint 7: Facilitador (support-service, FAC-01..FAC-04)
+  const [assignedStudents, setAssignedStudents] = useState<
+    FacilitatorStudentSummaryView[]
+  >([]);
+  const [facilitatorNotes, setFacilitatorNotes] = useState<
+    FacilitatorNoteView[]
+  >([]);
+  const [facilitatorCommitments, setFacilitatorCommitments] = useState<
+    FacilitatorCommitmentView[]
+  >([]);
+  const [facNoteInput, setFacNoteInput] = useState<string>('');
+  const [facCommitmentTitleInput, setFacCommitmentTitleInput] =
+    useState<string>('');
+  const [facCommitmentStepInput, setFacCommitmentStepInput] =
+    useState<string>('');
+
+  const syncFacilitatorState = (facilitatorId: string) => {
+    setAssignedStudents(
+      defaultFacilitatorClient.listAssignedStudents(facilitatorId),
+    );
+    setFacilitatorNotes(defaultFacilitatorClient.listNotes(facilitatorId));
+    setFacilitatorCommitments(
+      defaultFacilitatorClient.listCommitments(facilitatorId),
+    );
+  };
 
   const syncGamificationState = (
     studentId: string,
@@ -2034,6 +2066,155 @@ export function App() {
                 Seguimiento de estudiantes asignados y señales de continuidad,
                 sin etiquetas de riesgo ni decisiones automatizadas.
               </p>
+
+              <div className="demo-box" style={{ marginTop: '0.75rem' }}>
+                <h3>
+                  Estudiantes asignados a tu cohorte (aislamiento por
+                  facilitador)
+                </h3>
+                {(assignedStudents.length > 0
+                  ? assignedStudents
+                  : defaultFacilitatorClient.listAssignedStudents(
+                      session.user.userId,
+                    )
+                ).map((stu) => (
+                  <div
+                    key={stu.studentId}
+                    style={{
+                      borderTop: '1px solid #e2e8f0',
+                      paddingTop: '0.5rem',
+                      marginTop: '0.5rem',
+                    }}
+                  >
+                    <h4>
+                      {stu.displayName}{' '}
+                      <span className="badge-pill">
+                        {stu.participantIdPseudonym}
+                      </span>
+                    </h4>
+                    <p className="subtitle">
+                      {stu.engineeringProgram} · Semestre {stu.semester} · Señal
+                      formativa: <strong>{stu.continuityLabel}</strong> ·
+                      Misiones semanales: {stu.weeklyCompletedMissions} ·
+                      Compromisos abiertos: {stu.openCommitmentsCount}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="demo-box" style={{ marginTop: '0.75rem' }}>
+                <h3>Registrar nota de seguimiento y acuerdo compartido</h3>
+                <div className="form-field">
+                  <label htmlFor="fac-note-input">
+                    Nota formativa de acompañamiento (sin etiquetas de riesgo)
+                  </label>
+                  <input
+                    id="fac-note-input"
+                    className="vivu-input"
+                    value={facNoteInput}
+                    onChange={(e) => setFacNoteInput(e.target.value)}
+                    placeholder="Ej. Acordamos explorar RES-WEL-01 y retomar con un paso de 10 minutos"
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="fac-com-title">
+                    Título del compromiso acordado
+                  </label>
+                  <input
+                    id="fac-com-title"
+                    className="vivu-input"
+                    value={facCommitmentTitleInput}
+                    onChange={(e) => setFacCommitmentTitleInput(e.target.value)}
+                    placeholder="Ej. Asistir a taller de planificación académica"
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="fac-com-step">Paso concreto acordado</label>
+                  <input
+                    id="fac-com-step"
+                    className="vivu-input"
+                    value={facCommitmentStepInput}
+                    onChange={(e) => setFacCommitmentStepInput(e.target.value)}
+                    placeholder="Ej. Reservar bloque martes 10 am en Bloque M3"
+                  />
+                </div>
+                <div className="demo-buttons">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => {
+                      const targetId =
+                        assignedStudents[0]?.studentId ??
+                        '00000000-0000-4000-8000-000000000005';
+                      defaultFacilitatorClient.createNote(
+                        session.user.userId,
+                        targetId,
+                        facNoteInput ||
+                          'Seguimiento formativo registrado con recurso sugerido RES-ACAD-01.',
+                      );
+                      syncFacilitatorState(session.user.userId);
+                      setFacNoteInput('');
+                      setStatusBanner(
+                        'Nota de seguimiento registrada y evento seudonimizado facilitator.note_created.v1 emitido.',
+                      );
+                    }}
+                  >
+                    Guardar nota de acompañamiento
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      const targetId =
+                        assignedStudents[0]?.studentId ??
+                        '00000000-0000-4000-8000-000000000005';
+                      defaultFacilitatorClient.createCommitment(
+                        session.user.userId,
+                        targetId,
+                        facCommitmentTitleInput ||
+                          'Explorar recurso verificado RES-ACAD-01',
+                        facCommitmentStepInput ||
+                          'Dedicar 10 minutos el miércoles para revisar horarios',
+                      );
+                      syncFacilitatorState(session.user.userId);
+                      setFacCommitmentTitleInput('');
+                      setFacCommitmentStepInput('');
+                      setStatusBanner(
+                        'Compromiso compartido creado y evento commitment.updated.v1 emitido.',
+                      );
+                    }}
+                  >
+                    Registrar compromiso compartido
+                  </button>
+                </div>
+
+                {facilitatorNotes.length > 0 ? (
+                  <div style={{ marginTop: '0.75rem' }}>
+                    <h4>Notas recientes registradas:</h4>
+                    <ul>
+                      {facilitatorNotes.map((n) => (
+                        <li key={n.noteId}>
+                          {n.summary} (Recurso: {n.suggestedResourceCode})
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+
+                {facilitatorCommitments.length > 0 ? (
+                  <div style={{ marginTop: '0.75rem' }}>
+                    <h4>Compromisos compartidos:</h4>
+                    <ul>
+                      {facilitatorCommitments.map((c) => (
+                        <li key={c.commitmentId}>
+                          <strong>{c.title}</strong> ({c.status}) —{' '}
+                          {c.agreedStep}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </div>
             </div>
           ) : null}
 
