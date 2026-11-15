@@ -34,6 +34,11 @@ import {
   type StudentPersonalizationPreferences,
   type StudentProfileRecord,
 } from '../features/student/student-context-client';
+import {
+  type ConnectivityState,
+  defaultOfflineSyncClient,
+  type SyncStatusSummaryView,
+} from '../features/sync/offline-sync-client';
 import type { RoleCode } from '../local-data/session-snapshot';
 
 type AuthScreenMode = 'login' | 'register';
@@ -44,6 +49,7 @@ const STUDENT_DESTINATIONS = [
   'Recomendaciones',
   'Progreso',
   'Recursos',
+  'Sincronización',
   'Perfil',
 ] as const;
 
@@ -161,6 +167,11 @@ export function App() {
   const [llmMode, setLlmMode] = useState<RecommendationLlmMode>('contextual');
   const [editRecNoteInput, setEditRecNoteInput] = useState<string>('');
 
+  // Sprint 6: PWA Local-First, Outbox y Sincronización Offline (STU-21)
+  const [syncSummary, setSyncSummary] = useState<SyncStatusSummaryView | null>(
+    null,
+  );
+
   const syncGamificationState = (
     studentId: string,
     filter: MissionListFilter = missionFilter,
@@ -179,8 +190,14 @@ export function App() {
     setSubmittedSurveyCodes(
       defaultSprint4Client.getSubmittedSurveys(studentId),
     );
+    const currentSync = defaultOfflineSyncClient.getSyncSummary(studentId);
+    setSyncSummary(currentSync);
     setRecommendations(
-      defaultRecommendationClient.listRecommendations(studentId, llmMode),
+      currentSync.connectivity === 'OFFLINE'
+        ? defaultOfflineSyncClient.generateOfflineDeterministicRecommendations(
+            studentId,
+          )
+        : defaultRecommendationClient.listRecommendations(studentId, llmMode),
     );
   };
 
@@ -414,6 +431,57 @@ export function App() {
     setEditRecNoteInput('');
     setStatusBanner(
       `Acción de agencia «${action}» registrada sobre la recomendación con trazabilidad completa.`,
+    );
+  };
+
+  const handleToggleConnectivity = (mode: ConnectivityState) => {
+    if (!session) return;
+    const summary = defaultOfflineSyncClient.setConnectivity(
+      session.user.userId,
+      mode,
+    );
+    setSyncSummary(summary);
+    if (mode === 'OFFLINE') {
+      setRecommendations(
+        defaultOfflineSyncClient.generateOfflineDeterministicRecommendations(
+          session.user.userId,
+        ),
+      );
+      setStatusBanner(
+        'Modo sin conexión (OFFLINE) activo. Tus avances se guardan localmente en la cola Outbox y el recomendador usa reglas deterministas locales (OFFLINE_RULES).',
+      );
+    } else {
+      setRecommendations(
+        defaultRecommendationClient.refreshRecommendations(
+          session.user.userId,
+          llmMode,
+        ),
+      );
+      setStatusBanner(
+        'Conexión restablecida (ONLINE). Puedes sincronizar tus acciones pendientes en la cola Outbox.',
+      );
+    }
+  };
+
+  const handleEnqueueOfflineAction = () => {
+    if (!session) return;
+    const summary = defaultOfflineSyncClient.enqueueOfflineAction(
+      session.user.userId,
+      'MISSION_ACCEPT',
+      'Aceptación local de misión MIS-WEL-01 en modo sin conexión',
+    );
+    setSyncSummary(summary);
+    setStatusBanner(
+      `Acción guardada en la cola Outbox (${summary.pendingCount} pendiente(s) de sincronizar).`,
+    );
+  };
+
+  const handleFlushOutbox = () => {
+    if (!session) return;
+    const summary = defaultOfflineSyncClient.flushOutbox(session.user.userId);
+    setSyncSummary(summary);
+    setStatusBanner(
+      `Cola Outbox sincronizada idempotentemente con el servidor (${summary.syncedCount} acción(es) sincronizada(s)).`,
     );
   };
 
@@ -1746,6 +1814,55 @@ export function App() {
                       </p>
                     </div>
                   ))}
+                </div>
+              ) : null}
+
+              {activeSection === 'Sincronización' && syncSummary ? (
+                <div style={{ marginTop: '1rem' }}>
+                  <h3>
+                    Sincronización local-first y cola Outbox (STU-21 · ADR-005)
+                  </h3>
+                  <p className="subtitle">
+                    Estado de conectividad: <strong>{syncSummary.connectivity}</strong> ·
+                    Pendientes en Outbox: <strong>{syncSummary.pendingCount}</strong> ·
+                    Sincronizadas: <strong>{syncSummary.syncedCount}</strong> · Cursor:{' '}
+                    <code>{syncSummary.serverCursor}</code>
+                  </p>
+                  <div className="demo-buttons" style={{ marginBottom: '0.75rem' }}>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => handleToggleConnectivity('OFFLINE')}
+                    >
+                      Simular modo sin conexión (OFFLINE)
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={handleEnqueueOfflineAction}
+                    >
+                      Registrar acción en cola Outbox
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={handleFlushOutbox}
+                    >
+                      Sincronizar cola Outbox ahora
+                    </button>
+                  </div>
+                  {syncSummary.outbox.length === 0 ? (
+                    <p>No hay acciones registradas en la cola Outbox todavía.</p>
+                  ) : (
+                    <ul>
+                      {syncSummary.outbox.map((item) => (
+                        <li key={item.clientEventId}>
+                          <strong>{item.actionType}</strong> ({item.status}) —{' '}
+                          {item.summary} · ID: <code>{item.clientEventId}</code>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               ) : null}
             </div>

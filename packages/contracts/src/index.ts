@@ -125,3 +125,18 @@ export {
   SURVEY_CODES,
   validateSurveyQuestionsCount,
 } from './survey/survey-contracts';
+export type {
+  OfflineActionType,
+  OutboxActionStatus,
+  OutboxItemDto,
+  SyncActionResultDto,
+  SyncActionsBatchRequestDto,
+  SyncActionsBatchResponseDto,
+  SyncBootstrapResponseDto,
+  SyncPullResponseDto,
+} from './sync/sync-contracts';
+export {
+  evaluateOfflineRuleRecommendationParity,
+  OFFLINE_ACTION_TYPES,
+  OUTBOX_ACTION_STATUSES,
+} from './sync/sync-contracts';

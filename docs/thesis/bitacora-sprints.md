@@ -13,6 +13,8 @@
 | 0 | Fundación técnica | Completado | `chore/sprint-0-foundation` | [#1](https://github.com/HinaraSM12/vivu/pull/1) | 2026-08-19 / Merge inicial |
 | 1 | Identidad y acceso | Completado | `feat/sprint-1-identity-access` | [#21](https://github.com/HinaraSM12/vivu/pull/21) | 2026-11-10 |
 | 2 | Consentimiento, onboarding y perfil | Completado | `feat/sprint-2-consent-onboarding-profile` | [#22](https://github.com/HinaraSM12/vivu/pull/22) | 2026-11-11 |
+| 3 | Misiones, ludificación y progreso | Implementado (en revisión PR) | `feat/sprint-3-missions-gamification` | PR Sprint 3 | 2026-11-11 |
+| 4 | Recursos, microcuestionarios y recuperación | Pendiente | `feat/sprint-4-resources-surveys-recovery` | — | — |
 | 3 | Misiones, ludificación y progreso | Completado | `feat/sprint-3-missions-gamification` | [#23](https://github.com/HinaraSM12/vivu/pull/23) | 2026-11-11 |
 | 4 | Recursos, microcuestionarios y recuperación | Implementado (en revisión PR) | `feat/sprint-4-resources-surveys-recovery` | PR Sprint 4 | 2026-11-11 |
 | 5 | Recomendador V1 online | Pendiente | `feat/sprint-5-recommender-v1-online` | — | — |
@@ -150,6 +152,7 @@
 
 ---
 
+## Sprints 4 a 9 *(Se completarán iterativamente siguiendo la misma estructura)*
 ## Sprint 4 — Recursos institucionales, microcuestionarios y modo recuperación
 
 - **Fecha:** 2026-11-11
@@ -188,9 +191,27 @@
   - `@vivu/web`: prueba de integración UI en `App.test.tsx` para `STU-16` en verde.
 - **Decisiones arquitectónicas / ADR:**
   - Cumplimiento estricto de `ADR-002` (recomendador híbrido con fallback determinista) y `ADR-006` (exclusión de recursos no `PUBLISHED` y sanitización PII antes del LLM).
-- **Resultado:** Sprint 5 implementado con todas las puertas de calidad Node y Python en verde.
+- **Resultado:** Sprint 5 implementado con todas las puertas de calidad Node y Python en verde (PR #25 mergeado en `main`, commit `4b330ad`).
 
 ---
 
-## Sprints 6 a 9 *(Se completarán iterativamente siguiendo la misma estructura)*
+## Sprint 6 — PWA local-first y sincronización offline
+
+- **Fecha:** 2026-11-11
+- **Rama:** `feat/sprint-6-pwa-offline-sync`
+- **Issue relacionado:** [#7](https://github.com/HinaraSM12/vivu/issues/7)
+- **Objetivo del Sprint:** Implementar la arquitectura local-first, la cola `Outbox`, el motor determinista offline `OFFLINE_RULES` con paridad matemática frente a Python (`v1.0.0`), los endpoints `/api/v1/sync/{bootstrap,pull,actions}` en `@vivu/api-gateway` y la vista `STU-21` en `@vivu/web`.
+- **Historias implementadas:**
+  - `PB-019` / `ADR-005`: Cola `Outbox` local con `clientEventId` único por mutación offline (`MISSION_ACCEPT`, `MISSION_COMPLETE`, `SURVEY_SUBMIT`, `RECOVERY_ACTIVATE`).
+  - `PB-020`: Sincronización por lotes idempotente (`POST /api/v1/sync/actions` con respuesta `APPLIED` / `IDEMPOTENT_DUPLICATE` / `CONFLICT_RESOLVED`), `GET /api/v1/sync/bootstrap`, `GET /api/v1/sync/pull` y restricción online-only para `ADMIN`.
+  - `PB-021`: Recomendador determinista local `OFFLINE_RULES` (`ruleVersion: "1.0.0"`) y pantalla `STU-21` (*Sincronización local-first y cola Outbox*).
+- **Evidencias de pruebas y calidad:**
+  - `@vivu/contracts`: `sync-contracts.spec.ts` en verde.
+  - `@vivu/api-gateway`: `test/sync-offline.e2e-spec.ts` en verde.
+  - `@vivu/web`: prueba de integración UI en `App.test.tsx` para `STU-21` en verde.
+- **Resultado:** Sprint 6 implementado con todas las puertas de calidad en verde.
+
+---
+
+## Sprints 7 a 9 *(Se completarán iterativamente siguiendo la misma estructura)*
 

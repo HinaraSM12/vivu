@@ -6,7 +6,7 @@ import { defaultSprint4Client } from '../features/resources-surveys-recovery/spr
 import { defaultStudentContextClient } from '../features/student/student-context-client';
 import { App } from './App';
 
-describe('App (Sprints 1–4 — Identity, Consent, Onboarding, Missions, Resources, Surveys & Recovery)', () => {
+describe('App (Sprints 1–6 — Identity, Consent, Onboarding, Missions, Resources, Surveys, Recovery, Recommender & Offline Sync)', () => {
   beforeEach(() => {
     defaultAuthClient.resetAccounts();
     defaultStudentContextClient.reset();
@@ -306,6 +306,50 @@ describe('App (Sprints 1–4 — Identity, Consent, Onboarding, Missions, Resour
     fireEvent.click(editButtons[0]!);
     expect(
       screen.getByText(/tu decisión registrada: edit/i),
+    ).toBeInTheDocument();
+  });
+
+  it('permite operar en modo sin conexión (STU-21), encolar acciones en Outbox, generar recomendaciones OFFLINE_RULES y sincronizar al reconectar', () => {
+    render(<App />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /entrar como student/i }),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /^sincronización$/i }));
+    expect(
+      screen.getByRole('heading', {
+        name: /sincronización local-first y cola outbox \(stu-21 · adr-005\)/i,
+      }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /simular modo sin conexión \(offline\)/i,
+      }),
+    );
+    expect(
+      screen.getByText(/modo sin conexión \(offline\) activo/i),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /registrar acción en cola outbox/i,
+      }),
+    );
+    expect(
+      screen.getByText(/acción guardada en la cola outbox/i),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /sincronizar cola outbox ahora/i,
+      }),
+    );
+    expect(
+      screen.getByText(
+        /cola outbox sincronizada idempotentemente con el servidor/i,
+      ),
     ).toBeInTheDocument();
   });
 });
