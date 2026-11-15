@@ -425,5 +425,22 @@ describe('App (Sprints 1–6 — Identity, Consent, Onboarding, Missions, Resour
       screen.getByText(/participantes y cero pii \(adr-003\)/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/pseudo-stu-001/i)).toBeInTheDocument();
+
+    // Sprint 9: Verificar tablero de analítica longitudinal y checklist del piloto
+    expect(
+      screen.getByRole('heading', {
+        name: /analítica longitudinal y preparación del piloto/i,
+      }),
+    ).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /verificar ingesta de evento canónico y checklist de piloto/i,
+      }),
+    );
+    expect(
+      screen.getByText(
+        /evento canónico seudonimizado ingerido \(17 eventos registrados · 100% readiness checks aprobados\)/i,
+      ),
+    ).toBeInTheDocument();
   });
 });

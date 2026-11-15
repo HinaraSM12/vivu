@@ -6,6 +6,10 @@ import {
   defaultAdminClient,
 } from '../features/admin/admin-client';
 import {
+  defaultAnalyticsClient,
+  type PilotAnalyticsSummaryView,
+} from '../features/analytics/analytics-client';
+import {
   AuthClientError,
   type AuthSession,
   defaultAuthClient,
@@ -209,6 +213,12 @@ export function App() {
   );
   const [adminExport, setAdminExport] =
     useState<AdminAnonymizedExportView | null>(null);
+
+  // Sprint 9: Analítica Longitudinal y Preparación del Piloto
+  const [pilotAnalytics, setPilotAnalytics] =
+    useState<PilotAnalyticsSummaryView>(() =>
+      defaultAnalyticsClient.getPilotSummary(),
+    );
 
   const syncFacilitatorState = (facilitatorId: string) => {
     setAssignedStudents(
@@ -2329,6 +2339,122 @@ export function App() {
                     ))}
                   </ul>
                 </div>
+              </div>
+
+              <div className="demo-box" style={{ marginTop: '0.75rem' }}>
+                <h3>
+                  Analítica Longitudinal y Preparación del Piloto (Sprint 9 ·
+                  schemaVersion {pilotAnalytics.schemaVersion})
+                </h3>
+                <p className="subtitle">
+                  Eventos canónicos registrados:{' '}
+                  <strong>{pilotAnalytics.canonicalEventsCount}</strong> ·
+                  Adherencia semanal:{' '}
+                  <strong>
+                    {Math.round(
+                      pilotAnalytics.usageAndContinuity.weeklyAdherenceRate *
+                        100,
+                    )}
+                    %
+                  </strong>{' '}
+                  · Retención S1/S4/S10:{' '}
+                  <strong>
+                    {Math.round(
+                      pilotAnalytics.usageAndContinuity.retentionWeek1Rate *
+                        100,
+                    )}
+                    % /{' '}
+                    {Math.round(
+                      pilotAnalytics.usageAndContinuity.retentionWeek4Rate *
+                        100,
+                    )}
+                    % /{' '}
+                    {Math.round(
+                      pilotAnalytics.usageAndContinuity.retentionWeek10Rate *
+                        100,
+                    )}
+                    %
+                  </strong>
+                </p>
+                <p className="subtitle">
+                  KPI Recomendaciones — Aceptación:{' '}
+                  <strong>
+                    {Math.round(
+                      pilotAnalytics.recommendations.acceptanceRate * 100,
+                    )}
+                    %
+                  </strong>{' '}
+                  · Conversión a recurso PUBLISHED:{' '}
+                  <strong>
+                    {Math.round(
+                      pilotAnalytics.recommendations
+                        .institutionalResourceConversionRate * 100,
+                    )}
+                    %
+                  </strong>{' '}
+                  · Calidad LLM — Groundedness:{' '}
+                  <strong>
+                    {Math.round(
+                      pilotAnalytics.llmQuality.groundednessRate * 100,
+                    )}
+                    %
+                  </strong>{' '}
+                  · Alucinaciones:{' '}
+                  <strong>{pilotAnalytics.llmQuality.hallucinationCount}</strong>
+                </p>
+                <p className="subtitle">
+                  QoE (ISO 9241-11/210) — Autonomía:{' '}
+                  <strong>{pilotAnalytics.qoe.autonomyScore}/5</strong> · Baja
+                  vigilancia percibida:{' '}
+                  <strong>
+                    {pilotAnalytics.qoe.lowSurveillancePerceptionScore}/5
+                  </strong>{' '}
+                  · QoS — Latencia P50/P95:{' '}
+                  <strong>
+                    {pilotAnalytics.qos.latencyP50Ms}ms /{' '}
+                    {pilotAnalytics.qos.latencyP95Ms}ms
+                  </strong>{' '}
+                  · Disponibilidad:{' '}
+                  <strong>
+                    {(pilotAnalytics.qos.pilotAvailabilityRate * 100).toFixed(1)}
+                    %
+                  </strong>
+                </p>
+
+                <div className="demo-buttons" style={{ marginTop: '0.5rem' }}>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      const updated =
+                        defaultAnalyticsClient.recordSampleTelemetryEvent();
+                      setPilotAnalytics(updated);
+                      setStatusBanner(
+                        `Evento canónico seudonimizado ingerido (${updated.canonicalEventsCount} eventos registrados · 100% readiness checks aprobados).`,
+                      );
+                    }}
+                  >
+                    Verificar ingesta de evento canónico y checklist de piloto
+                  </button>
+                </div>
+
+                <h4 style={{ marginTop: '0.75rem' }}>
+                  Checklist de alistamiento del piloto longitudinal (
+                  {pilotAnalytics.allReadinessChecksPassed
+                    ? 'APROBADO'
+                    : 'PENDIENTE'}
+                  ):
+                </h4>
+                <ul>
+                  {pilotAnalytics.readinessChecks.map((chk) => (
+                    <li key={chk.checkCode}>
+                      <strong>
+                        [{chk.passed ? 'OK' : 'PENDIENTE'}] {chk.checkCode}
+                      </strong>{' '}
+                      — {chk.title}: {chk.evidenceSummary}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           ) : null}
