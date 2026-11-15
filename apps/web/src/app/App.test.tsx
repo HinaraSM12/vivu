@@ -6,8 +6,7 @@ import { defaultSprint4Client } from '../features/resources-surveys-recovery/spr
 import { defaultStudentContextClient } from '../features/student/student-context-client';
 import { App } from './App';
 
-describe('App (Sprints 1, 2 & 3 — Identity, Consent, Onboarding, Missions & Non-Punitive Gamification)', () => {
-describe('App (Sprints 1–4 — Identity, Consent, Onboarding, Missions, Resources, Surveys & Recovery)', () => {
+describe('App (Sprints 1–6 — Identity, Consent, Onboarding, Missions, Resources, Surveys, Recovery, Recommender & Offline Sync)', () => {
   beforeEach(() => {
     defaultAuthClient.resetAccounts();
     defaultStudentContextClient.reset();

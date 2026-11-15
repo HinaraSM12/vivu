@@ -428,12 +428,8 @@ DEFAULT_RESOURCE_CATALOG: dict[str, ResourceCandidate] = {
 
 @dataclass
 class RecommendationEngine:
-    weights: RecommendationWeightConfig = field(
-        default_factory=RecommendationWeightConfig
-    )
-    missions: list[MissionCandidate] = field(
-        default_factory=lambda: list(DEFAULT_MISSION_CATALOG)
-    )
+    weights: RecommendationWeightConfig = field(default_factory=RecommendationWeightConfig)
+    missions: list[MissionCandidate] = field(default_factory=lambda: list(DEFAULT_MISSION_CATALOG))
     resources: dict[str, ResourceCandidate] = field(
         default_factory=lambda: dict(DEFAULT_RESOURCE_CATALOG)
     )
@@ -447,9 +443,7 @@ class RecommendationEngine:
         llm_provider: LLMProvider | None = None,
     ) -> list[RecommendationItem]:
         provider = llm_provider or DisabledLLMProvider()
-        excluded = set(context.completed_mission_ids) | set(
-            context.dismissed_mission_ids
-        )
+        excluded = set(context.completed_mission_ids) | set(context.dismissed_mission_ids)
 
         eligible_missions: list[MissionCandidate] = []
         for mission in self.missions:
@@ -477,25 +471,20 @@ class RecommendationEngine:
                 if mission.linked_resource_id
                 else None
             )
-            verified_resource = (
-                raw_resource if can_recommend_resource(raw_resource) else None
-            )
+            verified_resource = raw_resource if can_recommend_resource(raw_resource) else None
 
             need_fit = (
                 1.0
                 if (
                     mission.category in context.priority_categories
                     or (
-                        context.recovery_mode_active
-                        and mission.category == "RECOVERY_REENGAGEMENT"
+                        context.recovery_mode_active and mission.category == "RECOVERY_REENGAGEMENT"
                     )
                 )
                 else 0.65
             )
             time_fit = (
-                1.0
-                if mission.estimated_minutes <= context.available_minutes_per_day
-                else 0.55
+                1.0 if mission.estimated_minutes <= context.available_minutes_per_day else 0.55
             )
             if context.recovery_mode_active or context.perceived_load == "HIGH":
                 difficulty_fit = 1.0 if mission.effort == "LOW" else 0.4
@@ -504,11 +493,7 @@ class RecommendationEngine:
 
             continuity_fit = 1.0 if context.recovery_mode_active else 0.85
             resource_fit = 1.0 if verified_resource is not None else 0.5
-            diversity_fit = (
-                0.6
-                if mission.category in context.recent_active_categories
-                else 1.0
-            )
+            diversity_fit = 0.6 if mission.category in context.recent_active_categories else 1.0
 
             breakdown = ScoreBreakdown(
                 need_fit=need_fit,
@@ -529,9 +514,7 @@ class RecommendationEngine:
             else:
                 reason_code = "TIME_FIT"
 
-            scored_candidates.append(
-                (score, mission, verified_resource, breakdown, reason_code)
-            )
+            scored_candidates.append((score, mission, verified_resource, breakdown, reason_code))
 
         scored_candidates.sort(key=lambda item: (-item[0], item[1].mission_id))
         top_candidates = scored_candidates[: self.weights.max_recommendations_per_run]
@@ -577,13 +560,9 @@ class RecommendationEngine:
                 participant_id_pseudonym=context.participant_id_pseudonym,
                 mission_id=mission.mission_id,
                 resource_id=(
-                    verified_resource.resource_id
-                    if verified_resource is not None
-                    else None
+                    verified_resource.resource_id if verified_resource is not None else None
                 ),
-                resource_title=(
-                    verified_resource.title if verified_resource is not None else None
-                ),
+                resource_title=(verified_resource.title if verified_resource is not None else None),
                 category=mission.category,
                 effort=mission.effort,
                 estimated_minutes=mission.estimated_minutes,
@@ -629,8 +608,7 @@ class RecommendationEngine:
                 priority_categories=["ACADEMIC_PLANNING", "STUDY_HABITS"],
                 available_minutes_per_day=20,
                 recovery_mode_active=(
-                    student_id
-                    in ("usr-stu-002", "00000000-0000-4000-8000-000000000005")
+                    student_id in ("usr-stu-002", "00000000-0000-4000-8000-000000000005")
                 ),
             )
             return self.generate_for_student(default_ctx)
@@ -655,9 +633,7 @@ class RecommendationEngine:
         self._by_id[recommendation_id] = updated
         for idx, trace in enumerate(self._traces):
             if trace.recommendation_id == recommendation_id:
-                self._traces[idx] = trace.model_copy(
-                    update={"student_action": action_input.action}
-                )
+                self._traces[idx] = trace.model_copy(update={"student_action": action_input.action})
         return updated
 
     def list_traces(self) -> list[RecommendationTraceRecord]:

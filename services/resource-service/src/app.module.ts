@@ -18,7 +18,6 @@ import { ResourceService } from './resource/resource.service';
       validate: validateEnvironment,
     }),
   ],
-  controllers: [HealthController],
   controllers: [HealthController, ResourceController],
   providers: [ResourceRepository, ResourceService],
 })

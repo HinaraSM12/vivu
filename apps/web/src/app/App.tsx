@@ -35,13 +35,6 @@ import {
   type StudentProfileRecord,
 } from '../features/student/student-context-client';
 import {
-  defaultGamificationClient,
-  type MissionCategoryCode,
-  type MissionFeedbackBannerView,
-  type MissionListFilter,
-  type StudentMissionView,
-  type StudentProgressSummaryView,
-} from '../features/gamification/gamification-client';
   type ConnectivityState,
   defaultOfflineSyncClient,
   type SyncStatusSummaryView,

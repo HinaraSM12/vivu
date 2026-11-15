@@ -420,7 +420,6 @@ export class GamificationRepository {
     selectedRecoveryChoice: RecoveryChoiceCode | null;
   } {
     this.ensureStudentInitialized(studentId);
-    return { ...this.continuityByStudent.get(studentId)! };
     const current = this.continuityByStudent.get(studentId)!;
     return {
       weeklyActiveDays: current.weeklyActiveDays,

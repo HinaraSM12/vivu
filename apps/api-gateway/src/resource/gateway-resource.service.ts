@@ -406,3 +406,4 @@ export class GatewayResourceService {
     return { ...updated, tags: [...updated.tags] };
   }
 }
+
