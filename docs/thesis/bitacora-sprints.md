@@ -228,25 +228,12 @@
   - `@vivu/support-service`: `support.service.spec.ts` (4 pruebas unitarias) en verde.
   - `@vivu/api-gateway`: `test/facilitator-support.e2e-spec.ts` en verde.
   - `@vivu/web`: prueba de integración UI en `App.test.tsx` para `FACILITATOR` en verde.
-- **Resultado:** Sprint 7 implementado con todas las puertas de calidad en verde (PR #38 mergeado en `main`, commit `265d2a3`).
+- **Resultado:** Sprint 7 implementado con todas las puertas de calidad en verde.
 
 ---
 
-## Sprint 8 — Administración y Operación del Piloto (`ADMIN`)
+## Sprints 8 y 9 *(Se completarán iterativamente siguiendo la misma estructura)*
 
-- **Fecha:** 2026-11-14
-- **Rama:** `feat/sprint-8-admin-operations`
-- **Issue relacionado:** [#9](https://github.com/HinaraSM12/vivu/issues/9)
-- **Objetivo del Sprint:** Implementar las capacidades administrativas online-only del piloto (`ADMIN`): resumen operativo, ajuste versionado de pesos del recomendador (suma exacta `1.00`), asignaciones facilitador–estudiante, bitácora de auditoría y exportación anonimizada de investigación sin PII (`ADR-003`, `ADR-005`).
-- **Historias implementadas:**
-  - `PB-025`: Configuración versionada de pesos deterministas (`validateRecommenderWeightsSum`) y feature flags del piloto con bitácora de auditoría.
-  - `PB-026`: Asignación administrativa de facilitadores a cohortes de estudiantes y bloqueo de mutaciones offline para `ADMIN` (`409 ADMIN_OFFLINE_MUTATION_FORBIDDEN`, `ADR-005`).
-  - `PB-027`: Exportación anonimizada (`containsPii: false`, `participantIdPseudonym`) verificada sin campos PII (`ADR-003`) y vistas `ADM-01..ADM-05` en `@vivu/web`.
-- **Evidencias de pruebas y calidad:**
-  - `@vivu/contracts`: `admin-contracts.spec.ts` en verde.
-  - `@vivu/api-gateway`: `test/admin-operations.e2e-spec.ts` en verde.
-  - `@vivu/web`: prueba de integración UI en `App.test.tsx` para `ADMIN` en verde.
-- **Resultado:** Sprint 8 implementado con todas las puertas de calidad en verde (PR #39 mergeado en `main`, commit `aba2508`).
 
 ---
 
@@ -265,5 +252,21 @@
   - `@vivu/analytics-service`: `analytics.service.spec.ts` en verde.
   - `@vivu/api-gateway`: `test/analytics-pilot.e2e-spec.ts` en verde.
   - `@vivu/web`: prueba de integración UI en `App.test.tsx` en verde.
-- **Resultado:** Sprint 9 implementado con todas las puertas de calidad en verde. Roadmap de 9 sprints completado al 100 %.
+- **Resultado:** Sprint 9 implementado con todas las puertas de calidad en verde (PR #40 mergeado en `main`, commit `c0286cb`). Roadmap de 9 sprints completado al 100 %.
+
+---
+
+## Remediación de Auditoría Arquitectónica Post-Sprint 9 (`A1–A7`)
+
+- **Fecha:** 2026-11-18
+- **Rama:** `feat/post-sprint9-audit-remediation`
+- **Objetivo:** Cerrar con evidencia automatizada los hallazgos `A1–A7` documentados en `docs/auditoria-arquitectura.md` tras la finalización de los Sprints 0 al 9.
+- **Acciones implementadas:**
+  - `A1` (Persistencia duradera ante reinicio): `GatewayJsonSnapshotStore` (`VIVU_STATE_SNAPSHOT_PATH`) persiste misiones completadas, retiros de consentimiento y `clientEventId` aplicados a través de reinicios del proceso.
+  - `A2` (Seguridad de secretos y seeds): Alineación de `JWT_ACCESS_SECRET` / `JWT_SECRET` en `.env.example`, `GatewayAuthService` y `TokenService`, con rechazo fail-fast (`PRODUCTION_JWT_SECRET_INVALID`) ante secretos por defecto en `NODE_ENV=production` y desactivación de cuentas seed de ejemplo en producción (`shouldSeedGatewayDemoAccounts`).
+  - `A4` (Observabilidad en `/ready`): `HealthController.ready()` expone diagnósticos estructurados de configuración, almacenamiento y dominios (`checks.*`).
+  - `A5` (Propagación transversal del retiro de consentimiento): `POST /api/v1/me/consent/withdraw` desactiva personalización, limpia `wellbeingInputs`, purga recomendaciones personalizadas (`purgeForWithdrawnConsent`), fuerza fallback `ONLINE_RULES` y registra `consent.updated.v1` en analítica.
+  - `A3, A6, A7`: Actualización de `docs/auditoria-arquitectura.md`, `docs/informe-auditoria.html` y `README.md` al corte post-Sprint 9 (`c0286cb`).
+- **Evidencias de pruebas y calidad:**
+  - `@vivu/api-gateway`: `test/audit-hardening.e2e-spec.ts` (3 pruebas E2E de reinicio, seguridad en producción y propagación de retiro de consentimiento) en verde.
 

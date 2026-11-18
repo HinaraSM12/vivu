@@ -14,6 +14,28 @@ function base64UrlDecode(input: string): string {
   return Buffer.from(input, 'base64url').toString('utf8');
 }
 
+export function resolveServiceJwtSecret(
+  env: NodeJS.ProcessEnv = process.env,
+): string {
+  const candidate = (env.JWT_ACCESS_SECRET ?? env.JWT_SECRET ?? '').trim();
+  const isProd = env.NODE_ENV === 'production';
+  if (isProd) {
+    const lower = candidate.toLowerCase();
+    if (
+      candidate.length < 32 ||
+      lower.includes('dev-only') ||
+      lower.includes('dev_only') ||
+      lower.includes('replace_with_a_secure_value')
+    ) {
+      throw new Error(
+        'PRODUCTION_JWT_SECRET_INVALID: En producción debes configurar JWT_ACCESS_SECRET o JWT_SECRET con al menos 32 caracteres y sin valores de ejemplo.',
+      );
+    }
+    return candidate;
+  }
+  return candidate || 'vivu-dev-only-jwt-secret-key-change-in-prod';
+}
+
 @Injectable()
 export class TokenService {
   private readonly secret: string;
@@ -22,8 +44,7 @@ export class TokenService {
   private readonly accessTtlSeconds: number;
 
   constructor() {
-    this.secret =
-      process.env.JWT_SECRET ?? 'vivu-dev-only-jwt-secret-key-change-in-prod';
+    this.secret = resolveServiceJwtSecret(process.env);
     this.issuer = process.env.JWT_ISSUER ?? DEFAULT_ISSUER;
     this.audience = process.env.JWT_AUDIENCE ?? DEFAULT_AUDIENCE;
     this.accessTtlSeconds = DEFAULT_ACCESS_TTL_SECONDS;

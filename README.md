@@ -39,9 +39,9 @@ Las líneas punteadas representan configuración o una capacidad que no demuestr
 | Gamification | Misiones y progreso | [README](services/gamification-service/README.md) |
 | Resource | Recursos y moderación | [README](services/resource-service/README.md) |
 | Survey | Encuestas y respuestas | [README](services/survey-service/README.md) |
-| Support | Base para acompañamiento | [README](services/support-service/README.md) |
-| Analytics | Base para analítica | [README](services/analytics-service/README.md) |
-| Recommendation | Reglas y recomendaciones | [README](services/recommendation-service/README.md) |
+| Support | Acompañamiento del facilitador, notas y compromisos | [README](services/support-service/README.md) |
+| Analytics | Telemetría seudonimizada (16 eventos), KPIs QoE/QoS/LLM y readiness | [README](services/analytics-service/README.md) |
+| Recommendation | Recomendador híbrido determinista + LLM instrumental | [README](services/recommendation-service/README.md) |
 
 ## Stack
 

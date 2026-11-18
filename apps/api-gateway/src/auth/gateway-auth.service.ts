@@ -113,20 +113,52 @@ export function buildCapabilities(
   };
 }
 
+export function resolveGatewayJwtSecret(
+  env: NodeJS.ProcessEnv = process.env,
+): string {
+  const candidate = (env.JWT_ACCESS_SECRET ?? env.JWT_SECRET ?? '').trim();
+  const isProd = env.NODE_ENV === 'production';
+  if (isProd) {
+    const lower = candidate.toLowerCase();
+    if (
+      candidate.length < 32 ||
+      lower.includes('dev-only') ||
+      lower.includes('dev_only') ||
+      lower.includes('replace_with_a_secure_value')
+    ) {
+      throw new Error(
+        'PRODUCTION_JWT_SECRET_INVALID: En producción debes configurar JWT_ACCESS_SECRET o JWT_SECRET con al menos 32 caracteres y sin valores de ejemplo.',
+      );
+    }
+    return candidate;
+  }
+  return candidate || 'vivu-dev-only-jwt-secret-key-change-in-prod';
+}
+
+export function shouldSeedGatewayDemoAccounts(
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  if (env.NODE_ENV === 'production') {
+    return env.ENABLE_SEED_DEMO_ACCOUNTS === 'true';
+  }
+  return env.ENABLE_SEED_DEMO_ACCOUNTS !== 'false';
+}
+
 @Injectable()
 export class GatewayAuthService {
   private readonly usersById = new Map<string, StoredGatewayUser>();
   private readonly userIdByEmail = new Map<string, string>();
   private readonly refreshByHash = new Map<string, StoredRefreshSession>();
-  private readonly jwtSecret =
-    process.env.JWT_SECRET ?? 'vivu-dev-only-jwt-secret-key-change-in-prod';
+  private readonly jwtSecret = resolveGatewayJwtSecret(process.env);
   private readonly jwtIssuer =
     process.env.JWT_ISSUER ?? 'student-support-platform';
   private readonly jwtAudience =
     process.env.JWT_AUDIENCE ?? 'student-support-web';
 
   constructor() {
-    this.seedUsers();
+    if (shouldSeedGatewayDemoAccounts(process.env)) {
+      this.seedUsers();
+    }
   }
 
   registerStudent(input: {
