@@ -5,17 +5,20 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
+  Optional,
   Post,
   Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { GatewayAnalyticsService } from '../analytics/gateway-analytics.service';
 import {
   type AuthenticatedRequest,
   JwtAuthGuard,
   RequireRoles,
   RolesGuard,
 } from '../auth/rbac.guards';
+import { GatewayRecommendationService } from '../recommendation/gateway-recommendation.service';
 import {
   type GatewayConsentRecord,
   type GatewayPersonalizationPreferences,
@@ -31,6 +34,12 @@ export class StudentGatewayController {
   constructor(
     @Inject(GatewayStudentService)
     private readonly studentService: GatewayStudentService,
+    @Optional()
+    @Inject(GatewayRecommendationService)
+    private readonly recommendationService?: GatewayRecommendationService,
+    @Optional()
+    @Inject(GatewayAnalyticsService)
+    private readonly analyticsService?: GatewayAnalyticsService,
   ) {}
 
   @Get('consent')
@@ -65,7 +74,17 @@ export class StudentGatewayController {
     preferences: GatewayPersonalizationPreferences;
   } {
     const studentId = request.authClaims?.sub ?? '';
-    return this.studentService.withdrawConsent(studentId);
+    const result = this.studentService.withdrawConsent(studentId);
+    this.recommendationService?.purgeForWithdrawnConsent(studentId);
+    this.analyticsService?.ingestEvent({
+      eventName: 'consent.updated.v1',
+      participantIdPseudonym: `pseudo-${studentId.slice(-6)}`,
+      payload: {
+        status: 'withdrawn',
+        consentVersion: result.consent.consentVersion,
+      },
+    });
+    return result;
   }
 
   @Get('profile')

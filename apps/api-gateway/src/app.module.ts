@@ -11,6 +11,7 @@ import { JwtAuthGuard, RolesGuard } from './auth/rbac.guards';
 import { validateEnvironment } from './common/config/environment.validation';
 import { CorrelationIdMiddleware } from './common/correlation-id.middleware';
 import { StandardErrorFilter } from './common/filters/standard-error.filter';
+import { GatewayJsonSnapshotStore } from './common/persistence/json-snapshot.store';
 import { GamificationGatewayController } from './gamification/gamification-gateway.controller';
 import { GatewayGamificationService } from './gamification/gateway-gamification.service';
 import { HealthController } from './health/health.controller';
@@ -52,6 +53,7 @@ import { GatewayAnalyticsService } from './analytics/gateway-analytics.service';
     AnalyticsGatewayController,
   ],
   providers: [
+    GatewayJsonSnapshotStore,
     GatewayAuthService,
     GatewayStudentService,
     GatewayGamificationService,

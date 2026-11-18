@@ -1,8 +1,11 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
+import { GatewayJsonSnapshotStore } from '../common/persistence/json-snapshot.store';
 
 export type GatewayMissionCategoryCode =
   | 'PLANNING'
@@ -373,7 +376,11 @@ export class GatewayGamificationService {
     GatewayMissionTransitionResponse
   >();
 
-  constructor() {
+  constructor(
+    @Optional()
+    @Inject(GatewayJsonSnapshotStore)
+    private readonly snapshotStore?: GatewayJsonSnapshotStore,
+  ) {
     for (const template of SEED_GATEWAY_MISSION_TEMPLATES) {
       this.templates.set(template.code, {
         ...template,
@@ -505,6 +512,27 @@ export class GatewayGamificationService {
       }
       this.assignmentsByStudent.set(studentId, map);
     }
+
+    const persistedCompleted =
+      this.snapshotStore?.getCompletedMissions(studentId) ?? [];
+    if (persistedCompleted.length > 0) {
+      const map = this.assignmentsByStudent.get(studentId)!;
+      for (const code of persistedCompleted) {
+        const existing = map.get(code);
+        if (existing && existing.status !== 'completed') {
+          const now = new Date().toISOString();
+          map.set(code, {
+            ...existing,
+            status: 'completed',
+            acceptedAt: existing.acceptedAt ?? now,
+            startedAt: existing.startedAt ?? now,
+            completedAt: existing.completedAt ?? now,
+            updatedAt: now,
+          });
+        }
+      }
+      this.evaluateAndUnlockAchievements(studentId, new Date().toISOString());
+    }
   }
 
   listCatalog(): GatewayMissionTemplate[] {
@@ -608,6 +636,9 @@ export class GatewayGamificationService {
     };
 
     this.assignmentsByStudent.get(studentId)!.set(missionCode, updated);
+    if (clientEventId) {
+      this.snapshotStore?.recordAppliedClientEventId(clientEventId);
+    }
 
     const response: GatewayMissionTransitionResponse = {
       mission: { template, assignment: updated },
@@ -651,6 +682,9 @@ export class GatewayGamificationService {
     };
 
     this.assignmentsByStudent.get(studentId)!.set(missionCode, updated);
+    if (clientEventId) {
+      this.snapshotStore?.recordAppliedClientEventId(clientEventId);
+    }
 
     const response: GatewayMissionTransitionResponse = {
       mission: { template, assignment: updated },
@@ -687,6 +721,9 @@ export class GatewayGamificationService {
     };
 
     this.assignmentsByStudent.get(studentId)!.set(missionCode, updated);
+    if (clientEventId) {
+      this.snapshotStore?.recordAppliedClientEventId(clientEventId);
+    }
 
     return {
       mission: { template, assignment: updated },
@@ -728,6 +765,9 @@ export class GatewayGamificationService {
     };
 
     this.assignmentsByStudent.get(studentId)!.set(missionCode, updated);
+    if (clientEventId) {
+      this.snapshotStore?.recordAppliedClientEventId(clientEventId);
+    }
 
     const response: GatewayMissionTransitionResponse = {
       mission: { template, assignment: updated },
@@ -777,6 +817,10 @@ export class GatewayGamificationService {
     };
 
     this.assignmentsByStudent.get(studentId)!.set(missionCode, updated);
+    this.snapshotStore?.recordMissionCompleted(studentId, missionCode);
+    if (clientEventId) {
+      this.snapshotStore?.recordAppliedClientEventId(clientEventId);
+    }
 
     const currentContinuity = this.continuityByStudent.get(studentId)!;
     this.continuityByStudent.set(studentId, {

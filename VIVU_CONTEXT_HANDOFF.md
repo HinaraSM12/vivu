@@ -1253,7 +1253,8 @@ Vivu
 - **Sprint 6 — PWA local-first y sincronización offline completado y mergeado en `main`** (PR #37, commit `7c7ac0b`, Issue #7).
 - **Sprint 7 — Facilitador (`@vivu/support-service`) completado y mergeado en `main`** (PR #38, commit `265d2a3`, Issue #8).
 - **Sprint 8 — Administración (`ADMIN` online-only) completado y mergeado en `main`** (PR #39, commit `aba2508`, Issue #9).
-- **Sprint 9 — Analítica longitudinal y preparación del piloto (`@vivu/analytics-service`) implementado** (sobre rama `feat/sprint-9-analytics-pilot-readiness`, Issue #10).
+- **Sprint 9 — Analítica longitudinal y preparación del piloto (`@vivu/analytics-service`) completado y mergeado en `main`** (PR #40, commit `c0286cb`, Issue #10).
+- **Remediación de Auditoría Arquitectónica Post-Sprint 9 (`A1–A7`) implementada** (`GatewayJsonSnapshotStore`, validación fail-fast de secretos JWT y bloqueo de seeds demo en producción, diagnóstico `/ready` y propagación transversal del retiro de consentimiento).
 
 ### Resumen de lo entregado en Sprint 1 (mergeado):
 - **Contratos (`@vivu/contracts`):** `RoleCode` (`STUDENT`, `FACILITATOR`, `ADMIN`), `AccountStatus`, `JwtAccessClaims`, `SessionCapabilities`, `SessionUserDto`, `AuthSessionResponse`, `OfflineSessionSnapshot`, `UserRegisteredEventPayload`.

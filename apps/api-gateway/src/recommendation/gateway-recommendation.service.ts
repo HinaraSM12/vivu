@@ -163,7 +163,11 @@ export class GatewayRecommendationService {
     studentId: string,
     options: GenerateGatewayRecommendationsOptions = {},
   ): GatewayRecommendationItem[] {
-    const llmMode = options.llmMode ?? 'contextual';
+    const consent = this.studentService.getConsent(studentId);
+    const llmMode =
+      consent.status === 'withdrawn'
+        ? 'disabled'
+        : (options.llmMode ?? 'contextual');
     const profile = this.studentService.getProfile(studentId);
     const recovery = this.gamificationService.getRecoveryState(studentId);
     const inRecoveryMode =
@@ -427,5 +431,22 @@ export class GatewayRecommendationService {
   listTracesForStudent(studentId: string): GatewayRecommendationTraceRecord[] {
     const pseudonym = `pseudo-${studentId.slice(-6)}`;
     return this.traces.filter((t) => t.participantIdPseudonym === pseudonym);
+  }
+
+  purgeForWithdrawnConsent(studentId: string): { purgedCount: number } {
+    const existingIds = this.idsByStudent.get(studentId) ?? [];
+    for (const id of existingIds) {
+      this.itemsById.delete(id);
+    }
+    this.idsByStudent.delete(studentId);
+    const pseudonym = `pseudo-${studentId.slice(-6)}`;
+    let purgedCount = existingIds.length;
+    for (let i = this.traces.length - 1; i >= 0; i -= 1) {
+      if (this.traces[i]?.participantIdPseudonym === pseudonym) {
+        this.traces.splice(i, 1);
+        purgedCount += 1;
+      }
+    }
+    return { purgedCount };
   }
 }

@@ -2,8 +2,11 @@ import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
+  Optional,
 } from '@nestjs/common';
+import { GatewayJsonSnapshotStore } from '../common/persistence/json-snapshot.store';
 
 export type ConsentStatus = 'pending' | 'accepted' | 'withdrawn';
 export type PerceivedLoad = 'low' | 'moderate' | 'high';
@@ -71,12 +74,25 @@ export class GatewayStudentService {
   >();
   private readonly profiles = new Map<string, GatewayStudentProfile>();
 
-  constructor() {
+  constructor(
+    @Optional()
+    @Inject(GatewayJsonSnapshotStore)
+    private readonly snapshotStore?: GatewayJsonSnapshotStore,
+  ) {
     this.seedDefaults();
   }
 
   getConsent(studentId: string): GatewayConsentRecord {
     const existing = this.consents.get(studentId);
+    if (this.snapshotStore?.isConsentWithdrawn(studentId)) {
+      return {
+        id: existing?.id ?? randomUUID(),
+        studentId,
+        consentVersion: CURRENT_CONSENT_VERSION,
+        status: 'withdrawn',
+        withdrawnAt: existing?.withdrawnAt ?? new Date().toISOString(),
+      };
+    }
     if (existing) {
       return { ...existing };
     }
@@ -117,6 +133,7 @@ export class GatewayStudentService {
       acceptedAt: nowIso,
     };
     this.consents.set(studentId, consent);
+    this.snapshotStore?.recordConsentAccepted(studentId);
 
     const prevPrefs = this.getPreferences(studentId);
     const prefs: GatewayPersonalizationPreferences = {
@@ -149,6 +166,7 @@ export class GatewayStudentService {
       withdrawnAt: nowIso,
     };
     this.consents.set(studentId, consent);
+    this.snapshotStore?.recordConsentWithdrawn(studentId);
 
     const prefs: GatewayPersonalizationPreferences = {
       studentId,
